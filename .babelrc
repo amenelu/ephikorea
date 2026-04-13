@@ -1,0 +1,10 @@
+{
+  "presets": ["next/babel"],
+  "ignore": ["./src/app", "./src/components"],
+  "overrides": [
+    {
+      "test": "./src/api",
+      "presets": ["medusa-package"]
+    }
+  ]
+}

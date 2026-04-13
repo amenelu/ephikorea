@@ -1,0 +1,116 @@
+{
+  "currencies": ["KRW", "USD"],
+  "users": [
+    {
+      "email": "admin@ephikorea.com",
+      "first_name": "Admin",
+      "last_name": "User",
+      "password": "password"
+    }
+  ],
+  "regions": [
+    {
+      "name": "South Korea",
+      "currency_code": "KRW",
+      "tax_rate": 10,
+      "payment_providers": ["manual"],
+      "fulfillment_providers": ["manual"],
+      "countries": ["kr"]
+    }
+  ],
+  "shipping_options": [
+    {
+      "name": "Standard Express",
+      "region_name": "South Korea",
+      "provider_id": "manual",
+      "data": {
+        "id": "manual-fulfillment"
+      },
+      "price_type": "flat_rate",
+      "amount": 3000
+    }
+  ],
+  "shipping_profiles": [
+    {
+      "name": "default"
+    }
+  ],
+  "sales_channels": [
+    {
+      "name": "Default Sales Channel",
+      "description": "Main storefront channel",
+      "is_disabled": false
+    }
+  ],
+  "categories": [],
+  "collections": [],
+  "products": [
+    {
+      "title": "EPHI Ultra Wireless Headphones",
+      "subtitle": "Premium Noise Cancelling",
+      "description": "Experience crystal clear audio with our flagship wireless headphones. Features active noise cancellation and 40-hour battery life.",
+      "is_giftcard": false,
+      "discountable": true,
+      "options": [
+        {
+          "title": "Color"
+        }
+      ],
+      "variants": [
+        {
+          "title": "Midnight Black",
+          "inventory_quantity": 50,
+          "prices": [
+            {
+              "currency_code": "KRW",
+              "amount": 450000
+            }
+          ],
+          "options": {
+            "Color": "Midnight Black"
+          }
+        },
+        {
+          "title": "Silver Birch",
+          "inventory_quantity": 30,
+          "prices": [
+            {
+              "currency_code": "KRW",
+              "amount": 450000
+            }
+          ],
+          "options": {
+            "Color": "Silver Birch"
+          }
+        }
+      ]
+    },
+    {
+      "title": "EPHI Smart Watch Series 5",
+      "subtitle": "Your health, on your wrist.",
+      "description": "Track your fitness, receive notifications, and stay connected with the most advanced EPHI watch yet.",
+      "is_giftcard": false,
+      "discountable": true,
+      "options": [
+        {
+          "title": "Size"
+        }
+      ],
+      "variants": [
+        {
+          "title": "44mm",
+          "inventory_quantity": 100,
+          "prices": [
+            {
+              "currency_code": "KRW",
+              "amount": 590000
+            }
+          ],
+          "options": {
+            "Size": "44mm"
+          }
+        }
+      ]
+    }
+  ]
+}
