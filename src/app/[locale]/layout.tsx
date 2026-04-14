@@ -8,11 +8,9 @@ export default function LocaleLayout({
   params: { locale: string };
 }) {
   return (
-    <html lang={locale}>
-      <body className="min-h-screen bg-white">
-        <Header locale={locale} />
-        <main>{children}</main>
-      </body>
-    </html>
+    <div className="min-h-screen bg-white">
+      <Header locale={locale} />
+      <main>{children}</main>
+    </div>
   );
 }
