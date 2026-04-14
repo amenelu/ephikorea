@@ -6,6 +6,7 @@ import {
   Truck,
   RotateCcw,
 } from "lucide-react";
+import AddToCartButton from "@/components/modules/add-to-cart-button";
 
 export default function ProductDetailsPage({
   params: { locale, id },
@@ -16,6 +17,7 @@ export default function ProductDetailsPage({
   const allProducts = [
     {
       id: 1,
+      variantId: "variant_01G2SG30J8C85S4A5CHM2S1NS2",
       name: "EPHI Ultra Wireless",
       price: "₩450,000",
       category: "Audio",
@@ -25,6 +27,7 @@ export default function ProductDetailsPage({
     },
     {
       id: 2,
+      variantId: "variant_02G2SG30J8C85S4A5CHM2S1NS2",
       name: "Series 5 Smart Watch",
       price: "₩620,000",
       category: "Wearables",
@@ -34,6 +37,7 @@ export default function ProductDetailsPage({
     },
     {
       id: 3,
+      variantId: "variant_03G2SG30J8C85S4A5CHM2S1NS2",
       name: "Pro Laptop 14 M3",
       price: "₩1,850,000",
       category: "Computing",
@@ -43,6 +47,7 @@ export default function ProductDetailsPage({
     },
     {
       id: 4,
+      variantId: "variant_04G2SG30J8C85S4A5CHM2S1NS2",
       name: "EPHI Vision VR",
       price: "₩1,200,000",
       category: "Gaming",
@@ -52,6 +57,7 @@ export default function ProductDetailsPage({
     },
     {
       id: 5,
+      variantId: "variant_05G2SG30J8C85S4A5CHM2S1NS2",
       name: "SoundBar Elite",
       price: "₩850,000",
       category: "Audio",
@@ -61,6 +67,7 @@ export default function ProductDetailsPage({
     },
     {
       id: 6,
+      variantId: "variant_06G2SG30J8C85S4A5CHM2S1NS2",
       name: "Tab S Pro",
       price: "₩950,000",
       category: "Computing",
@@ -70,6 +77,7 @@ export default function ProductDetailsPage({
     },
     {
       id: 7,
+      variantId: "variant_07G2SG30J8C85S4A5CHM2S1NS2",
       name: "Earbuds X Pro",
       price: "₩220,000",
       category: "Audio",
@@ -79,6 +87,7 @@ export default function ProductDetailsPage({
     },
     {
       id: 8,
+      variantId: "variant_08G2SG30J8C85S4A5CHM2S1NS2",
       name: "EPHI Hub Monitor",
       price: "₩1,400,000",
       category: "Computing",
@@ -88,6 +97,7 @@ export default function ProductDetailsPage({
     },
     {
       id: 9,
+      variantId: "variant_09G2SG30J8C85S4A5CHM2S1NS2",
       name: "Smart Ring Genesis",
       price: "₩350,000",
       category: "Wearables",
@@ -187,10 +197,7 @@ export default function ProductDetailsPage({
             </p>
           </div>
 
-          <button className="flex w-full items-center justify-center gap-3 rounded-2xl bg-black py-5 text-base font-bold text-white transition-all hover:bg-gray-800 active:scale-[0.98] shadow-2xl">
-            <ShoppingBag className="h-5 w-5 text-yellow-500" />
-            Add to Shopping Bag
-          </button>
+          <AddToCartButton variantId={product.variantId} />
 
           {/* Branding Value Props */}
           <div className="mt-10 grid grid-cols-3 gap-4 border-t border-gray-100 pt-10">

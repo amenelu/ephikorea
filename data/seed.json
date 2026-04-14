@@ -1,116 +1,118 @@
 {
-  "currencies": ["KRW", "USD"],
-  "users": [
-    {
-      "email": "admin@ephikorea.com",
-      "first_name": "Admin",
-      "last_name": "User",
-      "password": "password"
-    }
-  ],
   "regions": [
     {
       "name": "South Korea",
-      "currency_code": "KRW",
+      "currency_code": "krw",
       "tax_rate": 10,
       "payment_providers": ["manual"],
       "fulfillment_providers": ["manual"],
       "countries": ["kr"]
     }
   ],
-  "shipping_options": [
-    {
-      "name": "Standard Express",
-      "region_name": "South Korea",
-      "provider_id": "manual",
-      "data": {
-        "id": "manual-fulfillment"
-      },
-      "price_type": "flat_rate",
-      "amount": 3000
-    }
-  ],
-  "shipping_profiles": [
-    {
-      "name": "default"
-    }
-  ],
   "sales_channels": [
     {
       "name": "Default Sales Channel",
-      "description": "Main storefront channel",
+      "description": "Created by seeding",
       "is_disabled": false
     }
   ],
-  "categories": [],
-  "collections": [],
+  "shipping_options": [
+    {
+      "name": "Express Shipping",
+      "region_name": "South Korea",
+      "provider_id": "manual",
+      "data": { "id": "manual-fulfillment" },
+      "price_type": "flat_rate",
+      "amount": 0,
+      "is_return": false
+    }
+  ],
   "products": [
     {
-      "title": "EPHI Ultra Wireless Headphones",
-      "subtitle": "Premium Noise Cancelling",
-      "description": "Experience crystal clear audio with our flagship wireless headphones. Features active noise cancellation and 40-hour battery life.",
+      "title": "EPHI Ultra Wireless",
+      "handle": "ephi-ultra-wireless",
+      "description": "Flagship noise-cancelling headphones designed for professional-grade audio fidelity.",
+      "subtitle": "Audio",
       "is_giftcard": false,
       "discountable": true,
-      "options": [
-        {
-          "title": "Color"
-        }
-      ],
+      "options": [{ "title": "Style" }],
       "variants": [
         {
-          "title": "Midnight Black",
-          "inventory_quantity": 50,
-          "prices": [
-            {
-              "currency_code": "KRW",
-              "amount": 450000
-            }
-          ],
-          "options": {
-            "Color": "Midnight Black"
-          }
-        },
-        {
-          "title": "Silver Birch",
-          "inventory_quantity": 30,
-          "prices": [
-            {
-              "currency_code": "KRW",
-              "amount": 450000
-            }
-          ],
-          "options": {
-            "Color": "Silver Birch"
-          }
+          "title": "Default Style",
+          "inventory_quantity": 100,
+          "prices": [{ "currency_code": "krw", "amount": 450000 }],
+          "options": { "Style": "Default Style" }
         }
       ]
     },
     {
-      "title": "EPHI Smart Watch Series 5",
-      "subtitle": "Your health, on your wrist.",
-      "description": "Track your fitness, receive notifications, and stay connected with the most advanced EPHI watch yet.",
+      "title": "Series 5 Smart Watch",
+      "handle": "series-5-smart-watch",
+      "description": "Advanced health tracking and seamless connectivity in our most elegant wearable yet.",
+      "subtitle": "Wearables",
       "is_giftcard": false,
       "discountable": true,
-      "options": [
-        {
-          "title": "Size"
-        }
-      ],
+      "options": [{ "title": "Size" }],
       "variants": [
         {
           "title": "44mm",
-          "inventory_quantity": 100,
-          "prices": [
-            {
-              "currency_code": "KRW",
-              "amount": 590000
-            }
-          ],
-          "options": {
-            "Size": "44mm"
-          }
+          "inventory_quantity": 50,
+          "prices": [{ "currency_code": "krw", "amount": 620000 }],
+          "options": { "Size": "44mm" }
         }
       ]
+    },
+    {
+      "title": "Pro Laptop 14 M3",
+      "handle": "pro-laptop-14-m3",
+      "description": "Unprecedented performance for creators, powered by the next generation EPHI Silicon.",
+      "subtitle": "Computing",
+      "is_giftcard": false,
+      "discountable": true,
+      "options": [{ "title": "RAM" }],
+      "variants": [
+        {
+          "title": "16GB",
+          "inventory_quantity": 25,
+          "prices": [{ "currency_code": "krw", "amount": 1850000 }],
+          "options": { "RAM": "16GB" }
+        }
+      ]
+    },
+    {
+      "title": "EPHI Vision VR",
+      "handle": "ephi-vision-vr",
+      "description": "Explore new worlds with high-fidelity optics and spatial audio immersion.",
+      "subtitle": "Gaming",
+      "is_giftcard": false,
+      "discountable": true,
+      "options": [{ "title": "Capacity" }],
+      "variants": [
+        {
+          "title": "256GB",
+          "inventory_quantity": 15,
+          "prices": [{ "currency_code": "krw", "amount": 1200000 }],
+          "options": { "Capacity": "256GB" }
+        }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "name": "Audio",
+      "handle": "audio"
+    },
+    {
+      "name": "Wearables",
+      "handle": "wearables"
+    },
+    {
+      "name": "Computing",
+      "handle": "computing"
+    },
+    {
+      "name": "Gaming",
+      "handle": "gaming"
     }
   ]
 }
