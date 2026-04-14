@@ -9,7 +9,7 @@ export default function AccountPage({
     <div className="mx-auto max-w-2xl px-4 py-20 sm:px-6 lg:px-8">
       <div className="text-center">
         <h1 className="text-3xl font-black tracking-tight text-gray-900 uppercase">
-          Sign in to EPHI<span className="text-yellow-500">KOREA</span>
+          Sign in to Aman<span className="text-yellow-500">Mobile</span>
         </h1>
         <p className="mt-4 text-gray-500 text-sm">
           Manage your orders, technical support, and premium benefits.

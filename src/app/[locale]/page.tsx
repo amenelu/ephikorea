@@ -9,19 +9,19 @@ export default function HomePage({
     {
       id: 1,
       name: "Aman mobile Ultra Wireless Headphones",
-      price: "₩450,000",
+      price: "$350.00",
       tag: "New Release",
     },
     {
       id: 2,
       name: "Aman mobile Smart Watch Series 5",
-      price: "₩620,000",
+      price: "$450.00",
       tag: "Best Seller",
     },
     {
       id: 3,
       name: "Aman mobile Pro Laptop 14 M3",
-      price: "₩1,850,000",
+      price: "$1,350.00",
       tag: "Limited Edition",
     },
   ];

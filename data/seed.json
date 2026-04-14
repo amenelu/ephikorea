@@ -1,14 +1,5 @@
 {
-  "regions": [
-    {
-      "name": "South Korea",
-      "currency_code": "krw",
-      "tax_rate": 10,
-      "payment_providers": ["manual"],
-      "fulfillment_providers": ["manual"],
-      "countries": ["kr"]
-    }
-  ],
+  "regions": [],
   "sales_channels": [
     {
       "name": "Default Sales Channel",
@@ -16,17 +7,8 @@
       "is_disabled": false
     }
   ],
-  "shipping_options": [
-    {
-      "name": "Express Shipping",
-      "region_name": "South Korea",
-      "provider_id": "manual",
-      "data": { "id": "manual-fulfillment" },
-      "price_type": "flat_rate",
-      "amount": 0,
-      "is_return": false
-    }
-  ],
+  "shipping_profiles": [],
+  "shipping_options": [],
   "products": [
     {
       "title": "Aman mobile Ultra Wireless",
@@ -35,12 +17,13 @@
       "subtitle": "Audio",
       "is_giftcard": false,
       "discountable": true,
+      "sales_channels": [{ "name": "Default Sales Channel" }],
       "options": [{ "title": "Style" }],
       "variants": [
         {
           "title": "Default Style",
           "inventory_quantity": 100,
-          "prices": [{ "currency_code": "krw", "amount": 450000 }],
+          "prices": [{ "currency_code": "usd", "amount": 35000 }],
           "options": { "Style": "Default Style" }
         }
       ]
@@ -52,12 +35,13 @@
       "subtitle": "Wearables",
       "is_giftcard": false,
       "discountable": true,
+      "sales_channels": [{ "name": "Default Sales Channel" }],
       "options": [{ "title": "Size" }],
       "variants": [
         {
           "title": "44mm",
           "inventory_quantity": 50,
-          "prices": [{ "currency_code": "krw", "amount": 620000 }],
+          "prices": [{ "currency_code": "usd", "amount": 45000 }],
           "options": { "Size": "44mm" }
         }
       ]
@@ -69,12 +53,13 @@
       "subtitle": "Computing",
       "is_giftcard": false,
       "discountable": true,
+      "sales_channels": [{ "name": "Default Sales Channel" }],
       "options": [{ "title": "RAM" }],
       "variants": [
         {
           "title": "16GB",
           "inventory_quantity": 25,
-          "prices": [{ "currency_code": "krw", "amount": 1850000 }],
+          "prices": [{ "currency_code": "usd", "amount": 135000 }],
           "options": { "RAM": "16GB" }
         }
       ]
@@ -86,12 +71,13 @@
       "subtitle": "Gaming",
       "is_giftcard": false,
       "discountable": true,
+      "sales_channels": [{ "name": "Default Sales Channel" }],
       "options": [{ "title": "Capacity" }],
       "variants": [
         {
           "title": "256GB",
           "inventory_quantity": 15,
-          "prices": [{ "currency_code": "krw", "amount": 1200000 }],
+          "prices": [{ "currency_code": "usd", "amount": 88000 }],
           "options": { "Capacity": "256GB" }
         }
       ]
@@ -113,6 +99,14 @@
     {
       "name": "Gaming",
       "handle": "gaming"
+    }
+  ],
+  "users": [
+    {
+      "email": "admin@aman-mobile.com",
+      "first_name": "Admin",
+      "last_name": "User",
+      "password": "password"
     }
   ]
 }

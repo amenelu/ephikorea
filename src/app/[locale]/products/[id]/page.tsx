@@ -19,7 +19,7 @@ export default function ProductDetailsPage({
       id: 1,
       variantId: "variant_01G2SG30J8C85S4A5CHM2S1NS2",
       name: "Aman mobile Ultra Wireless",
-      price: "₩450,000",
+      price: "$350.00",
       category: "Audio",
       image: "🎧",
       description:
@@ -29,7 +29,7 @@ export default function ProductDetailsPage({
       id: 2,
       variantId: "variant_02G2SG30J8C85S4A5CHM2S1NS2",
       name: "Series 5 Smart Watch",
-      price: "₩620,000",
+      price: "$450.00",
       category: "Wearables",
       image: "⌚",
       description:
@@ -39,7 +39,7 @@ export default function ProductDetailsPage({
       id: 3,
       variantId: "variant_03G2SG30J8C85S4A5CHM2S1NS2",
       name: "Pro Laptop 14 M3",
-      price: "₩1,850,000",
+      price: "$1,350.00",
       category: "Computing",
       image: "💻",
       description:
@@ -49,7 +49,7 @@ export default function ProductDetailsPage({
       id: 4,
       variantId: "variant_04G2SG30J8C85S4A5CHM2S1NS2",
       name: "Aman mobile Vision VR",
-      price: "₩1,200,000",
+      price: "$880.00",
       category: "Gaming",
       image: "🥽",
       description:
@@ -59,7 +59,7 @@ export default function ProductDetailsPage({
       id: 5,
       variantId: "variant_05G2SG30J8C85S4A5CHM2S1NS2",
       name: "SoundBar Elite",
-      price: "₩850,000",
+      price: "$599.00",
       category: "Audio",
       image: "🔊",
       description:
@@ -69,7 +69,7 @@ export default function ProductDetailsPage({
       id: 6,
       variantId: "variant_06G2SG30J8C85S4A5CHM2S1NS2",
       name: "Tab S Pro",
-      price: "₩950,000",
+      price: "$699.00",
       category: "Computing",
       image: "📱",
       description:
@@ -79,7 +79,7 @@ export default function ProductDetailsPage({
       id: 7,
       variantId: "variant_07G2SG30J8C85S4A5CHM2S1NS2",
       name: "Earbuds X Pro",
-      price: "₩220,000",
+      price: "$159.00",
       category: "Audio",
       image: "🎙️",
       description:
@@ -89,7 +89,7 @@ export default function ProductDetailsPage({
       id: 8,
       variantId: "variant_08G2SG30J8C85S4A5CHM2S1NS2",
       name: "Aman mobile Hub Monitor",
-      price: "₩1,400,000",
+      price: "$999.00",
       category: "Computing",
       image: "🖥️",
       description:
@@ -99,7 +99,7 @@ export default function ProductDetailsPage({
       id: 9,
       variantId: "variant_09G2SG30J8C85S4A5CHM2S1NS2",
       name: "Smart Ring Genesis",
-      price: "₩350,000",
+      price: "$249.00",
       category: "Wearables",
       image: "💍",
       description:

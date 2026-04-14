@@ -3,14 +3,16 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingCart, User, Globe } from "lucide-react";
-import { useCartStore } from "@/components/layout/use-cart-store";
+import { Search, ShoppingCart, User, Globe, Shield } from "lucide-react";
+import { useCart } from "medusa-react";
 
 export const Header = ({ locale }: { locale: string }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const cartItemsCount = useCartStore((state) => state.cartItemsCount);
+  const { cart } = useCart();
+  const cartItemsCount =
+    cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,9 +30,9 @@ export const Header = ({ locale }: { locale: string }) => {
           <Link
             href={`/${locale}`}
             className="text-xl font-black tracking-tighter text-yellow-500 transition-all hover:opacity-80"
-            aria-label="Aman mobile Home"
+            aria-label="Store Home"
           >
-            AMAN<span className="text-black">MOBILE</span>
+            STORE<span className="text-black">FRONT</span>
           </Link>
         </div>
 
@@ -66,6 +68,14 @@ export const Header = ({ locale }: { locale: string }) => {
           >
             <Globe className="h-4 w-4" />
             EN
+          </Link>
+
+          <Link
+            href={`/${locale}/admin`}
+            className="p-2 text-gray-600 transition-colors hover:text-yellow-500"
+            title="Admin Dashboard"
+          >
+            <Shield className="h-5 w-5" />
           </Link>
 
           <Link
