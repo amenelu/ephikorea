@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/provider";
+import { Footer } from "@/components/layout/footer";
 
 export const metadata: Metadata = {
   title: "Aman mobile | Premium Technology",
@@ -16,7 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="flex min-h-screen flex-col">
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );

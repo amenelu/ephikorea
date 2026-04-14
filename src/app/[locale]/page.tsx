@@ -57,7 +57,7 @@ export default function HomePage({
             Featured Releases
           </h2>
           <Link
-            href={`/${locale}/search`}
+            href={`/${locale}/products`}
             className="text-sm font-bold text-yellow-600 hover:underline"
           >
             View All
