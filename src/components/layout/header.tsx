@@ -28,9 +28,9 @@ export const Header = ({ locale }: { locale: string }) => {
           <Link
             href={`/${locale}`}
             className="text-xl font-black tracking-tighter text-yellow-500 transition-all hover:opacity-80"
-            aria-label="EPHI KOREA Home"
+            aria-label="Aman mobile Home"
           >
-            EPHI<span className="text-black">KOREA</span>
+            AMAN<span className="text-black">MOBILE</span>
           </Link>
         </div>
 

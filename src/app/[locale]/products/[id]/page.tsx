@@ -18,7 +18,7 @@ export default function ProductDetailsPage({
     {
       id: 1,
       variantId: "variant_01G2SG30J8C85S4A5CHM2S1NS2",
-      name: "EPHI Ultra Wireless",
+      name: "Aman mobile Ultra Wireless",
       price: "₩450,000",
       category: "Audio",
       image: "🎧",
@@ -43,12 +43,12 @@ export default function ProductDetailsPage({
       category: "Computing",
       image: "💻",
       description:
-        "Unprecedented performance for creators, powered by the next generation EPHI Silicon.",
+        "Unprecedented performance for creators, powered by the next generation Aman mobile Silicon.",
     },
     {
       id: 4,
       variantId: "variant_04G2SG30J8C85S4A5CHM2S1NS2",
-      name: "EPHI Vision VR",
+      name: "Aman mobile Vision VR",
       price: "₩1,200,000",
       category: "Gaming",
       image: "🥽",
@@ -88,7 +88,7 @@ export default function ProductDetailsPage({
     {
       id: 8,
       variantId: "variant_08G2SG30J8C85S4A5CHM2S1NS2",
-      name: "EPHI Hub Monitor",
+      name: "Aman mobile Hub Monitor",
       price: "₩1,400,000",
       category: "Computing",
       image: "🖥️",
@@ -143,7 +143,7 @@ export default function ProductDetailsPage({
       { label: "Water Resistance", value: "IP68 / 5ATM" },
     ],
     Computing: [
-      { label: "Processor", value: "EPHI Silicon M3 Max" },
+      { label: "Processor", value: "Aman mobile Silicon M3 Max" },
       { label: "Memory", value: "16GB Unified RAM" },
       { label: "Storage", value: "512GB Ultra-Fast SSD" },
       { label: "Battery", value: "18-Hour Runtime" },

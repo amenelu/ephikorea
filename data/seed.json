@@ -29,8 +29,8 @@
   ],
   "products": [
     {
-      "title": "EPHI Ultra Wireless",
-      "handle": "ephi-ultra-wireless",
+      "title": "Aman mobile Ultra Wireless",
+      "handle": "aman-mobile-ultra-wireless",
       "description": "Flagship noise-cancelling headphones designed for professional-grade audio fidelity.",
       "subtitle": "Audio",
       "is_giftcard": false,
@@ -65,7 +65,7 @@
     {
       "title": "Pro Laptop 14 M3",
       "handle": "pro-laptop-14-m3",
-      "description": "Unprecedented performance for creators, powered by the next generation EPHI Silicon.",
+      "description": "Unprecedented performance for creators, powered by the next generation Aman mobile Silicon.",
       "subtitle": "Computing",
       "is_giftcard": false,
       "discountable": true,
@@ -80,8 +80,8 @@
       ]
     },
     {
-      "title": "EPHI Vision VR",
-      "handle": "ephi-vision-vr",
+      "title": "Aman mobile Vision VR",
+      "handle": "aman-mobile-vision-vr",
       "description": "Explore new worlds with high-fidelity optics and spatial audio immersion.",
       "subtitle": "Gaming",
       "is_giftcard": false,

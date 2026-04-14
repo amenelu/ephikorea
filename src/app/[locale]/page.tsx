@@ -8,19 +8,19 @@ export default function HomePage({
   const featuredProducts = [
     {
       id: 1,
-      name: "EPHI Ultra Wireless Headphones",
+      name: "Aman mobile Ultra Wireless Headphones",
       price: "₩450,000",
       tag: "New Release",
     },
     {
       id: 2,
-      name: "EPHI Smart Watch Series 5",
+      name: "Aman mobile Smart Watch Series 5",
       price: "₩620,000",
       tag: "Best Seller",
     },
     {
       id: 3,
-      name: "EPHI Pro Laptop 14 M3",
+      name: "Aman mobile Pro Laptop 14 M3",
       price: "₩1,850,000",
       tag: "Limited Edition",
     },
@@ -35,7 +35,7 @@ export default function HomePage({
             Next Generation Electronics
           </span>
           <h1 className="text-5xl font-black tracking-tighter text-white sm:text-7xl lg:text-8xl">
-            EPHI<span className="text-yellow-500">KOREA</span>
+            AMAN<span className="text-yellow-500">MOBILE</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-gray-400">
             Redefining the standard of premium electronics with South Korean

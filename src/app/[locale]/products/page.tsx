@@ -8,7 +8,7 @@ export default function ProductsPage({
   const allProducts = [
     {
       id: 1,
-      name: "EPHI Ultra Wireless",
+      name: "Aman mobile Ultra Wireless",
       price: "₩450,000",
       category: "Audio",
       image: "🎧",
@@ -32,7 +32,7 @@ export default function ProductsPage({
     },
     {
       id: 4,
-      name: "EPHI Vision VR",
+      name: "Aman mobile Vision VR",
       price: "₩1,200,000",
       category: "Gaming",
       image: "🥽",
@@ -64,7 +64,7 @@ export default function ProductsPage({
     },
     {
       id: 8,
-      name: "EPHI Hub Monitor",
+      name: "Aman mobile Hub Monitor",
       price: "₩1,400,000",
       category: "Computing",
       image: "🖥️",
@@ -85,7 +85,7 @@ export default function ProductsPage({
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-100 pb-8">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-gray-900 uppercase">
-            The <span className="text-yellow-500">Collection</span>
+            Aman mobile <span className="text-yellow-500">Collection</span>
           </h1>
           <p className="mt-2 text-gray-500">
             Discover our full range of innovative technology.
