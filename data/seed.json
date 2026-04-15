@@ -1,4 +1,8 @@
 {
+  "store": {
+    "name": "Aman Mobile",
+    "default_currency_code": "usd"
+  },
   "regions": [],
   "sales_channels": [
     {
@@ -24,7 +28,7 @@
           "title": "Default Style",
           "inventory_quantity": 100,
           "prices": [{ "currency_code": "usd", "amount": 35000 }],
-          "options": { "Style": "Default Style" }
+          "options": [{ "value": "Default Style" }]
         }
       ]
     },
@@ -42,7 +46,7 @@
           "title": "44mm",
           "inventory_quantity": 50,
           "prices": [{ "currency_code": "usd", "amount": 45000 }],
-          "options": { "Size": "44mm" }
+          "options": [{ "value": "44mm" }]
         }
       ]
     },
@@ -60,7 +64,7 @@
           "title": "16GB",
           "inventory_quantity": 25,
           "prices": [{ "currency_code": "usd", "amount": 135000 }],
-          "options": { "RAM": "16GB" }
+          "options": [{ "value": "16GB" }]
         }
       ]
     },
@@ -78,7 +82,7 @@
           "title": "256GB",
           "inventory_quantity": 15,
           "prices": [{ "currency_code": "usd", "amount": 88000 }],
-          "options": { "Capacity": "256GB" }
+          "options": [{ "value": "256GB" }]
         }
       ]
     }

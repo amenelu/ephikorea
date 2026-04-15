@@ -10,6 +10,7 @@
 # Medusa build output
 # Medusa transpiles the src directory into dist
 /dist/
+/.cache/
 
 # Production build output
 /build
@@ -27,6 +28,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.tsbuildinfo
 
 # OS specific files
 .DS_Store

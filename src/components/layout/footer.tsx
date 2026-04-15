@@ -1,18 +1,18 @@
 import Link from "next/link";
 
-export const Footer = () => {
+export const Footer = ({ locale }: { locale: string }) => {
   return (
-    <footer className="bg-white border-t border-gray-100 mt-auto">
+    <footer className="mt-auto border-t border-gray-100 bg-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
             <Link
-              href="/"
+              href={`/${locale}`}
               className="text-xl font-black tracking-tighter text-yellow-500"
             >
               AMAN<span className="text-black">MOBILE</span>
             </Link>
-            <p className="mt-4 text-sm text-gray-500 max-w-xs leading-relaxed">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-500">
               Redefining the standard of premium electronics with South Korean
               engineering excellence.
             </p>
@@ -24,24 +24,24 @@ export const Footer = () => {
             <ul className="mt-4 space-y-2">
               <li>
                 <Link
-                  href="/en/products"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/products`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Audio
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/en/products"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/products`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Computing
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/en/products"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/products`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Wearables
                 </Link>
@@ -55,24 +55,24 @@ export const Footer = () => {
             <ul className="mt-4 space-y-2">
               <li>
                 <Link
-                  href="#"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/support/shipping`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Shipping Info
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/support/returns`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Returns
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/contact`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Contact
                 </Link>
@@ -86,24 +86,24 @@ export const Footer = () => {
             <ul className="mt-4 space-y-2">
               <li>
                 <Link
-                  href="#"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/about`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   About Us
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/admin/settings`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Sustainability
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
-                  className="text-sm text-gray-500 hover:text-yellow-600 transition-colors"
+                  href={`/${locale}/privacy`}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Privacy Policy
                 </Link>
@@ -111,12 +111,13 @@ export const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            © {new Date().getFullYear()} Aman mobile. Engineered for the future.
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-100 pt-8 md:flex-row">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            &copy; {new Date().getFullYear()} Aman mobile. Engineered for the
+            future.
           </p>
           <div className="flex gap-6">
-            <span className="text-[10px] font-black uppercase text-gray-300 tracking-tighter">
+            <span className="text-[10px] font-black uppercase tracking-tighter text-gray-300">
               SEOUL / GLOBAL
             </span>
           </div>

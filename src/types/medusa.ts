@@ -7,8 +7,10 @@ export interface CPOProduct extends Omit<Product, "variants"> {
   airport_delivery_available?: boolean;
 
   variants: {
+    id?: string;
     prices: {
       amount: number;
+      currency_code?: string;
     }[];
   }[];
 }
