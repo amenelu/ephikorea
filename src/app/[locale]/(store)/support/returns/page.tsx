@@ -10,7 +10,7 @@ export default function ReturnsPage({
       locale={locale}
       eyebrow="Support"
       title="Returns Policy"
-      description="Eligible returns can be requested after delivery through your account dashboard or support team. We recommend inspecting devices on arrival and keeping original packaging available until the order has been fully accepted."
+      description="Eligible returns can be requested after delivery through the support team. We recommend inspecting devices on arrival and keeping original packaging available until the order has been fully accepted."
     />
   );
 }

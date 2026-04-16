@@ -5,6 +5,7 @@ export interface CPOProduct extends Omit<Product, "variants"> {
   battery_health?: number;
   grading_data?: string;
   airport_delivery_available?: boolean;
+  metadata: Record<string, unknown> | null;
 
   variants: {
     id?: string;

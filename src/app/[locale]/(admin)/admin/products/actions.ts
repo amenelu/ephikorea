@@ -69,6 +69,9 @@ export async function addProductAction(formData: FormData) {
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
     const thumbnail = String(formData.get("thumbnail") || "");
+    const color = String(formData.get("color") || "");
+    const storage = String(formData.get("storage") || "");
+    const gradingData = String(formData.get("gradingData") || "");
     const inventory = Number.parseInt(String(formData.get("inventory") || "0"), 10);
     const price = parsePriceToMinorUnits(String(formData.get("price") || ""));
     const status = parseStatus(formData.get("status"));
@@ -78,6 +81,9 @@ export async function addProductAction(formData: FormData) {
       handle,
       description,
       thumbnail,
+      color,
+      storage,
+      gradingData,
       inventory,
       price,
       status,
@@ -101,6 +107,9 @@ export async function updateProductAction(formData: FormData) {
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
     const thumbnail = String(formData.get("thumbnail") || "");
+    const color = String(formData.get("color") || "");
+    const storage = String(formData.get("storage") || "");
+    const gradingData = String(formData.get("gradingData") || "");
     const inventory = Number.parseInt(String(formData.get("inventory") || "0"), 10);
     const price = parsePriceToMinorUnits(String(formData.get("price") || ""));
     const status = parseStatus(formData.get("status"));
@@ -111,6 +120,9 @@ export async function updateProductAction(formData: FormData) {
       handle,
       description,
       thumbnail,
+      color,
+      storage,
+      gradingData,
       inventory,
       price,
       status,

@@ -10,7 +10,7 @@ export default function ShippingPage({
       locale={locale}
       eyebrow="Support"
       title="Shipping Information"
-      description="Orders are processed through our Medusa storefront and prepared for dispatch as soon as inventory is confirmed. Express fulfillment is prioritized for in-stock items, and tracking updates are shared through your account as soon as the order is created."
+      description="Orders are processed through our storefront as soon as inventory is confirmed. Express fulfillment is prioritized for in-stock items, and tracking updates are shared using the buyer contact details collected during checkout."
     />
   );
 }

@@ -26,6 +26,7 @@ type ProductRow = {
   thumbnail: string | null;
   collection_id: string | null;
   status: string | null;
+  metadata: Record<string, unknown> | null;
   is_certified_pre_owned: boolean | null;
   battery_health: number | null;
   grading_data: string | null;
@@ -63,6 +64,7 @@ function mapRowsToProducts(rows: ProductRow[]) {
         thumbnail: row.thumbnail || undefined,
         collection_id: row.collection_id || undefined,
         status: row.status || undefined,
+        metadata: row.metadata || null,
         is_certified_pre_owned: row.is_certified_pre_owned ?? undefined,
         battery_health: row.battery_health ?? undefined,
         grading_data: row.grading_data || undefined,
@@ -120,6 +122,7 @@ export async function getCatalogProducts() {
         p.thumbnail,
         p.collection_id,
         p.status,
+        p.metadata,
         p.is_certified_pre_owned,
         p.battery_health,
         p.grading_data,
@@ -157,6 +160,7 @@ export async function getCatalogProductByIdOrHandle(idOrHandle: string) {
           p.thumbnail,
           p.collection_id,
           p.status,
+          p.metadata,
           p.is_certified_pre_owned,
           p.battery_health,
           p.grading_data,

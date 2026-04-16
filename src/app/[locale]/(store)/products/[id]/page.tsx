@@ -4,12 +4,12 @@ import { ArrowLeft, RotateCcw, ShieldCheck, Truck } from "lucide-react";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/modules/add-to-cart-button";
 import { ProductCard } from "@/components/product/product-card";
-import Providers from "@/components/provider";
 import {
   getCatalogProductByIdOrHandle,
   getCatalogProductPrice,
   getCatalogProducts,
 } from "@/lib/catalog-data";
+import { buildProductSpecSheet } from "@/lib/product-specs";
 import { formatAmount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -34,12 +34,7 @@ export default async function ProductDetailsPage({
     .filter((item) => item.id !== product.id)
     .slice(0, 3);
 
-  const specs = [
-    { label: "Handle", value: product.handle || "N/A" },
-    { label: "Status", value: product.status || "draft" },
-    { label: "Variants", value: String(product.variants?.length ?? 0) },
-    { label: "Collection", value: product.collection_id || "Unassigned" },
-  ];
+  const specs = buildProductSpecSheet(product);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -95,9 +90,13 @@ export default async function ProductDetailsPage({
           </div>
 
           {primaryVariant?.id ? (
-            <Providers>
-              <AddToCartButton variantId={primaryVariant.id} />
-            </Providers>
+            <AddToCartButton
+              locale={locale}
+              variantId={primaryVariant.id}
+              title={product.title}
+              thumbnail={product.thumbnail || undefined}
+              unitPrice={price}
+            />
           ) : (
             <button
               disabled

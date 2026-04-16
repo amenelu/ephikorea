@@ -30,10 +30,10 @@ export function InfoPage({
           Browse products
         </Link>
         <Link
-          href={`/${locale}/account`}
+          href={`/${locale}/cart`}
           className="rounded-full border border-gray-200 px-6 py-3 text-sm font-bold text-gray-900 transition-colors hover:bg-gray-50"
         >
-          Contact support
+          Start checkout
         </Link>
       </div>
     </div>

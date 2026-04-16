@@ -1,73 +1,161 @@
 "use client";
 
-import React, { useState } from "react";
-import { useCart, useCreateCart, useCreateLineItem } from "medusa-react";
-import { ShoppingBag } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Check, Minus, Plus, ShoppingBag } from "lucide-react";
+import { useLocalCart } from "@/lib/local-cart";
 
 interface AddToCartButtonProps {
+  locale: string;
   variantId: string;
+  title: string;
+  thumbnail?: string;
+  unitPrice: number;
 }
 
-const AddToCartButton: React.FC<AddToCartButtonProps> = ({ variantId }) => {
-  const { cart, setCart } = useCart();
-  const createCart = useCreateCart();
-  const addLineItem = useCreateLineItem(cart?.id as string);
+const AddToCartButton: React.FC<AddToCartButtonProps> = ({
+  locale,
+  variantId,
+  title,
+  thumbnail,
+  unitPrice,
+}) => {
+  const { items, addItem, updateQuantity } = useLocalCart();
   const [isAdding, setIsAdding] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const checkoutHref = `/${locale || "ko"}/cart`;
+
+  const cartItem = useMemo(
+    () => items.find((item) => item.variantId === variantId),
+    [items, variantId],
+  );
+  const quantity = cartItem?.quantity ?? 0;
+
+  useEffect(() => {
+    if (!showConfirmation) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setShowConfirmation(false);
+    }, 1200);
+
+    return () => window.clearTimeout(timeout);
+  }, [showConfirmation]);
 
   const handleAddToCart = () => {
     if (!variantId) return;
     setIsAdding(true);
-
-    // If no cart exists, create one with the item included
-    if (!cart?.id) {
-      createCart.mutate(
-        {
-          items: [
-            {
-              variant_id: variantId,
-              quantity: 1,
-            },
-          ],
-        },
-        {
-          onSuccess: ({ cart }) => {
-            setCart(cart);
-            setIsAdding(false);
-          },
-          onError: (error) => {
-            console.error("Failed to create cart:", error);
-            setIsAdding(false);
-          },
-        },
-      );
-    } else {
-      // If cart already exists, simply add the line item
-      addLineItem.mutate(
-        {
-          variant_id: variantId,
-          quantity: 1,
-        },
-        {
-          onSuccess: () => {
-            setIsAdding(false);
-          },
-          onError: (error) => {
-            console.error("Failed to add item to cart:", error);
-            setIsAdding(false);
-          },
-        },
-      );
-    }
+    addItem({
+      variantId,
+      title,
+      thumbnail,
+      unitPrice,
+    });
+    setShowConfirmation(true);
+    setIsAdding(false);
   };
+
+  const increaseQuantity = () => {
+    if (!variantId) return;
+
+    if (quantity === 0) {
+      handleAddToCart();
+      return;
+    }
+
+    updateQuantity(variantId, quantity + 1);
+    setShowConfirmation(true);
+  };
+
+  const decreaseQuantity = () => {
+    if (!variantId || quantity === 0) return;
+    updateQuantity(variantId, quantity - 1);
+  };
+
+  if (quantity > 0) {
+    return (
+      <div className="space-y-3">
+        <div
+          className={`flex items-center justify-between rounded-2xl border px-4 py-4 shadow-2xl transition-all ${
+            showConfirmation
+              ? "border-yellow-300 bg-yellow-50 scale-[1.01]"
+              : "border-gray-200 bg-white"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={decreaseQuantity}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition hover:bg-gray-50"
+            aria-label="Decrease quantity"
+          >
+            <Minus className="h-4 w-4" />
+          </button>
+
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-2xl font-black text-gray-900">
+                {quantity}
+              </span>
+              {showConfirmation ? (
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-white animate-[ping_0.8s_ease-out_1]">
+                  <Check className="h-3.5 w-3.5" />
+                </span>
+              ) : null}
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+              In shopping bag
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={increaseQuantity}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white transition hover:bg-gray-800"
+            aria-label="Increase quantity"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={increaseQuantity}
+          className="flex w-full items-center justify-center gap-3 rounded-2xl bg-black py-4 text-sm font-bold text-white transition-all hover:bg-gray-800 active:scale-[0.98]"
+        >
+          <ShoppingBag className="h-4 w-4 text-yellow-500" />
+          Add One More
+        </button>
+
+        <a
+          href={checkoutHref}
+          className="flex w-full items-center justify-center rounded-2xl border border-gray-200 bg-white py-4 text-sm font-black uppercase tracking-widest text-gray-900 transition hover:bg-gray-50"
+        >
+          Proceed to Checkout
+        </a>
+      </div>
+    );
+  }
 
   return (
     <button
       onClick={handleAddToCart}
       disabled={isAdding}
-      className="flex w-full items-center justify-center gap-3 rounded-2xl bg-black py-5 text-base font-bold text-white transition-all hover:bg-gray-800 active:scale-[0.98] shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+      className={`flex w-full items-center justify-center gap-3 rounded-2xl py-5 text-base font-bold text-white transition-all active:scale-[0.98] shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed ${
+        showConfirmation
+          ? "bg-green-600 hover:bg-green-600"
+          : "bg-black hover:bg-gray-800"
+      }`}
     >
-      <ShoppingBag className="h-5 w-5 text-yellow-500" />
-      {isAdding ? "Adding..." : "Add to Shopping Bag"}
+      {showConfirmation ? (
+        <Check className="h-5 w-5 text-white" />
+      ) : (
+        <ShoppingBag className="h-5 w-5 text-yellow-500" />
+      )}
+      {isAdding
+        ? "Adding..."
+        : showConfirmation
+          ? "Added to Shopping Bag"
+          : "Add to Shopping Bag"}
     </button>
   );
 };

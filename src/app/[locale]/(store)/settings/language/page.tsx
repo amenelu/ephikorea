@@ -19,8 +19,8 @@ export default function LanguageSettingsPage({
         Language Settings
       </h1>
       <p className="mt-6 text-lg leading-8 text-gray-500">
-        Choose the storefront locale you want to use across browsing, account,
-        and checkout pages.
+        Choose the storefront locale you want to use across browsing and
+        checkout pages.
       </p>
 
       <div className="mt-10 grid gap-4">

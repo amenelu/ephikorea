@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Globe, Search, Shield, ShoppingCart, User } from "lucide-react";
+import { Globe, Search, Shield, ShoppingCart } from "lucide-react";
 
 export const Header = ({ locale }: { locale: string }) => {
   return (
@@ -51,13 +51,6 @@ export const Header = ({ locale }: { locale: string }) => {
             title="Admin Dashboard"
           >
             <Shield className="h-5 w-5" />
-          </Link>
-
-          <Link
-            href={`/${locale}/account`}
-            className="p-2 text-gray-600 transition-colors hover:text-yellow-500"
-          >
-            <User className="h-5 w-5" />
           </Link>
 
           <Link

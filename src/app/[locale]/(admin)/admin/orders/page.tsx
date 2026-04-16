@@ -1,9 +1,12 @@
+import Link from "next/link";
 import { Search } from "lucide-react";
 import { getAdminOrders } from "@/lib/admin-data";
 
 export default async function AdminOrdersPage({
+  params: { locale },
   searchParams,
 }: {
+  params: { locale: string };
   searchParams: { q?: string };
 }) {
   const query = searchParams.q?.trim() || "";
@@ -57,27 +60,52 @@ export default async function AdminOrdersPage({
             <tbody className="divide-y divide-gray-50">
               {orders.map((order) => (
                 <tr
-                  key={`${order.id}-${order.date}`}
+                  key={`${order.orderId}-${order.date}`}
                   className="transition-colors hover:bg-gray-50/50"
                 >
                   <td className="px-6 py-4 font-bold text-gray-900">
-                    {order.id}
+                    <Link
+                      href={`/${locale}/admin/orders/${order.orderId}`}
+                      className="block"
+                    >
+                      {order.id}
+                    </Link>
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-600">
-                    {order.customer}
+                    <Link
+                      href={`/${locale}/admin/orders/${order.orderId}`}
+                      className="block"
+                    >
+                      {order.customer}
+                    </Link>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {order.date}
+                    <Link
+                      href={`/${locale}/admin/orders/${order.orderId}`}
+                      className="block"
+                    >
+                      {order.date}
+                    </Link>
                   </td>
                   <td className="px-6 py-4 font-black text-gray-900">
-                    {order.total}
+                    <Link
+                      href={`/${locale}/admin/orders/${order.orderId}`}
+                      className="block"
+                    >
+                      {order.total}
+                    </Link>
                   </td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${order.statusTone}`}
+                    <Link
+                      href={`/${locale}/admin/orders/${order.orderId}`}
+                      className="block"
                     >
-                      {order.status}
-                    </span>
+                      <span
+                        className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${order.statusTone}`}
+                      >
+                        {order.status}
+                      </span>
+                    </Link>
                   </td>
                 </tr>
               ))}

@@ -1,13 +1,23 @@
-export default function CartPage({
+import CartClient from "@/components/cart/cart-client";
+import { getCheckoutCountries } from "@/lib/checkout";
+import { submitCheckoutAction } from "./actions";
+
+export default async function CartPage({
+  params: { locale },
+  searchParams,
 }: {
   params: { locale: string };
+  searchParams: { status?: string; message?: string };
 }) {
+  const countries = await getCheckoutCountries();
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 text-center">
-      <h1 className="text-3xl font-bold text-gray-900">Shopping Bag</h1>
-      <div className="mt-12 rounded-3xl border-2 border-dashed border-gray-100 p-20 text-gray-400">
-        Your shopping bag is empty.
-      </div>
-    </div>
+    <CartClient
+      locale={locale}
+      status={searchParams.status}
+      message={searchParams.message}
+      checkoutAction={submitCheckoutAction}
+      countries={countries}
+    />
   );
 }

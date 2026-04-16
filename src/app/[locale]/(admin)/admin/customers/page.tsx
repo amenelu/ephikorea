@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { getAdminCustomers } from "@/lib/admin-data";
 
 export default async function AdminCustomersPage() {
@@ -32,14 +32,27 @@ export default async function AdminCustomersPage() {
               <p className="mb-6 text-sm font-medium text-gray-400">
                 {customer.email}
               </p>
+              {customer.phone ? (
+                <p className="mb-6 text-sm font-medium text-gray-400">
+                  {customer.phone}
+                </p>
+              ) : null}
 
               <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-6">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                    Total Orders
+                    Orders
                   </p>
                   <p className="text-lg font-black text-gray-900">
                     {customer.orders}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    Checkout Requests
+                  </p>
+                  <p className="text-lg font-black text-gray-900">
+                    {customer.checkoutSubmissions}
                   </p>
                 </div>
                 <div>
@@ -50,14 +63,32 @@ export default async function AdminCustomersPage() {
                     {customer.spent}
                   </p>
                 </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    Last Checkout
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {customer.lastCheckout}
+                  </p>
+                </div>
               </div>
 
-              <a
-                href={`mailto:${customer.email}`}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-50 py-3 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-100"
-              >
-                <Mail className="h-3 w-3" /> Email Customer
-              </a>
+              <div className="mt-6 grid gap-3">
+                <a
+                  href={`mailto:${customer.email}`}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-50 py-3 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-100"
+                >
+                  <Mail className="h-3 w-3" /> Email Customer
+                </a>
+                {customer.phone ? (
+                  <a
+                    href={`tel:${customer.phone}`}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-50 py-3 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-100"
+                  >
+                    <Phone className="h-3 w-3" /> Call Customer
+                  </a>
+                ) : null}
+              </div>
             </div>
           ))}
         </div>

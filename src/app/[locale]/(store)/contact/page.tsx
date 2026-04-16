@@ -10,7 +10,7 @@ export default function ContactPage({
       locale={locale}
       eyebrow="Support"
       title="Contact"
-      description="For order questions, account help, and product availability, use your account portal or the admin-managed support workflow. This storefront is now wired so contact navigation lands on a real page instead of a dead placeholder."
+      description="For order questions, delivery updates, and product availability, use the guest checkout flow or reach out to the admin-managed support workflow. This storefront now keeps buyer contact details directly from checkout instead of requiring account sign-in."
     />
   );
 }

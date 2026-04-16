@@ -2,6 +2,10 @@ import "server-only";
 
 import { randomUUID } from "crypto";
 
+import {
+  buildProductMetadata,
+  getEditableProductFacts,
+} from "@/lib/product-specs";
 import { formatAmount } from "@/lib/utils";
 
 const { Client } = require("pg");
@@ -209,6 +213,7 @@ export async function getAdminOrders(query?: string) {
     }
 
     const { rows } = await client.query<{
+      order_id: string;
       display_id: number | null;
       created_at: string;
       total: number;
@@ -218,6 +223,7 @@ export async function getAdminOrders(query?: string) {
     }>(
       `
         select
+          o.id as order_id,
           o.display_id,
           o.created_at,
           coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
@@ -239,6 +245,7 @@ export async function getAdminOrders(query?: string) {
     );
 
     return rows.map((order) => ({
+      orderId: order.order_id,
       id: order.display_id ? `#${order.display_id}` : "Draft",
       customer: order.customer_name || order.email || "Guest",
       date: formatAdminDate(order.created_at),
@@ -249,6 +256,164 @@ export async function getAdminOrders(query?: string) {
   });
 }
 
+export async function getAdminOrderDetails(orderId: string) {
+  return withClient(async (client) => {
+    const orderRows = await client.query<{
+      order_id: string;
+      display_id: number | null;
+      created_at: string;
+      email: string;
+      status: string | null;
+      customer_name: string | null;
+      customer_phone: string | null;
+      shipping_first_name: string | null;
+      shipping_last_name: string | null;
+      address_1: string | null;
+      address_2: string | null;
+      city: string | null;
+      province: string | null;
+      postal_code: string | null;
+      country_code: string | null;
+      phone: string | null;
+      item_id: string | null;
+      item_title: string | null;
+      item_description: string | null;
+      quantity: number | null;
+      unit_price: number | null;
+      thumbnail: string | null;
+      variant_id: string | null;
+    }>(
+      `
+        select
+          o.id as order_id,
+          o.display_id,
+          o.created_at,
+          o.email,
+          coalesce(
+            o.payment_status::text,
+            o.fulfillment_status::text,
+            o.status::text
+          ) as status,
+          nullif(trim(concat(coalesce(c.first_name, ''), ' ', coalesce(c.last_name, ''))), '') as customer_name,
+          c.phone as customer_phone,
+          a.first_name as shipping_first_name,
+          a.last_name as shipping_last_name,
+          a.address_1,
+          a.address_2,
+          a.city,
+          a.province,
+          a.postal_code,
+          a.country_code,
+          a.phone,
+          li.id as item_id,
+          li.title as item_title,
+          li.description as item_description,
+          li.quantity,
+          li.unit_price,
+          li.thumbnail,
+          li.variant_id
+        from "order" o
+        left join customer c on c.id = o.customer_id
+        left join address a on a.id = o.shipping_address_id
+        left join line_item li on li.order_id = o.id
+        where o.id = $1
+        order by li.created_at asc nulls last
+      `,
+      [orderId],
+    );
+
+    const firstRow = orderRows.rows[0];
+
+    if (!firstRow) {
+      return null;
+    }
+
+    const items = orderRows.rows
+      .filter((row) => row.item_id)
+      .map((row) => ({
+        id: row.item_id!,
+        title: row.item_title || "Untitled Item",
+        description: row.item_description || "Default variant",
+        quantity: row.quantity ?? 0,
+        unitPrice: formatAmount(row.unit_price ?? 0, "USD"),
+        lineTotal: formatAmount(
+          (row.unit_price ?? 0) * (row.quantity ?? 0),
+          "USD",
+        ),
+        thumbnail: row.thumbnail,
+        variantId: row.variant_id,
+      }));
+
+    const shippingName =
+      `${firstRow.shipping_first_name || ""} ${firstRow.shipping_last_name || ""}`.trim() ||
+      firstRow.customer_name ||
+      "Guest";
+
+    const orderTotal = items.reduce((sum, item) => {
+      const amount = Number(item.lineTotal.replace(/[^0-9.-]+/g, ""));
+      return Number.isFinite(amount) ? sum + amount : sum;
+    }, 0);
+
+    return {
+      orderId: firstRow.order_id,
+      displayId: firstRow.display_id ? `#${firstRow.display_id}` : "Draft",
+      date: formatAdminDate(firstRow.created_at),
+      status: firstRow.status || "pending",
+      statusTone: toStatusTone(firstRow.status),
+      customer: {
+        name: firstRow.customer_name || shippingName,
+        email: firstRow.email,
+        phone: firstRow.customer_phone || firstRow.phone || "N/A",
+      },
+      delivery: {
+        name: shippingName,
+        address1: firstRow.address_1 || "N/A",
+        address2: firstRow.address_2 || "",
+        city: firstRow.city || "N/A",
+        province: firstRow.province || "",
+        postalCode: firstRow.postal_code || "",
+        countryCode: (firstRow.country_code || "N/A").toUpperCase(),
+        phone: firstRow.phone || firstRow.customer_phone || "N/A",
+      },
+      items,
+      total: formatAmount(
+        items.reduce((sum, item) => {
+          const raw = Number(item.lineTotal.replace(/[^0-9.-]+/g, ""));
+          return Number.isFinite(raw) ? sum + raw * 100 : sum;
+        }, 0),
+        "USD",
+      ),
+    };
+  });
+}
+
+export async function completeAdminOrder(orderId: string) {
+  return withClient(async (client) => {
+    const normalizedId = orderId.trim();
+
+    if (!normalizedId) {
+      throw new Error("Order id is required.");
+    }
+
+    const { rows } = await client.query<{ id: string }>(
+      `
+        update "order"
+        set
+          status = 'completed',
+          fulfillment_status = 'fulfilled',
+          payment_status = 'captured',
+          updated_at = now()
+        where id = $1
+          and status <> 'completed'
+        returning id
+      `,
+      [normalizedId],
+    );
+
+    return Boolean(rows[0]?.id);
+  });
+}
+
 export async function getAdminCustomers() {
   return withClient(async (client) => {
     const { rows } = await client.query<{
@@ -256,6 +421,8 @@ export async function getAdminCustomers() {
       email: string;
       first_name: string | null;
       last_name: string | null;
+      phone: string | null;
+      metadata: Record<string, unknown> | null;
       orders: number;
       spent: number;
     }>(`
@@ -264,6 +431,8 @@ export async function getAdminCustomers() {
         c.email,
         c.first_name,
         c.last_name,
+        c.phone,
+        c.metadata,
         count(distinct o.id)::int as orders,
         coalesce(sum(li.unit_price * li.quantity), 0)::int as spent
       from customer c
@@ -287,7 +456,26 @@ export async function getAdminCustomers() {
         id: customer.id,
         name,
         email: customer.email,
+        phone: customer.phone,
         orders: customer.orders,
+        checkoutSubmissions:
+          typeof customer.metadata?.checkout_submissions === "number"
+            ? customer.metadata.checkout_submissions
+            : 0,
+        lastCheckout:
+          typeof customer.metadata?.latest_checkout === "object" &&
+          customer.metadata?.latest_checkout &&
+          typeof (
+            customer.metadata.latest_checkout as { submitted_at?: unknown }
+          ).submitted_at === "string"
+            ? formatAdminDate(
+                (
+                  customer.metadata.latest_checkout as {
+                    submitted_at: string;
+                  }
+                ).submitted_at,
+              )
+            : "N/A",
         spent: formatAmount(customer.spent, "USD"),
         initials: initials || customer.email.slice(0, 2).toUpperCase(),
       };
@@ -304,6 +492,8 @@ export async function getAdminProducts() {
       handle: string;
       status: string;
       thumbnail: string | null;
+      grading_data: string | null;
+      metadata: Record<string, unknown> | null;
       inventory: number;
       price: number;
     }>(`
@@ -314,6 +504,8 @@ export async function getAdminProducts() {
         p.handle,
         p.status,
         p.thumbnail,
+        p.grading_data,
+        p.metadata,
         coalesce((
           select sum(pv2.inventory_quantity)::int
           from product_variant pv2
@@ -337,7 +529,16 @@ export async function getAdminProducts() {
       order by p.created_at desc
     `);
 
-    return rows;
+    return rows.map((row) => {
+      const facts = getEditableProductFacts(row.metadata || undefined);
+
+      return {
+        ...row,
+        color: facts.color || "",
+        storage: facts.storage || "",
+        gradingData: row.grading_data || "",
+      };
+    });
   });
 }
 
@@ -349,6 +550,9 @@ type CreateAdminProductInput = {
   inventory: number;
   price: number;
   status?: "draft" | "published" | "proposed" | "rejected";
+  color?: string;
+  storage?: string;
+  gradingData?: string;
 };
 
 export async function createAdminProduct(input: CreateAdminProductInput) {
@@ -356,6 +560,7 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
     const title = input.title.trim();
     const description = input.description?.trim() || null;
     const thumbnail = input.thumbnail?.trim() || null;
+    const gradingData = input.gradingData?.trim() || null;
 
     if (!title) {
       throw new Error("Product title is required.");
@@ -379,6 +584,12 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       const currencyCode =
         currencyResult.rows[0]?.default_currency_code?.toLowerCase() || "usd";
       const status = input.status || "published";
+      const metadata = buildProductMetadata(undefined, {
+        title,
+        handle,
+        color: input.color,
+        storage: input.storage,
+      });
 
       const productId = createEntityId("prod");
       const variantId = createEntityId("variant");
@@ -393,13 +604,24 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
             description,
             handle,
             thumbnail,
+            grading_data,
+            metadata,
             status,
             created_at,
             updated_at
           )
-          values ($1, $2, $3, $4, $5, $6, now(), now())
+          values ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
         `,
-        [productId, title, description, handle, thumbnail, status],
+        [
+          productId,
+          title,
+          description,
+          handle,
+          thumbnail,
+          gradingData,
+          metadata,
+          status,
+        ],
       );
 
       await client.query(
@@ -559,6 +781,9 @@ type UpdateAdminProductInput = {
   inventory: number;
   price: number;
   status: "draft" | "published" | "proposed" | "rejected";
+  color?: string;
+  storage?: string;
+  gradingData?: string;
 };
 
 export async function updateAdminProduct(input: UpdateAdminProductInput) {
@@ -567,6 +792,7 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
     const title = input.title.trim();
     const description = input.description?.trim() || null;
     const thumbnail = input.thumbnail?.trim() || null;
+    const gradingData = input.gradingData?.trim() || null;
 
     if (!productId) {
       throw new Error("Product id is required.");
@@ -587,9 +813,12 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
     await client.query("begin");
 
     try {
-      const existingProduct = await client.query<{ id: string }>(
+      const existingProduct = await client.query<{
+        id: string;
+        metadata: Record<string, unknown> | null;
+      }>(
         `
-          select id
+          select id, metadata
           from product
           where id = $1
             and deleted_at is null
@@ -603,6 +832,15 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
       }
 
       const handle = await getUniqueProductHandle(client, input.handle, productId);
+      const metadata = buildProductMetadata(
+        existingProduct.rows[0]?.metadata || undefined,
+        {
+          title,
+          handle,
+          color: input.color,
+          storage: input.storage,
+        },
+      );
 
       await client.query(
         `
@@ -612,11 +850,22 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
             description = $3,
             handle = $4,
             thumbnail = $5,
-            status = $6,
+            grading_data = $6,
+            metadata = $7,
+            status = $8,
             updated_at = now()
           where id = $1
         `,
-        [productId, title, description, handle, thumbnail, input.status],
+        [
+          productId,
+          title,
+          description,
+          handle,
+          thumbnail,
+          gradingData,
+          metadata,
+          input.status,
+        ],
       );
 
       await client.query(

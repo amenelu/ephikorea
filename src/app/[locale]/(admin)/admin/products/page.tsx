@@ -155,6 +155,45 @@ export default async function AdminProductsPage({
             </select>
           </label>
 
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Color
+            </span>
+            <input
+              type="text"
+              name="color"
+              defaultValue={editingProduct?.color || ""}
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+              placeholder="Midnight Black"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Storage
+            </span>
+            <input
+              type="text"
+              name="storage"
+              defaultValue={editingProduct?.storage || ""}
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+              placeholder="256GB"
+            />
+          </label>
+
+          <label className="block md:col-span-2">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Grading Notes
+            </span>
+            <textarea
+              name="gradingData"
+              rows={3}
+              defaultValue={editingProduct?.gradingData || ""}
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+              placeholder="Grade A / Minor frame wear / Screen excellent"
+            />
+          </label>
+
           <label className="block md:col-span-2">
             <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
               Description
@@ -243,6 +282,11 @@ export default async function AdminProductsPage({
                     <div className="text-xs text-gray-400">
                       ${(product.price / 100).toFixed(2)}
                     </div>
+                    {product.color || product.storage ? (
+                      <div className="mt-1 text-xs text-gray-400">
+                        {[product.color, product.storage].filter(Boolean).join(" / ")}
+                      </div>
+                    ) : null}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-2">

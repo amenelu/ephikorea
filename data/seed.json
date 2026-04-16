@@ -27,7 +27,7 @@
         {
           "title": "Default Style",
           "inventory_quantity": 100,
-          "prices": [{ "currency_code": "usd", "amount": 35000 }],
+          "prices": [{ "currency_code": "usd", "amount": 29900 }],
           "options": [{ "value": "Default Style" }]
         }
       ]
@@ -45,7 +45,7 @@
         {
           "title": "44mm",
           "inventory_quantity": 50,
-          "prices": [{ "currency_code": "usd", "amount": 45000 }],
+          "prices": [{ "currency_code": "usd", "amount": 39900 }],
           "options": [{ "value": "44mm" }]
         }
       ]
@@ -63,7 +63,7 @@
         {
           "title": "16GB",
           "inventory_quantity": 25,
-          "prices": [{ "currency_code": "usd", "amount": 135000 }],
+          "prices": [{ "currency_code": "usd", "amount": 179900 }],
           "options": [{ "value": "16GB" }]
         }
       ]
@@ -81,7 +81,7 @@
         {
           "title": "256GB",
           "inventory_quantity": 15,
-          "prices": [{ "currency_code": "usd", "amount": 88000 }],
+          "prices": [{ "currency_code": "usd", "amount": 349900 }],
           "options": [{ "value": "256GB" }]
         }
       ]
