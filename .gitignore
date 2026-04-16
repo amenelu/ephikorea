@@ -33,3 +33,4 @@ yarn-error.log*
 # OS specific files
 .DS_Store
 Thumbs.db
+postgresql_13.exe
