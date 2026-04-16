@@ -539,6 +539,14 @@ export async function getAdminProducts() {
 
       return {
         ...row,
+        brandName:
+          typeof row.metadata?.brand_name === "string"
+            ? row.metadata.brand_name
+            : row.title.split(/\s+/).slice(0, 1).join(""),
+        modelName:
+          typeof row.metadata?.model_name === "string"
+            ? row.metadata.model_name
+            : row.title.split(/\s+/).slice(1).join(" "),
         color: facts.color || "",
         storage: facts.storage || "",
         imei: facts.imei || "",
@@ -555,6 +563,8 @@ export async function getAdminProducts() {
 }
 
 type CreateAdminProductInput = {
+  brandName: string;
+  modelName: string;
   title: string;
   handle?: string;
   description?: string;
@@ -617,6 +627,8 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       const metadata = buildProductMetadata(undefined, {
         title,
         handle,
+        brandName: input.brandName,
+        modelName: input.modelName,
         color: input.color,
         storage: input.storage,
         imei: input.imei,
@@ -810,6 +822,8 @@ export async function removeAdminProduct(productId: string) {
 
 type UpdateAdminProductInput = {
   productId: string;
+  brandName: string;
+  modelName: string;
   title: string;
   handle: string;
   description?: string;
@@ -891,6 +905,8 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
         {
           title,
           handle,
+          brandName: input.brandName,
+          modelName: input.modelName,
           color: input.color,
           storage: input.storage,
           imei: input.imei,

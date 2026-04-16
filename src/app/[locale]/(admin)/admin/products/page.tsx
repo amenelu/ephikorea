@@ -6,6 +6,7 @@ import {
   removeProductAction,
   updateProductAction,
 } from "./actions";
+import ProductFormFields from "./product-form-fields";
 
 export default async function AdminProductsPage({
   params: { locale },
@@ -79,33 +80,11 @@ export default async function AdminProductsPage({
             <input type="hidden" name="productId" value={editingProduct.id} />
           ) : null}
 
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Title
-            </span>
-            <input
-              type="text"
-              name="title"
-              required
-              defaultValue={editingProduct?.title}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="Aman mobile Air"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Handle
-            </span>
-            <input
-              type="text"
-              name="handle"
-              required
-              defaultValue={editingProduct?.handle}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="aman-mobile-air"
-            />
-          </label>
+          <ProductFormFields
+            initialBrandName={editingProduct?.brandName}
+            initialModelName={editingProduct?.modelName}
+            initialHandle={editingProduct?.handle}
+          />
 
           <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">

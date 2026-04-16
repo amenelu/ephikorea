@@ -11,6 +11,14 @@ export type EditableProductFacts = {
   imei?: string;
 };
 
+function getStoredBrandName(metadata?: Record<string, unknown> | null) {
+  return asString(metadata?.brand_name);
+}
+
+function getStoredModelName(metadata?: Record<string, unknown> | null) {
+  return asString(metadata?.model_name);
+}
+
 export type ProductSpec = {
   label: string;
   value: string;
@@ -122,6 +130,12 @@ function inferBrand(source: {
   handle?: string | null;
   metadata?: Record<string, unknown> | null;
 }) {
+  const storedBrand = getStoredBrandName(source.metadata);
+
+  if (storedBrand) {
+    return storedBrand;
+  }
+
   const haystack = [source.title, source.handle]
     .filter(Boolean)
     .join(" ")
@@ -149,7 +163,14 @@ function inferBrand(source: {
 function inferModelName(source: {
   title?: string;
   handle?: string | null;
+  metadata?: Record<string, unknown> | null;
 }) {
+  const storedModel = getStoredModelName(source.metadata);
+
+  if (storedModel) {
+    return storedModel;
+  }
+
   const title = source.title?.trim();
 
   if (title) {
@@ -253,6 +274,8 @@ export function buildProductMetadata(
     color?: string;
     storage?: string;
     imei?: string;
+    brandName?: string;
+    modelName?: string;
     referenceUrl?: string;
     referenceSpecs?: ProductSpec[];
     referenceSpecSections?: ProductSpecSection[];
@@ -268,6 +291,8 @@ export function buildProductMetadata(
 
   return {
     ...(existingMetadata || {}),
+    brand_name: source.brandName?.trim() || null,
+    model_name: source.modelName?.trim() || null,
     product_profile: profile,
     reference_url: sanitizedReferenceUrl || null,
     reference_specs: source.referenceSpecs?.length ? source.referenceSpecs : null,

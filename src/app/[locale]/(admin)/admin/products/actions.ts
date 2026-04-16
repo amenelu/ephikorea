@@ -113,6 +113,16 @@ function parseImei(rawValue: FormDataEntryValue | null) {
   return normalized;
 }
 
+function buildProductTitle(brandName: string, modelName: string) {
+  const title = `${brandName.trim()} ${modelName.trim()}`.trim();
+
+  if (!title) {
+    throw new Error("Brand name and model are required.");
+  }
+
+  return title;
+}
+
 function revalidateAdminProductPaths(locale: string) {
   revalidatePath(`/${locale}`);
   revalidatePath(`/${locale}/products`);
@@ -125,7 +135,9 @@ export async function addProductAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
 
   try {
-    const title = String(formData.get("title") || "");
+    const brandName = String(formData.get("brandName") || "").trim();
+    const modelName = String(formData.get("modelName") || "").trim();
+    const title = buildProductTitle(brandName, modelName);
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
     const thumbnail = String(formData.get("thumbnail") || "");
@@ -140,6 +152,8 @@ export async function addProductAction(formData: FormData) {
     const status = parseStatus(formData.get("status"));
 
     await createAdminProduct({
+      brandName,
+      modelName,
       title,
       handle,
       description,
@@ -178,7 +192,9 @@ export async function updateProductAction(formData: FormData) {
   const productId = String(formData.get("productId") || "");
 
   try {
-    const title = String(formData.get("title") || "");
+    const brandName = String(formData.get("brandName") || "").trim();
+    const modelName = String(formData.get("modelName") || "").trim();
+    const title = buildProductTitle(brandName, modelName);
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
     const thumbnail = String(formData.get("thumbnail") || "");
@@ -194,6 +210,8 @@ export async function updateProductAction(formData: FormData) {
 
     await updateAdminProduct({
       productId,
+      brandName,
+      modelName,
       title,
       handle,
       description,
