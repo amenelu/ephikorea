@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { getAdminProducts } from "@/lib/admin-data";
 import {
   addProductAction,
@@ -11,7 +12,7 @@ export default async function AdminProductsPage({
   searchParams,
 }: {
   params: { locale: string };
-  searchParams: { status?: string; message?: string; edit?: string };
+  searchParams: { status?: string; message?: string; edit?: string; reset?: string };
 }) {
   const products = await getAdminProducts();
   const status = searchParams.status;
@@ -20,6 +21,18 @@ export default async function AdminProductsPage({
     (product) => product.id === searchParams.edit,
   );
   const formAction = editingProduct ? updateProductAction : addProductAction;
+  const batteryOptions = Array.from({ length: 11 }, (_, index) => 100 - index * 5);
+  const storageOptions = [
+    { value: "", label: "Select storage" },
+    { value: "32", label: "32GB" },
+    { value: "64", label: "64GB" },
+    { value: "128", label: "128GB" },
+    { value: "256", label: "256GB" },
+    { value: "512", label: "512GB" },
+    { value: "1024", label: "1TB" },
+    { value: "2048", label: "2TB" },
+  ];
+  const gradeOptions = ["Grade A", "Grade B", "Grade C"];
 
   return (
     <div className="space-y-8">
@@ -56,7 +69,11 @@ export default async function AdminProductsPage({
           </p>
         </div>
 
-        <form action={formAction} className="grid gap-4 md:grid-cols-2">
+        <form
+          key={`${editingProduct?.id || "new"}-${searchParams.reset || "default"}`}
+          action={formAction}
+          className="grid gap-4 md:grid-cols-2"
+        >
           <input type="hidden" name="locale" value={locale} />
           {editingProduct ? (
             <input type="hidden" name="productId" value={editingProduct.id} />
@@ -137,6 +154,26 @@ export default async function AdminProductsPage({
               className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
               placeholder="https://example.com/product.jpg"
             />
+            <span className="mt-2 block text-xs text-gray-400">
+              Use a direct image URL here, not the manufacturer specs page.
+            </span>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Spec Sheet URL
+            </span>
+            <input
+              type="url"
+              name="referenceUrl"
+              defaultValue={editingProduct?.referenceUrl || ""}
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+              placeholder="https://www.samsung.com/.../specs/"
+            />
+            <span className="mt-2 block text-xs text-gray-400">
+              Paste the official product detail or specs page and we&apos;ll use it
+              to build the spec sheet automatically.
+            </span>
           </label>
 
           <label className="block">
@@ -172,26 +209,71 @@ export default async function AdminProductsPage({
             <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
               Storage
             </span>
-            <input
-              type="text"
+            <select
               name="storage"
               defaultValue={editingProduct?.storage || ""}
               className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="256GB"
+            >
+              {storageOptions.map((option) => (
+                <option key={option.value || "empty"} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Battery Health
+            </span>
+            <select
+              name="batteryHealth"
+              defaultValue={
+                editingProduct?.batteryHealth !== ""
+                  ? String(editingProduct?.batteryHealth)
+                  : ""
+              }
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+            >
+              <option value="">Select battery health</option>
+              {batteryOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}%
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              IMEI
+            </span>
+            <input
+              type="text"
+              name="imei"
+              inputMode="numeric"
+              defaultValue={editingProduct?.imei || ""}
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+              placeholder="357123456789012"
             />
           </label>
 
-          <label className="block md:col-span-2">
+          <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Grading Notes
+              Grading
             </span>
-            <textarea
+            <select
               name="gradingData"
-              rows={3}
               defaultValue={editingProduct?.gradingData || ""}
               className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="Grade A / Minor frame wear / Screen excellent"
-            />
+            >
+              <option value="">Select grade</option>
+              {gradeOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label className="block md:col-span-2">
@@ -254,14 +336,23 @@ export default async function AdminProductsPage({
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400 shadow-inner">
-                        {product.thumbnail ? (
-                          <Image
-                            src={product.thumbnail}
-                            alt={product.title}
-                            width={48}
-                            height={48}
-                            className="rounded-xl object-cover"
-                          />
+                        {product.thumbnail && isLikelyImageUrl(product.thumbnail) ? (
+                          canUseNextImage(product.thumbnail) ? (
+                            <Image
+                              src={product.thumbnail}
+                              alt={product.title}
+                              width={48}
+                              height={48}
+                              className="rounded-xl object-cover"
+                            />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={product.thumbnail}
+                              alt={product.title}
+                              className="h-12 w-12 rounded-xl object-cover"
+                            />
+                          )
                         ) : (
                           "PKG"
                         )}
@@ -285,6 +376,13 @@ export default async function AdminProductsPage({
                     {product.color || product.storage ? (
                       <div className="mt-1 text-xs text-gray-400">
                         {[product.color, product.storage].filter(Boolean).join(" / ")}
+                      </div>
+                    ) : null}
+                    {product.gradingData || product.batteryHealth !== "" ? (
+                      <div className="mt-1 text-xs text-gray-400">
+                        {[product.gradingData, product.batteryHealth !== "" ? `${product.batteryHealth}% battery` : ""]
+                          .filter(Boolean)
+                          .join(" / ")}
                       </div>
                     ) : null}
                   </td>

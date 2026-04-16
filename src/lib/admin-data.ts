@@ -4,7 +4,10 @@ import { randomUUID } from "crypto";
 
 import {
   buildProductMetadata,
+  fetchReferenceSpecSections,
+  fetchReferenceSpecs,
   getEditableProductFacts,
+  sanitizeHttpUrl,
 } from "@/lib/product-specs";
 import { formatAmount } from "@/lib/utils";
 
@@ -493,6 +496,7 @@ export async function getAdminProducts() {
       status: string;
       thumbnail: string | null;
       grading_data: string | null;
+      battery_health: number | null;
       metadata: Record<string, unknown> | null;
       inventory: number;
       price: number;
@@ -505,6 +509,7 @@ export async function getAdminProducts() {
         p.status,
         p.thumbnail,
         p.grading_data,
+        p.battery_health,
         p.metadata,
         coalesce((
           select sum(pv2.inventory_quantity)::int
@@ -536,7 +541,14 @@ export async function getAdminProducts() {
         ...row,
         color: facts.color || "",
         storage: facts.storage || "",
+        imei: facts.imei || "",
         gradingData: row.grading_data || "",
+        batteryHealth: row.battery_health ?? "",
+        referenceUrl: sanitizeHttpUrl(
+          typeof row.metadata?.reference_url === "string"
+            ? row.metadata.reference_url
+            : "",
+        ) || "",
       };
     });
   });
@@ -552,7 +564,10 @@ type CreateAdminProductInput = {
   status?: "draft" | "published" | "proposed" | "rejected";
   color?: string;
   storage?: string;
+  imei?: string;
   gradingData?: string;
+  batteryHealth?: number | null;
+  referenceUrl?: string;
 };
 
 export async function createAdminProduct(input: CreateAdminProductInput) {
@@ -561,6 +576,8 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
     const description = input.description?.trim() || null;
     const thumbnail = input.thumbnail?.trim() || null;
     const gradingData = input.gradingData?.trim() || null;
+    const batteryHealth =
+      typeof input.batteryHealth === "number" ? input.batteryHealth : null;
 
     if (!title) {
       throw new Error("Product title is required.");
@@ -573,6 +590,19 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
     if (!Number.isFinite(input.price) || input.price < 0) {
       throw new Error("Price must be zero or greater.");
     }
+
+    if (
+      batteryHealth !== null &&
+      (!Number.isFinite(batteryHealth) || batteryHealth < 0 || batteryHealth > 100)
+    ) {
+      throw new Error("Battery health must be between 0 and 100.");
+    }
+
+    const referenceUrl = sanitizeHttpUrl(input.referenceUrl);
+    const [referenceSpecs, referenceSpecSections] = await Promise.all([
+      fetchReferenceSpecs(referenceUrl),
+      fetchReferenceSpecSections(referenceUrl),
+    ]);
 
     await client.query("begin");
 
@@ -589,6 +619,10 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
         handle,
         color: input.color,
         storage: input.storage,
+        imei: input.imei,
+        referenceUrl,
+        referenceSpecs,
+        referenceSpecSections,
       });
 
       const productId = createEntityId("prod");
@@ -604,13 +638,14 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
             description,
             handle,
             thumbnail,
+            battery_health,
             grading_data,
             metadata,
             status,
             created_at,
             updated_at
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
         `,
         [
           productId,
@@ -618,6 +653,7 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
           description,
           handle,
           thumbnail,
+          batteryHealth,
           gradingData,
           metadata,
           status,
@@ -783,7 +819,10 @@ type UpdateAdminProductInput = {
   status: "draft" | "published" | "proposed" | "rejected";
   color?: string;
   storage?: string;
+  imei?: string;
   gradingData?: string;
+  batteryHealth?: number | null;
+  referenceUrl?: string;
 };
 
 export async function updateAdminProduct(input: UpdateAdminProductInput) {
@@ -793,6 +832,8 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
     const description = input.description?.trim() || null;
     const thumbnail = input.thumbnail?.trim() || null;
     const gradingData = input.gradingData?.trim() || null;
+    const batteryHealth =
+      typeof input.batteryHealth === "number" ? input.batteryHealth : null;
 
     if (!productId) {
       throw new Error("Product id is required.");
@@ -809,6 +850,19 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
     if (!Number.isFinite(input.price) || input.price < 0) {
       throw new Error("Price must be zero or greater.");
     }
+
+    if (
+      batteryHealth !== null &&
+      (!Number.isFinite(batteryHealth) || batteryHealth < 0 || batteryHealth > 100)
+    ) {
+      throw new Error("Battery health must be between 0 and 100.");
+    }
+
+    const referenceUrl = sanitizeHttpUrl(input.referenceUrl);
+    const [referenceSpecs, referenceSpecSections] = await Promise.all([
+      fetchReferenceSpecs(referenceUrl),
+      fetchReferenceSpecSections(referenceUrl),
+    ]);
 
     await client.query("begin");
 
@@ -839,6 +893,10 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
           handle,
           color: input.color,
           storage: input.storage,
+          imei: input.imei,
+          referenceUrl,
+          referenceSpecs,
+          referenceSpecSections,
         },
       );
 
@@ -850,9 +908,10 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
             description = $3,
             handle = $4,
             thumbnail = $5,
-            grading_data = $6,
-            metadata = $7,
-            status = $8,
+            battery_health = $6,
+            grading_data = $7,
+            metadata = $8,
+            status = $9,
             updated_at = now()
           where id = $1
         `,
@@ -862,6 +921,7 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
           description,
           handle,
           thumbnail,
+          batteryHealth,
           gradingData,
           metadata,
           input.status,

@@ -18,28 +18,29 @@ function buildRedirectPath(
 export async function completeOrderAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
   const orderId = String(formData.get("orderId") || "");
+  let updated = false;
 
   try {
-    const updated = await completeAdminOrder(orderId);
+    updated = await completeAdminOrder(orderId);
 
     revalidatePath(`/${locale}/admin`);
     revalidatePath(`/${locale}/admin/orders`);
     revalidatePath(`/${locale}/admin/orders/${orderId}`);
-
-    if (!updated) {
-      redirect(
-        buildRedirectPath(
-          locale,
-          orderId,
-          "error",
-          "Order is already completed or could not be updated.",
-        ),
-      );
-    }
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to complete order.";
     redirect(buildRedirectPath(locale, orderId, "error", message));
+  }
+
+  if (!updated) {
+    redirect(
+      buildRedirectPath(
+        locale,
+        orderId,
+        "error",
+        "Order is already completed or could not be updated.",
+      ),
+    );
   }
 
   redirect(

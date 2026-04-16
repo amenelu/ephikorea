@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { CPOProduct } from "@/types/medusa";
 import { formatAmount } from "@/lib/utils";
 
@@ -17,14 +18,23 @@ export const ProductCard = ({
       className="group relative flex flex-col overflow-hidden rounded-2xl bg-white p-4 transition-all hover:shadow-xl"
     >
       <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-[#f5f5f7]">
-        {product.thumbnail && (
-          <Image
-            src={product.thumbnail}
-            alt={product.title}
-            fill
-            className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
+        {product.thumbnail && isLikelyImageUrl(product.thumbnail) ? (
+          canUseNextImage(product.thumbnail) ? (
+            <Image
+              src={product.thumbnail}
+              alt={product.title}
+              fill
+              className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.thumbnail}
+              alt={product.title}
+              className="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+            />
+          )
+        ) : null}
         {product.is_certified_pre_owned && (
           <div className="absolute left-3 top-3 rounded-full bg-blue-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
             Certified Pre-Owned

@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Globe, Search, Shield, ShoppingCart } from "lucide-react";
+import { Globe, Search, Shield } from "lucide-react";
+
+import { CartIconLink } from "@/components/layout/cart-icon-link";
 
 export const Header = ({ locale }: { locale: string }) => {
   return (
@@ -53,12 +55,7 @@ export const Header = ({ locale }: { locale: string }) => {
             <Shield className="h-5 w-5" />
           </Link>
 
-          <Link
-            href={`/${locale}/cart`}
-            className="relative p-2 text-gray-600 transition-colors hover:text-yellow-500"
-          >
-            <ShoppingCart className="h-5 w-5" />
-          </Link>
+          <CartIconLink locale={locale} />
         </div>
       </div>
 

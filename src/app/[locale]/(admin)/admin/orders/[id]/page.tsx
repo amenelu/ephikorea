@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { getAdminOrderDetails } from "@/lib/admin-data";
+import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { completeOrderAction } from "./actions";
 
 export default async function AdminOrderDetailsPage({
@@ -95,14 +96,23 @@ export default async function AdminOrderDetailsPage({
               >
                 <div className="flex items-center gap-4">
                   <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400">
-                    {item.thumbnail ? (
-                      <Image
-                        src={item.thumbnail}
-                        alt={item.title}
-                        width={64}
-                        height={64}
-                        className="h-full w-full object-cover"
-                      />
+                    {item.thumbnail && isLikelyImageUrl(item.thumbnail) ? (
+                      canUseNextImage(item.thumbnail) ? (
+                        <Image
+                          src={item.thumbnail}
+                          alt={item.title}
+                          width={64}
+                          height={64}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.thumbnail}
+                          alt={item.title}
+                          className="h-full w-full object-cover"
+                        />
+                      )
                     ) : (
                       "PKG"
                     )}
