@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { requireAdminActionAccess } from "@/lib/admin-auth";
 import { completeAdminOrder } from "@/lib/admin-data";
 
 function buildRedirectPath(
@@ -19,6 +20,7 @@ export async function completeOrderAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
   const orderId = String(formData.get("orderId") || "");
   let updated = false;
+  await requireAdminActionAccess(locale);
 
   try {
     updated = await completeAdminOrder(orderId);

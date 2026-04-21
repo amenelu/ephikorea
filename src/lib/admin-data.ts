@@ -9,6 +9,7 @@ import {
   getEditableProductFacts,
   sanitizeHttpUrl,
 } from "@/lib/product-specs";
+import { assertAdminAuthenticated } from "@/lib/admin-auth";
 import { formatAmount } from "@/lib/utils";
 
 const { Client } = require("pg");
@@ -125,6 +126,8 @@ async function getUniqueProductHandle(
 }
 
 export async function getAdminDashboardData() {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const productCount = await client.query<{ count: number }>(
       'select count(*)::int as count from "product"',
@@ -199,6 +202,8 @@ export async function getAdminDashboardData() {
 }
 
 export async function getAdminOrders(query?: string) {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const searchTerm = query?.trim();
     const params: unknown[] = [];
@@ -260,6 +265,8 @@ export async function getAdminOrders(query?: string) {
 }
 
 export async function getAdminOrderDetails(orderId: string) {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const orderRows = await client.query<{
       order_id: string;
@@ -391,6 +398,8 @@ export async function getAdminOrderDetails(orderId: string) {
 }
 
 export async function completeAdminOrder(orderId: string) {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const normalizedId = orderId.trim();
 
@@ -418,6 +427,8 @@ export async function completeAdminOrder(orderId: string) {
 }
 
 export async function getAdminCustomers() {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const { rows } = await client.query<{
       id: string;
@@ -487,6 +498,8 @@ export async function getAdminCustomers() {
 }
 
 export async function getAdminProducts() {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const { rows } = await client.query<{
       id: string;
@@ -581,6 +594,8 @@ type CreateAdminProductInput = {
 };
 
 export async function createAdminProduct(input: CreateAdminProductInput) {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const title = input.title.trim();
     const description = input.description?.trim() || null;
@@ -726,6 +741,8 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
 }
 
 export async function removeAdminProduct(productId: string) {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const normalizedId = productId.trim();
 
@@ -840,6 +857,8 @@ type UpdateAdminProductInput = {
 };
 
 export async function updateAdminProduct(input: UpdateAdminProductInput) {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const productId = input.productId.trim();
     const title = input.title.trim();
@@ -985,6 +1004,8 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
 }
 
 export async function getAdminSettingsData() {
+  await assertAdminAuthenticated();
+
   return withClient(async (client) => {
     const storeResult = await client.query<{
       name: string | null;

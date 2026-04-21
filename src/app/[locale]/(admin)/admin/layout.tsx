@@ -8,13 +8,18 @@ import {
   Settings,
 } from "lucide-react";
 
-export default function AdminLayout({
+import { requireAdminPageAccess } from "@/lib/admin-auth";
+import { logoutAdminAction } from "@/app/[locale]/admin/login/actions";
+
+export default async function AdminLayout({
   children,
   params: { locale },
 }: {
   children: React.ReactNode;
   params: { locale: string };
 }) {
+  await requireAdminPageAccess(locale);
+
   const navItems = [
     { label: "Dashboard", href: `/${locale}/admin`, icon: LayoutDashboard },
     { label: "Products", href: `/${locale}/admin/products`, icon: Package },
@@ -55,6 +60,15 @@ export default function AdminLayout({
           <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">
             Management Console
           </h2>
+          <form action={logoutAdminAction}>
+            <input type="hidden" name="locale" value={locale} />
+            <button
+              type="submit"
+              className="rounded-full border border-gray-200 px-4 py-2 text-xs font-bold uppercase tracking-wide text-gray-500 transition hover:border-gray-300 hover:text-gray-900"
+            >
+              Sign out
+            </button>
+          </form>
         </header>
         <div className="p-8">{children}</div>
       </main>

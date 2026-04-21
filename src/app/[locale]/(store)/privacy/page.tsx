@@ -10,7 +10,28 @@ export default function PrivacyPage({
       locale={locale}
       eyebrow="Company"
       title="Privacy Policy"
-      description="Customer and order data should be handled through your Medusa backend policies and environment configuration. This placeholder policy page now gives users a stable destination while you finalize the production privacy copy."
+      description="This demo privacy policy explains the kind of customer information a modern electronics storefront would collect during browsing, checkout, and support interactions. Replace this copy with legal-reviewed text before launch."
+      highlights={[
+        "Basic checkout and contact details",
+        "Operational use for orders and support",
+        "Placeholder content for demo environments",
+      ]}
+      sections={[
+        {
+          title: "Information We Collect",
+          body: "Aman Mobile may collect names, email addresses, phone numbers, delivery details, and order information when customers browse products, contact support, or place an order.",
+        },
+        {
+          title: "How We Use It",
+          body: "In a production version of the store, that information would be used to fulfill orders, provide shipping updates, answer support requests, improve storefront performance, and prevent misuse.",
+        },
+        {
+          title: "Data Handling Note",
+          body: "This page is sample content only. Real privacy terms should match your hosting setup, analytics tools, payment providers, cookie usage, and the laws that apply to your customers.",
+        },
+      ]}
+      primaryLink={{ href: `/${locale}/contact`, label: "Privacy questions" }}
+      secondaryLink={{ href: `/${locale}/products`, label: "Return to shopping" }}
     />
   );
 }

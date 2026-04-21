@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { requireAdminActionAccess } from "@/lib/admin-auth";
 import {
   createAdminProduct,
   removeAdminProduct,
@@ -133,6 +134,7 @@ function revalidateAdminProductPaths(locale: string) {
 
 export async function addProductAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
+  await requireAdminActionAccess(locale);
 
   try {
     const brandName = String(formData.get("brandName") || "").trim();
@@ -190,6 +192,7 @@ export async function addProductAction(formData: FormData) {
 export async function updateProductAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
   const productId = String(formData.get("productId") || "");
+  await requireAdminActionAccess(locale);
 
   try {
     const brandName = String(formData.get("brandName") || "").trim();
@@ -241,6 +244,7 @@ export async function removeProductAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
   const productId = String(formData.get("productId") || "");
   let removed = false;
+  await requireAdminActionAccess(locale);
 
   try {
     removed = await removeAdminProduct(productId);

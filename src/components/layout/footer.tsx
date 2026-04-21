@@ -24,7 +24,7 @@ export const Footer = ({ locale }: { locale: string }) => {
             <ul className="mt-4 space-y-2">
               <li>
                 <Link
-                  href={`/${locale}/products`}
+                  href={`/${locale}/collections/audio`}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Audio
@@ -32,7 +32,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               </li>
               <li>
                 <Link
-                  href={`/${locale}/products`}
+                  href={`/${locale}/collections/computing`}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Computing
@@ -40,7 +40,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               </li>
               <li>
                 <Link
-                  href={`/${locale}/products`}
+                  href={`/${locale}/collections/wearables`}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Wearables
@@ -94,7 +94,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               </li>
               <li>
                 <Link
-                  href={`/${locale}/admin/settings`}
+                  href={`/${locale}/sustainability`}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Sustainability
