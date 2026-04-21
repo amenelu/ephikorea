@@ -169,6 +169,74 @@ export async function getAdminDashboardData() {
       order by o.created_at desc
       limit 5
     `);
+    const pendingOrderCount = await client.query<{ count: number }>(`
+      select count(*)::int as count
+      from "order"
+      where coalesce(payment_status::text, fulfillment_status::text, status::text) in (
+        'pending',
+        'requires_action',
+        'not_fulfilled',
+        'partially_fulfilled'
+      )
+    `);
+    const lowStockProducts = await client.query<{
+      count: number;
+      lowest_inventory: number | null;
+    }>(`
+      select
+        count(*)::int as count,
+        min(inventory)::int as lowest_inventory
+      from (
+        select
+          p.id,
+          coalesce(sum(pv.inventory_quantity), 0)::int as inventory
+        from product p
+        left join product_variant pv
+          on pv.product_id = p.id
+          and pv.deleted_at is null
+        where p.deleted_at is null
+        group by p.id
+      ) product_inventory
+      where inventory <= 3
+    `);
+
+    const notifications = [];
+    const pendingOrders = pendingOrderCount.rows[0]?.count ?? 0;
+    const lowStockCount = lowStockProducts.rows[0]?.count ?? 0;
+    const lowestInventory = lowStockProducts.rows[0]?.lowest_inventory ?? 0;
+
+    if (pendingOrders > 0) {
+      notifications.push({
+        id: "pending-orders",
+        title: `${pendingOrders} order${pendingOrders === 1 ? "" : "s"} need attention`,
+        body: "Review payment or fulfillment status before customers wait too long.",
+        href: "/admin/orders",
+        action: "View orders",
+        tone: "yellow",
+      });
+    }
+
+    if (lowStockCount > 0) {
+      notifications.push({
+        id: "low-stock",
+        title: `${lowStockCount} product${lowStockCount === 1 ? "" : "s"} low on stock`,
+        body: `Lowest available inventory is ${lowestInventory}. Update stock or hide sold-out items.`,
+        href: "/admin/products",
+        action: "Manage inventory",
+        tone: "red",
+      });
+    }
+
+    if (notifications.length === 0) {
+      notifications.push({
+        id: "all-clear",
+        title: "No urgent admin alerts",
+        body: "Orders and inventory look steady right now.",
+        href: "/admin",
+        action: "Refresh dashboard",
+        tone: "green",
+      });
+    }
 
     return {
       stats: [
@@ -197,6 +265,7 @@ export async function getAdminDashboardData() {
         status: order.status || "pending",
         statusTone: toStatusTone(order.status),
       })),
+      notifications,
     };
   });
 }

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { randomUUID } from "crypto";
+import { sendAdminOrderNotification } from "@/lib/email";
 
 const { Client } = require("pg");
 
@@ -400,6 +401,12 @@ export async function submitGuestOrder(input: {
       );
 
       const orderId = createEntityId("order");
+      const notificationItems: {
+        title: string;
+        variantTitle: string | null;
+        quantity: number;
+        unitPrice: number;
+      }[] = [];
 
       await client.query(
         `
@@ -436,6 +443,12 @@ export async function submitGuestOrder(input: {
 
       for (const item of items) {
         const variant = variants.get(item.variantId)!;
+        notificationItems.push({
+          title: variant.title,
+          variantTitle: variant.variant_title || null,
+          quantity: item.quantity,
+          unitPrice: variant.unit_price,
+        });
 
         await client.query(
           `
@@ -478,6 +491,28 @@ export async function submitGuestOrder(input: {
       }
 
       await client.query("commit");
+
+      try {
+        await sendAdminOrderNotification({
+          orderId,
+          customerName: fullName,
+          customerEmail: email,
+          customerPhone: phone,
+          deliveryAddress: {
+            address1,
+            address2,
+            city,
+            province,
+            postalCode,
+            countryCode,
+          },
+          currencyCode,
+          total,
+          items: notificationItems,
+        });
+      } catch (error) {
+        console.error("Unable to send admin order notification email.", error);
+      }
 
       return orderId;
     } catch (error) {
