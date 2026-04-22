@@ -2,8 +2,11 @@ import Link from "next/link";
 import { Globe, Search, Shield } from "lucide-react";
 
 import { CartIconLink } from "@/components/layout/cart-icon-link";
+import { getLocaleOption } from "@/lib/locales";
 
 export const Header = ({ locale }: { locale: string }) => {
+  const localeOption = getLocaleOption(locale);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -11,9 +14,9 @@ export const Header = ({ locale }: { locale: string }) => {
           <Link
             href={`/${locale}`}
             className="text-xl font-black tracking-tighter text-yellow-500 transition-all hover:opacity-80"
-            aria-label="Store Home"
+            aria-label="Aman mobile home"
           >
-            STORE<span className="text-black">FRONT</span>
+            AMAN<span className="text-black">MOBILE</span>
           </Link>
         </div>
 
@@ -40,11 +43,12 @@ export const Header = ({ locale }: { locale: string }) => {
         <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
           <Link
             href={`/${locale}/settings/language`}
+            prefetch={false}
             className="hidden items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-yellow-500 lg:flex"
             aria-label="Language settings"
           >
             <Globe className="h-4 w-4" />
-            EN
+            {localeOption.shortLabel}
           </Link>
 
           <Link

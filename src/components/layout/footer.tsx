@@ -8,6 +8,7 @@ export const Footer = ({ locale }: { locale: string }) => {
           <div className="col-span-2 md:col-span-1">
             <Link
               href={`/${locale}`}
+              prefetch={false}
               className="text-xl font-black tracking-tighter text-yellow-500"
             >
               AMAN<span className="text-black">MOBILE</span>
@@ -25,6 +26,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/collections/audio`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Audio
@@ -33,6 +35,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/collections/computing`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Computing
@@ -41,6 +44,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/collections/wearables`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Wearables
@@ -56,6 +60,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/support/shipping`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Shipping Info
@@ -64,6 +69,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/support/returns`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Returns
@@ -72,6 +78,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/contact`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Contact
@@ -87,6 +94,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/about`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   About Us
@@ -95,6 +103,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/sustainability`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Sustainability
@@ -103,6 +112,7 @@ export const Footer = ({ locale }: { locale: string }) => {
               <li>
                 <Link
                   href={`/${locale}/privacy`}
+                  prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   Privacy Policy

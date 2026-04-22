@@ -60,12 +60,14 @@ export function InfoPage({
         <div className="mt-10 flex flex-wrap gap-4">
           <Link
             href={primaryLink?.href || `/${locale}/products`}
+            prefetch={false}
             className="rounded-full bg-black px-6 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
           >
             {primaryLink?.label || "Browse products"}
           </Link>
           <Link
             href={secondaryLink?.href || `/${locale}/cart`}
+            prefetch={false}
             className="rounded-full border border-gray-200 bg-white px-6 py-3 text-sm font-bold text-gray-900 transition-colors hover:bg-gray-50"
           >
             {secondaryLink?.label || "Start checkout"}

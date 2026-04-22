@@ -1,21 +1,30 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const locales = ["ko", "en"];
-const defaultLocale = "ko";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE_NAME,
+  SUPPORTED_LOCALES,
+  isSupportedLocale,
+} from "@/lib/locales";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if the pathname is missing a locale
-  const pathnameIsMissingLocale = locales.every(
+  const pathnameIsMissingLocale = SUPPORTED_LOCALES.every(
     (locale) =>
       !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`,
   );
 
   if (pathnameIsMissingLocale) {
+    const savedLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
+    const locale = savedLocale && isSupportedLocale(savedLocale)
+      ? savedLocale
+      : DEFAULT_LOCALE;
+
     return NextResponse.redirect(
-      new URL(`/${defaultLocale}${pathname}`, request.url),
+      new URL(`/${locale}${pathname}`, request.url),
     );
   }
 }

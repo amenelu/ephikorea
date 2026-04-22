@@ -1,4 +1,7 @@
 import { InfoPage } from "@/components/layout/info-page";
+import { generateLocaleStaticParams } from "@/lib/locales";
+
+export const generateStaticParams = generateLocaleStaticParams;
 
 export default function ComputingCollectionPage({
   params: { locale },
