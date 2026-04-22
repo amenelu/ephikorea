@@ -7,7 +7,7 @@ export default async function HomePage({
 }: {
   params: { locale: string };
 }) {
-  const featuredProducts = (await getCatalogProducts()).slice(0, 3);
+  const featuredProducts = await getCatalogProducts(3);
 
   return (
     <div className="flex flex-col gap-12 pb-20">

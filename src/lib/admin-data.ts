@@ -12,33 +12,46 @@ import {
 import { assertAdminAuthenticated } from "@/lib/admin-auth";
 import { formatAmount } from "@/lib/utils";
 
-const { Client } = require("pg");
+const { Pool } = require("pg");
 
 const DATABASE_URL =
   process.env.DATABASE_URL ||
   "postgres://postgres:12345678@127.0.0.1:5434/medusa_db";
 
 type PgClient = {
-  connect: () => Promise<void>;
-  end: () => Promise<void>;
+  connect?: () => Promise<void>;
+  end?: () => Promise<void>;
+  release?: () => void;
   query: <T = Record<string, unknown>>(
     sql: string,
     params?: unknown[],
   ) => Promise<{ rows: T[] }>;
 };
 
-function createClient(): PgClient {
-  return new Client({ connectionString: DATABASE_URL });
+type PgPool = {
+  connect: () => Promise<PgClient>;
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var adminPgPool: PgPool | undefined;
 }
 
 async function withClient<T>(callback: (client: PgClient) => Promise<T>) {
-  const client = createClient();
-  await client.connect();
+  globalThis.adminPgPool ??= new Pool({
+    connectionString: DATABASE_URL,
+    max: 10,
+    idleTimeoutMillis: 30_000,
+    allowExitOnIdle: true,
+  });
+
+  const pool = globalThis.adminPgPool!;
+  const client = await pool.connect();
 
   try {
     return await callback(client);
   } finally {
-    await client.end();
+    client.release?.();
   }
 }
 

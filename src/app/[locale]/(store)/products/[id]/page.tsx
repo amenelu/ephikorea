@@ -7,15 +7,12 @@ import { ProductCard } from "@/components/product/product-card";
 import {
   getCatalogProductByIdOrHandle,
   getCatalogProductPrice,
-  getCatalogProducts,
+  getSimilarCatalogProducts,
 } from "@/lib/catalog-data";
 import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import {
   buildBuyerFacingSpecSections,
   buildProductSpecSheet,
-  fetchReferencePreviewImage,
-  fetchReferenceSpecSections,
-  fetchReferenceSpecs,
   getEditableProductFacts,
   getProductReferenceUrl,
   getStoredReferenceSpecSections,
@@ -30,35 +27,26 @@ export default async function ProductDetailsPage({
 }: {
   params: { locale: string; id: string };
 }) {
-  const [product, products] = await Promise.all([
-    getCatalogProductByIdOrHandle(id),
-    getCatalogProducts(),
-  ]);
+  const product = await getCatalogProductByIdOrHandle(id);
 
   if (!product) {
     notFound();
   }
 
+  const similarProductsPromise = getSimilarCatalogProducts(product.id, 3);
   const price = getCatalogProductPrice(product);
   const primaryVariant = product.variants?.[0];
-  const similarProducts = products
-    .filter((item) => item.id !== product.id)
-    .slice(0, 3);
+  const similarProducts = await similarProductsPromise;
   const referenceUrl = getProductReferenceUrl(product.metadata);
   const storedReferenceSpecs = getStoredReferenceSpecs(product.metadata);
   const storedReferenceSections = getStoredReferenceSpecSections(product.metadata);
-  const [referenceSpecs, referenceSections, referencePreviewImage] = await Promise.all([
-    fetchReferenceSpecs(referenceUrl),
-    fetchReferenceSpecSections(referenceUrl),
-    fetchReferencePreviewImage(referenceUrl),
-  ]);
   const displayImageUrl =
     product.thumbnail && isLikelyImageUrl(product.thumbnail)
       ? product.thumbnail
-      : referencePreviewImage;
+      : undefined;
 
-  const specs = buildProductSpecSheet(product, referenceSpecs);
-  const specSections = buildBuyerFacingSpecSections(product, referenceSections, referenceSpecs);
+  const specs = buildProductSpecSheet(product);
+  const specSections = buildBuyerFacingSpecSections(product);
   const productPath = `/${locale}/products/${product.handle || product.id}`;
   const editableFacts = getEditableProductFacts(product.metadata);
   const listingDetails = [
@@ -72,9 +60,7 @@ export default async function ProductDetailsPage({
   ].filter(Boolean) as Array<{ label: string; value: string }>;
   const hasImportedSpecs =
     storedReferenceSpecs.length > 0 ||
-    referenceSpecs.length > 0 ||
-    storedReferenceSections.length > 0 ||
-    referenceSections.length > 0;
+    storedReferenceSections.length > 0;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

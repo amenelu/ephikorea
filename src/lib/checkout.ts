@@ -3,19 +3,22 @@ import "server-only";
 import { randomUUID } from "crypto";
 import { sendAdminOrderNotification } from "@/lib/email";
 
-const { Client } = require("pg");
+const { Pool } = require("pg");
 
 const DATABASE_URL =
   process.env.DATABASE_URL ||
   "postgres://postgres:12345678@127.0.0.1:5434/medusa_db";
 
 type PgClient = {
-  connect: () => Promise<void>;
-  end: () => Promise<void>;
+  release?: () => void;
   query: <T = Record<string, unknown>>(
     sql: string,
     params?: unknown[],
   ) => Promise<{ rows: T[] }>;
+};
+
+type PgPool = {
+  connect: () => Promise<PgClient>;
 };
 
 type CheckoutItem = {
@@ -23,18 +26,26 @@ type CheckoutItem = {
   quantity: number;
 };
 
-function createClient(): PgClient {
-  return new Client({ connectionString: DATABASE_URL });
+declare global {
+  // eslint-disable-next-line no-var
+  var checkoutPgPool: PgPool | undefined;
 }
 
 async function withClient<T>(callback: (client: PgClient) => Promise<T>) {
-  const client = createClient();
-  await client.connect();
+  globalThis.checkoutPgPool ??= new Pool({
+    connectionString: DATABASE_URL,
+    max: 10,
+    idleTimeoutMillis: 30_000,
+    allowExitOnIdle: true,
+  });
+
+  const pool = globalThis.checkoutPgPool!;
+  const client = await pool.connect();
 
   try {
     return await callback(client);
   } finally {
-    await client.end();
+    client.release?.();
   }
 }
 

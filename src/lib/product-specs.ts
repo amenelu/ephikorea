@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 export type ProductProfile =
   | "phone"
   | "laptop"
@@ -660,7 +662,7 @@ function flattenSamsungSpecItems(items: SamsungSpecApiItem[] | null | undefined)
   return specs;
 }
 
-async function fetchSamsungReferenceData(referenceUrl: string) {
+const fetchSamsungReferenceData = cache(async (referenceUrl: string) => {
   const pageResponse = await fetch(referenceUrl, {
     headers: {
       "user-agent": "Mozilla/5.0 EphiKorea Specs Fetcher",
@@ -766,7 +768,7 @@ async function fetchSamsungReferenceData(referenceUrl: string) {
     specs: mergeSpecs(...sections.map((section) => section.specs)),
     sections: mergeSections(sections),
   };
-}
+});
 
 export async function fetchReferenceSpecs(referenceUrl?: string | null) {
   if (!referenceUrl) {

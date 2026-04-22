@@ -2,19 +2,24 @@ import "server-only";
 
 import type { CPOProduct } from "@/types/medusa";
 
-const { Client } = require("pg");
+const { Pool } = require("pg");
 
 const DATABASE_URL =
   process.env.DATABASE_URL ||
   "postgres://postgres:12345678@127.0.0.1:5434/medusa_db";
 
 type PgClient = {
-  connect: () => Promise<void>;
-  end: () => Promise<void>;
+  connect?: () => Promise<void>;
+  end?: () => Promise<void>;
+  release?: () => void;
   query: <T = Record<string, unknown>>(
     sql: string,
     params?: unknown[],
   ) => Promise<{ rows: T[] }>;
+};
+
+type PgPool = {
+  connect: () => Promise<PgClient>;
 };
 
 type ProductRow = {
@@ -35,18 +40,26 @@ type ProductRow = {
   currency_code: string | null;
 };
 
-function createClient(): PgClient {
-  return new Client({ connectionString: DATABASE_URL });
+declare global {
+  // eslint-disable-next-line no-var
+  var catalogPgPool: PgPool | undefined;
 }
 
 async function withClient<T>(callback: (client: PgClient) => Promise<T>) {
-  const client = createClient();
-  await client.connect();
+  globalThis.catalogPgPool ??= new Pool({
+    connectionString: DATABASE_URL,
+    max: 10,
+    idleTimeoutMillis: 30_000,
+    allowExitOnIdle: true,
+  });
+
+  const pool = globalThis.catalogPgPool!;
+  const client = await pool.connect();
 
   try {
     return await callback(client);
   } finally {
-    await client.end();
+    client.release?.();
   }
 }
 
@@ -110,9 +123,36 @@ function mapRowsToProducts(rows: ProductRow[]) {
   return Array.from(products.values());
 }
 
-export async function getCatalogProducts() {
-  return withClient(async (client) => {
-    const { rows } = await client.query<ProductRow>(`
+async function queryCatalogProducts(
+  client: PgClient,
+  options: {
+    limit?: number;
+    excludeProductId?: string;
+  } = {},
+) {
+  const params: unknown[] = [];
+  const whereClauses = ["p.deleted_at is null"];
+
+  if (options.excludeProductId) {
+    params.push(options.excludeProductId);
+    whereClauses.push(`p.id <> $${params.length}`);
+  }
+
+  const limit =
+    typeof options.limit === "number" && Number.isFinite(options.limit)
+      ? Math.max(1, Math.floor(options.limit))
+      : undefined;
+  const limitClause = limit ? `limit ${limit}` : "";
+
+  const { rows } = await client.query<ProductRow>(
+    `
+      with selected_products as (
+        select p.*
+        from product p
+        where ${whereClauses.join(" and ")}
+        order by p.created_at desc
+        ${limitClause}
+      )
       select
         p.id as product_id,
         p.title,
@@ -129,7 +169,7 @@ export async function getCatalogProducts() {
         pv.id as variant_id,
         ma.amount,
         ma.currency_code
-      from product p
+      from selected_products p
       left join product_variant pv
         on pv.product_id = p.id
         and pv.deleted_at is null
@@ -139,11 +179,29 @@ export async function getCatalogProducts() {
       left join money_amount ma
         on ma.id = pvma.money_amount_id
         and ma.deleted_at is null
-      where p.deleted_at is null
       order by p.created_at desc, pv.created_at asc, ma.created_at asc
-    `);
+    `,
+    params,
+  );
 
-    return mapRowsToProducts(rows);
+  return mapRowsToProducts(rows);
+}
+
+export async function getCatalogProducts(limit?: number) {
+  return withClient(async (client) => {
+    return queryCatalogProducts(client, { limit });
+  });
+}
+
+export async function getSimilarCatalogProducts(
+  productId: string,
+  limit = 3,
+) {
+  return withClient(async (client) => {
+    return queryCatalogProducts(client, {
+      excludeProductId: productId,
+      limit,
+    });
   });
 }
 
