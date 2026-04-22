@@ -17,17 +17,25 @@ export async function loginAdminAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
+  let redirectPath = "";
 
   try {
     const authenticated = await validateAdminCredentials(email, password);
 
     if (!authenticated) {
-      redirect(buildLoginRedirect(locale, "Invalid admin email or password."));
+      redirectPath = buildLoginRedirect(
+        locale,
+        "Invalid admin email or password.",
+      );
     }
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to sign in.";
-    redirect(buildLoginRedirect(locale, message));
+    redirectPath = buildLoginRedirect(locale, message);
+  }
+
+  if (redirectPath) {
+    redirect(redirectPath);
   }
 
   redirect(`/${locale}/admin`);
