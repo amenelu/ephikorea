@@ -38,7 +38,7 @@ export default async function AdminProductsPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-black uppercase tracking-tight text-gray-900">
+        <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
           Inventory <span className="text-yellow-500">Management</span>
         </h1>
         <p className="mt-2 text-gray-500">
@@ -58,7 +58,7 @@ export default async function AdminProductsPage({
         </div>
       ) : null}
 
-      <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="mb-5">
           <h2 className="text-lg font-black uppercase tracking-tight text-gray-900">
             {editingProduct ? "Edit Product" : "Add Product"}
@@ -268,7 +268,7 @@ export default async function AdminProductsPage({
             />
           </label>
 
-          <div className="flex gap-3 md:col-span-2">
+          <div className="flex flex-col gap-3 sm:flex-row md:col-span-2">
             <button
               type="submit"
               className="rounded-full bg-yellow-500 px-6 py-3 text-sm font-black uppercase tracking-widest text-black transition hover:bg-yellow-400"
@@ -288,8 +288,8 @@ export default async function AdminProductsPage({
       </div>
 
       {products.length > 0 ? (
-        <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
+          <table className="min-w-[760px] w-full text-left">
             <thead className="border-b border-gray-100 bg-gray-50/50">
               <tr>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -336,9 +336,9 @@ export default async function AdminProductsPage({
                           "PKG"
                         )}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-bold text-gray-900">{product.title}</p>
-                        <p className="text-xs text-gray-400">{product.handle}</p>
+                        <p className="break-all text-xs text-gray-400">{product.handle}</p>
                       </div>
                     </div>
                   </td>

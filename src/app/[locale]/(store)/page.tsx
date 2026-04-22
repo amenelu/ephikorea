@@ -11,12 +11,12 @@ export default async function HomePage({
 
   return (
     <div className="flex flex-col gap-12 pb-20">
-      <section className="relative h-[70vh] w-full overflow-hidden bg-black">
+      <section className="relative min-h-[520px] w-full overflow-hidden bg-black sm:h-[70vh]">
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <span className="mb-4 text-sm font-bold uppercase tracking-widest text-yellow-500">
             Next Generation Electronics
           </span>
-          <h1 className="text-5xl font-black tracking-tighter text-white sm:text-7xl lg:text-8xl">
+          <h1 className="text-4xl font-black tracking-tighter text-white sm:text-7xl lg:text-8xl">
             AMAN<span className="text-yellow-500">MOBILE</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-gray-400">
@@ -32,8 +32,8 @@ export default async function HomePage({
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between border-b border-gray-100 pb-8">
-          <h2 className="text-3xl font-black tracking-tight text-gray-900">
+        <div className="flex flex-col gap-3 border-b border-gray-100 pb-8 sm:flex-row sm:items-end sm:justify-between">
+          <h2 className="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">
             Featured Products
           </h2>
           <Link

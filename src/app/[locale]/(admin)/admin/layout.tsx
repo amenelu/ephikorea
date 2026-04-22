@@ -29,25 +29,34 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 lg:flex">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-gray-200 bg-white">
-        <div className="flex h-16 items-center px-6 border-b border-gray-100">
+      <aside className="border-b border-gray-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r">
+        <div className="flex h-16 items-center justify-between border-b border-gray-100 px-4 sm:px-6 lg:justify-start">
           <Link
             href={`/${locale}`}
-            className="text-xl font-black tracking-tighter text-yellow-500"
+            className="text-lg font-black tracking-tighter text-yellow-500 sm:text-xl"
           >
             STORE<span className="text-black">ADMIN</span>
           </Link>
+          <form action={logoutAdminAction} className="lg:hidden">
+            <input type="hidden" name="locale" value={locale} />
+            <button
+              type="submit"
+              className="rounded-full border border-gray-200 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-gray-500 transition hover:border-gray-300 hover:text-gray-900"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
-        <nav className="p-4 space-y-1">
+        <nav className="flex gap-2 overflow-x-auto px-4 py-3 lg:block lg:space-y-1 lg:overflow-visible lg:p-4">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-gray-500 transition-colors hover:bg-gray-50 hover:text-black"
+              className="flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-gray-500 transition-colors hover:bg-gray-50 hover:text-black lg:gap-3 lg:px-4 lg:py-3"
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-5 w-5 shrink-0" />
               {item.label}
             </Link>
           ))}
@@ -55,8 +64,8 @@ export default async function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <header className="h-16 border-b border-gray-200 bg-white px-8 flex items-center justify-between">
+      <main className="min-w-0 flex-1 overflow-y-auto">
+        <header className="hidden h-16 items-center justify-between border-b border-gray-200 bg-white px-8 lg:flex">
           <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">
             Management Console
           </h2>
@@ -70,7 +79,7 @@ export default async function AdminLayout({
             </button>
           </form>
         </header>
-        <div className="p-8">{children}</div>
+        <div className="px-4 py-6 sm:px-6 lg:p-8">{children}</div>
       </main>
     </div>
   );

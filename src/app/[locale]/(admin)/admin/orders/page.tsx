@@ -14,30 +14,30 @@ export default async function AdminOrdersPage({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-tight text-gray-900">
+          <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
             Order <span className="text-yellow-500">Management</span>
           </h1>
           <p className="mt-2 text-gray-500">
             Track and manage orders stored in the database.
           </p>
         </div>
-        <form className="relative">
+        <form className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             name="q"
             defaultValue={query}
             placeholder="Search orders..."
-            className="rounded-full border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-yellow-500/20"
+            className="w-full rounded-full border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-yellow-500/20 sm:w-64"
           />
         </form>
       </div>
 
       {orders.length > 0 ? (
-        <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
+          <table className="min-w-[760px] w-full text-left">
             <thead className="border-b border-gray-100 bg-gray-50/50">
               <tr>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">

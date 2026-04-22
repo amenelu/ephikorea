@@ -48,7 +48,7 @@ export const ProductCard = ({
         </h3>
         <p className="text-xs text-gray-500 line-clamp-1">{product.subtitle}</p>
 
-        <div className="mt-2 flex items-center justify-between">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <span className="text-lg font-bold">
             {formatAmount(product.variants[0]?.prices[0]?.amount || 0)}
           </span>

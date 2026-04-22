@@ -65,7 +65,7 @@ export default function CartClient({
       ) : null}
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-black uppercase tracking-tight text-gray-900">
             Order Summary
           </h2>
@@ -77,8 +77,8 @@ export default function CartClient({
                   key={item.variantId}
                   className="rounded-2xl border border-gray-100 px-4 py-4"
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
                       <p className="font-bold text-gray-900">{item.title}</p>
                       <p className="text-xs text-gray-400">
                         ${((item.unitPrice * item.quantity) / 100).toFixed(2)}
@@ -92,7 +92,7 @@ export default function CartClient({
                       Remove
                     </button>
                   </div>
-                  <div className="mt-4 flex items-center justify-between">
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center rounded-full border border-gray-200">
                       <button
                         type="button"
@@ -129,13 +129,13 @@ export default function CartClient({
               </div>
             </div>
           ) : (
-            <div className="mt-6 rounded-3xl border-2 border-dashed border-gray-100 p-16 text-center text-gray-400">
+            <div className="mt-6 rounded-3xl border-2 border-dashed border-gray-100 p-8 text-center text-gray-400 sm:p-16">
               Your shopping bag is empty.
             </div>
           )}
         </div>
 
-        <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-black uppercase tracking-tight text-gray-900">
             Delivery Details
           </h2>

@@ -7,7 +7,7 @@ export default async function AdminCustomersPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-black uppercase tracking-tight text-gray-900">
+        <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
           Customer <span className="text-yellow-500">Directory</span>
         </h1>
         <p className="mt-2 text-gray-500">
@@ -20,7 +20,7 @@ export default async function AdminCustomersPage() {
           {customers.map((customer) => (
             <div
               key={customer.id}
-              className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6"
             >
               <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-lg font-black text-yellow-500 shadow-lg">
                 {customer.initials}
@@ -29,7 +29,7 @@ export default async function AdminCustomersPage() {
               <h3 className="text-xl font-black text-gray-900">
                 {customer.name}
               </h3>
-              <p className="mb-6 text-sm font-medium text-gray-400">
+              <p className="mb-6 break-all text-sm font-medium text-gray-400">
                 {customer.email}
               </p>
               {customer.phone ? (

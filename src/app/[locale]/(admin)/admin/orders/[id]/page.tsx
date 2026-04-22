@@ -44,17 +44,17 @@ export default async function AdminOrderDetailsPage({
         </div>
       ) : null}
 
-      <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+      <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black uppercase tracking-tight text-gray-900">
+            <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
               Order <span className="text-yellow-500">{order.displayId}</span>
             </h1>
             <p className="mt-2 text-gray-500">
               Placed {order.date} by {order.customer.name}
             </p>
           </div>
-          <div className="text-right">
+          <div className="w-full sm:w-auto sm:text-right">
             <span
               className={`inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${order.statusTone}`}
             >
@@ -69,7 +69,7 @@ export default async function AdminOrderDetailsPage({
                 <input type="hidden" name="orderId" value={order.orderId} />
                 <button
                   type="submit"
-                  className="rounded-full bg-black px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-gray-800"
+                  className="w-full rounded-full bg-black px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-gray-800 sm:w-auto"
                 >
                   Mark as Completed
                 </button>
@@ -84,7 +84,7 @@ export default async function AdminOrderDetailsPage({
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+        <section className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
           <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
             Ordered Products
           </h2>
@@ -92,10 +92,10 @@ export default async function AdminOrderDetailsPage({
             {order.items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 p-4"
+                className="flex flex-col gap-4 rounded-2xl border border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400">
+                <div className="flex min-w-0 items-center gap-4">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400">
                     {item.thumbnail && isLikelyImageUrl(item.thumbnail) ? (
                       canUseNextImage(item.thumbnail) ? (
                         <Image
@@ -117,15 +117,15 @@ export default async function AdminOrderDetailsPage({
                       "PKG"
                     )}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-bold text-gray-900">{item.title}</p>
-                    <p className="text-sm text-gray-500">{item.description}</p>
+                    <p className="break-words text-sm text-gray-500">{item.description}</p>
                     <p className="mt-1 text-xs font-bold uppercase tracking-widest text-gray-400">
                       Qty {item.quantity}
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="sm:text-right">
                   <p className="text-sm font-bold text-gray-500">
                     {item.unitPrice} each
                   </p>
@@ -139,7 +139,7 @@ export default async function AdminOrderDetailsPage({
         </section>
 
         <div className="space-y-8">
-          <section className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+          <section className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
               Buyer Details
             </h2>
@@ -154,7 +154,7 @@ export default async function AdminOrderDetailsPage({
                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                   Email
                 </p>
-                <p className="mt-1 font-bold text-gray-900">{order.customer.email}</p>
+                <p className="mt-1 break-all font-bold text-gray-900">{order.customer.email}</p>
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -165,7 +165,7 @@ export default async function AdminOrderDetailsPage({
             </div>
           </section>
 
-          <section className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+          <section className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
               Delivery Details
             </h2>

@@ -94,7 +94,7 @@ export default async function ProductDetailsPage({
                 src={displayImageUrl}
                 alt={product.title}
                 fill
-                className="object-contain p-10"
+                className="object-contain p-5 sm:p-10"
                 sizes="(min-width: 1024px) 50vw, 100vw"
               />
             ) : (
@@ -102,7 +102,7 @@ export default async function ProductDetailsPage({
               <img
                 src={displayImageUrl}
                 alt={product.title}
-                className="h-full w-full object-contain p-10"
+                className="h-full w-full object-contain p-5 sm:p-10"
               />
             )
           ) : (
@@ -119,7 +119,7 @@ export default async function ProductDetailsPage({
                 Certified Pre-Owned
               </span>
             )}
-            <h1 className="mt-4 text-4xl font-black uppercase tracking-tighter text-gray-900 sm:text-5xl">
+            <h1 className="mt-4 text-3xl font-black uppercase tracking-tighter text-gray-900 sm:text-5xl">
               {product.title}
             </h1>
             <p className="mt-4 text-lg leading-relaxed text-gray-500">
@@ -140,7 +140,7 @@ export default async function ProductDetailsPage({
           </div>
 
           <div className="mb-8">
-            <p className="text-3xl font-black text-black">
+            <p className="text-2xl font-black text-black sm:text-3xl">
               {formatAmount(price)}
             </p>
             <p className="mt-1 text-xs italic text-gray-400">
@@ -188,7 +188,7 @@ export default async function ProductDetailsPage({
                     {detail.label === "IMEI" ? (
                       <Link
                         href={`/${locale}/imei-verifier?imei=${encodeURIComponent(detail.value)}&returnTo=${encodeURIComponent(productPath)}`}
-                        className="inline-flex w-fit items-center rounded-full bg-yellow-50 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-yellow-700 transition hover:bg-yellow-100"
+                        className="inline-flex w-fit max-w-full items-center break-all rounded-full bg-yellow-50 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-yellow-700 transition hover:bg-yellow-100"
                       >
                         Verify IMEI: {detail.value}
                       </Link>
@@ -203,14 +203,14 @@ export default async function ProductDetailsPage({
             </div>
           ) : null}
 
-          <div className="mt-10 grid grid-cols-3 gap-4 border-t border-gray-100 pt-10">
+          <div className="mt-10 grid grid-cols-1 gap-4 border-t border-gray-100 pt-10 min-[420px]:grid-cols-3">
             <div className="flex flex-col items-center gap-2 text-center">
               <Truck className="h-5 w-5 text-yellow-600" />
               <p className="text-[10px] font-black uppercase tracking-tight">
                 Express
               </p>
             </div>
-            <div className="flex flex-col items-center gap-2 border-x border-gray-100 px-2 text-center">
+            <div className="flex flex-col items-center gap-2 border-y border-gray-100 py-4 text-center min-[420px]:border-x min-[420px]:border-y-0 min-[420px]:px-2 min-[420px]:py-0">
               <ShieldCheck className="h-5 w-5 text-yellow-600" />
               <p className="text-[10px] font-black uppercase tracking-tight">
                 Global Care
@@ -295,7 +295,7 @@ export default async function ProductDetailsPage({
       {similarProducts.length > 0 && (
         <section className="mt-32">
           <div className="mb-12 flex items-end justify-between border-b border-gray-100 pb-8">
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+            <h2 className="text-xl font-black uppercase tracking-tight text-gray-900 sm:text-2xl">
               Similar <span className="text-yellow-500">Innovation</span>
             </h2>
           </div>

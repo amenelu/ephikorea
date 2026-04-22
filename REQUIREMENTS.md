@@ -33,10 +33,22 @@ Run the Medusa backend:
 npm run backend
 ```
 
-Run database migrations and seed data:
+Run Medusa database migrations:
 
 ```bash
-npm run backend:setup
+npm run backend:migrate
+```
+
+Apply storefront-specific schema additions:
+
+```bash
+psql "postgres://postgres:YOUR_PASSWORD@127.0.0.1:5432/medusa_db" -f data/schema.sql
+```
+
+Seed the database:
+
+```bash
+npm run backend:seed
 ```
 
 ## Required Environment Variables
