@@ -26,7 +26,7 @@ export default async function HomePage({
             {t("home.description")}
           </p>
           <Link
-            href={`/${locale}/products`}
+            href={`/${locale}/collections`}
             className="mt-10 rounded-full bg-yellow-500 px-8 py-4 text-sm font-bold text-black transition-transform hover:scale-105 active:scale-95"
           >
             {t("home.cta")}

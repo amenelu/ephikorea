@@ -127,7 +127,7 @@ function titleCaseWords(value: string) {
     .join(" ");
 }
 
-function inferBrand(source: {
+export function inferBrand(source: {
   title?: string;
   handle?: string | null;
   metadata?: Record<string, unknown> | null;
