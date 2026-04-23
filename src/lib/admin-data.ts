@@ -310,6 +310,7 @@ export async function getAdminOrders(query?: string) {
       customer_name: string | null;
       email: string | null;
       status: string | null;
+      payment_status: string | null;
     }>(
       `
         select
@@ -319,11 +320,8 @@ export async function getAdminOrders(query?: string) {
           coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
           nullif(trim(concat(coalesce(c.first_name, ''), ' ', coalesce(c.last_name, ''))), '') as customer_name,
           coalesce(c.email, o.email) as email,
-          coalesce(
-            o.payment_status::text,
-            o.fulfillment_status::text,
-            o.status::text
-          ) as status
+          o.status::text as status,
+          o.payment_status::text as payment_status
         from "order" o
         left join customer c on c.id = o.customer_id
         left join line_item li on li.order_id = o.id
@@ -342,6 +340,11 @@ export async function getAdminOrders(query?: string) {
       total: formatAmount(order.total, "USD"),
       status: order.status || "pending",
       statusTone: toStatusTone(order.status),
+      paymentStatus: order.payment_status || "not_paid",
+      paymentStatusTone:
+        order.payment_status === "captured" || order.payment_status === "paid"
+          ? "bg-green-100 text-green-700"
+          : "bg-gray-100 text-gray-600",
     }));
   });
 }
@@ -356,6 +359,7 @@ export async function getAdminOrderDetails(orderId: string) {
       created_at: string;
       email: string;
       status: string | null;
+      payment_status: string | null;
       customer_name: string | null;
       customer_phone: string | null;
       shipping_first_name: string | null;
@@ -381,11 +385,8 @@ export async function getAdminOrderDetails(orderId: string) {
           o.display_id,
           o.created_at,
           o.email,
-          coalesce(
-            o.payment_status::text,
-            o.fulfillment_status::text,
-            o.status::text
-          ) as status,
+          o.status::text as status,
+          o.payment_status::text as payment_status,
           nullif(trim(concat(coalesce(c.first_name, ''), ' ', coalesce(c.last_name, ''))), '') as customer_name,
           c.phone as customer_phone,
           a.first_name as shipping_first_name,
@@ -452,6 +453,11 @@ export async function getAdminOrderDetails(orderId: string) {
       date: formatAdminDate(firstRow.created_at),
       status: firstRow.status || "pending",
       statusTone: toStatusTone(firstRow.status),
+      paymentStatus: firstRow.payment_status || "not_paid",
+      paymentStatusTone:
+        firstRow.payment_status === "captured" || firstRow.payment_status === "paid"
+          ? "bg-green-100 text-green-700"
+          : "bg-gray-100 text-gray-600",
       customer: {
         name: firstRow.customer_name || shippingName,
         email: firstRow.email,
@@ -489,6 +495,24 @@ export async function completeAdminOrder(orderId: string) {
       throw new Error("Order id is required.");
     }
 
+    const existingOrder = await client.query<{ id: string; status: string | null }>(
+      `
+        select id, status::text as status
+        from "order"
+        where id = $1
+        limit 1
+      `,
+      [normalizedId],
+    );
+
+    if (!existingOrder.rows[0]?.id) {
+      throw new Error("Order was not found.");
+    }
+
+    if (existingOrder.rows[0].status === "completed") {
+      return "already_completed" as const;
+    }
+
     const { rows } = await client.query<{ id: string }>(
       `
         update "order"
@@ -504,7 +528,56 @@ export async function completeAdminOrder(orderId: string) {
       [normalizedId],
     );
 
-    return Boolean(rows[0]?.id);
+    return rows[0]?.id ? ("updated" as const) : ("already_completed" as const);
+  });
+}
+
+export async function toggleAdminOrderPaymentStatus(orderId: string) {
+  await assertAdminAuthenticated();
+
+  return withClient(async (client) => {
+    const normalizedId = orderId.trim();
+
+    if (!normalizedId) {
+      throw new Error("Order id is required.");
+    }
+
+    const existingOrder = await client.query<{
+      id: string;
+      payment_status: string | null;
+    }>(
+      `
+        select id, payment_status::text as payment_status
+        from "order"
+        where id = $1
+        limit 1
+      `,
+      [normalizedId],
+    );
+
+    if (!existingOrder.rows[0]?.id) {
+      throw new Error("Order was not found.");
+    }
+
+    const nextPaymentStatus =
+      existingOrder.rows[0].payment_status === "captured" ||
+      existingOrder.rows[0].payment_status === "paid"
+        ? "awaiting"
+        : "captured";
+
+    const { rows } = await client.query<{ id: string }>(
+      `
+        update "order"
+        set
+          payment_status = $2,
+          updated_at = now()
+        where id = $1
+        returning id
+      `,
+      [normalizedId, nextPaymentStatus],
+    );
+
+    return rows[0]?.id ? nextPaymentStatus : null;
   });
 }
 
@@ -537,6 +610,78 @@ export async function getAdminCustomers() {
       group by c.id
       order by c.created_at desc
     `);
+    const customerIds = rows.map((customer) => customer.id);
+    const purchaseHistoryRows = customerIds.length
+      ? await client.query<{
+          customer_id: string;
+          order_id: string;
+          display_id: number | null;
+          created_at: string;
+          total: number;
+          status: string | null;
+        }>(
+          `
+            with customer_orders as (
+              select
+                o.customer_id,
+                o.id as order_id,
+                o.display_id,
+                o.created_at,
+                coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
+                coalesce(
+                  o.payment_status::text,
+                  o.fulfillment_status::text,
+                  o.status::text
+                ) as status,
+                row_number() over (
+                  partition by o.customer_id
+                  order by o.created_at desc
+                ) as row_number
+              from "order" o
+              left join line_item li on li.order_id = o.id
+              where o.customer_id = any($1)
+              group by o.id
+            )
+            select
+              customer_id,
+              order_id,
+              display_id,
+              created_at,
+              total,
+              status
+            from customer_orders
+            where row_number <= 3
+            order by created_at desc
+          `,
+          [customerIds],
+        )
+      : { rows: [] };
+    const purchaseHistoryByCustomer = purchaseHistoryRows.rows.reduce(
+      (history, order) => {
+        const entries = history.get(order.customer_id) || [];
+        entries.push({
+          orderId: order.order_id,
+          displayId: order.display_id ? `#${order.display_id}` : "Draft",
+          date: formatAdminDate(order.created_at),
+          total: formatAmount(order.total, "USD"),
+          status: order.status || "pending",
+          statusTone: toStatusTone(order.status),
+        });
+        history.set(order.customer_id, entries);
+        return history;
+      },
+      new Map<
+        string,
+        Array<{
+          orderId: string;
+          displayId: string;
+          date: string;
+          total: string;
+          status: string;
+          statusTone: string;
+        }>
+      >(),
+    );
 
     return rows.map((customer) => {
       const name =
@@ -574,6 +719,7 @@ export async function getAdminCustomers() {
             : "N/A",
         spent: formatAmount(customer.spent, "USD"),
         initials: initials || customer.email.slice(0, 2).toUpperCase(),
+        purchaseHistory: purchaseHistoryByCustomer.get(customer.id) || [],
       };
     });
   });

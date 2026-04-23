@@ -18,7 +18,7 @@ export default async function CollectionsPage({
   searchParams,
 }: CollectionsPageProps) {
   const t = getTranslator(locale);
-  const organizeMode = searchParams?.organize === "brand" ? "brand" : "category";
+  const organizeMode = searchParams?.organize === "category" ? "category" : "brand";
   const products = await getCatalogProducts();
 
   const collections = [
@@ -111,17 +111,6 @@ export default async function CollectionsPage({
           </p>
           <div className="inline-flex w-full rounded-2xl border border-gray-200 bg-gray-50 p-1 sm:w-auto">
             <Link
-              href={`/${locale}/collections?organize=category`}
-              className={`flex min-w-[150px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
-                organizeMode === "category"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-900"
-              }`}
-            >
-              <LayoutGrid className="h-4 w-4" />
-              {t("collections.organizeCategory")}
-            </Link>
-            <Link
               href={`/${locale}/collections?organize=brand`}
               className={`flex min-w-[150px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
                 organizeMode === "brand"
@@ -131,6 +120,17 @@ export default async function CollectionsPage({
             >
               <Building2 className="h-4 w-4" />
               {t("collections.organizeBrand")}
+            </Link>
+            <Link
+              href={`/${locale}/collections?organize=category`}
+              className={`flex min-w-[150px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
+                organizeMode === "category"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <LayoutGrid className="h-4 w-4" />
+              {t("collections.organizeCategory")}
             </Link>
           </div>
         </div>

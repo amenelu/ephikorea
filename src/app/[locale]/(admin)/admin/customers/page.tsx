@@ -1,7 +1,12 @@
 import { Mail, Phone } from "lucide-react";
+import Link from "next/link";
 import { getAdminCustomers } from "@/lib/admin-data";
 
-export default async function AdminCustomersPage() {
+export default async function AdminCustomersPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
   const customers = await getAdminCustomers();
 
   return (
@@ -71,6 +76,54 @@ export default async function AdminCustomersPage() {
                     {customer.lastCheckout}
                   </p>
                 </div>
+              </div>
+
+              <div className="mt-6 border-t border-gray-50 pt-6">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    Purchase History
+                  </p>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300">
+                    Last 3 orders
+                  </span>
+                </div>
+
+                {customer.purchaseHistory.length > 0 ? (
+                  <div className="space-y-3">
+                    {customer.purchaseHistory.map((order) => (
+                      <Link
+                        key={order.orderId}
+                        href={`/${locale}/admin/orders/${order.orderId}`}
+                        className="block rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="font-bold text-gray-900">
+                              {order.displayId}
+                            </p>
+                            <p className="mt-1 text-xs text-gray-400">
+                              {order.date}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-black text-gray-900">
+                              {order.total}
+                            </p>
+                            <span
+                              className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${order.statusTone}`}
+                            >
+                              {order.status}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-5 text-sm text-gray-500">
+                    No purchase history yet.
+                  </div>
+                )}
               </div>
 
               <div className="mt-6 grid gap-3">

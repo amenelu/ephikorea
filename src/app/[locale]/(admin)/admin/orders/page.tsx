@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { getAdminOrders } from "@/lib/admin-data";
+import { toggleOrderPaymentStatusAction } from "./actions";
 
 export default async function AdminOrdersPage({
   params: { locale },
   searchParams,
 }: {
   params: { locale: string };
-  searchParams: { q?: string };
+  searchParams: { q?: string; status?: string; message?: string };
 }) {
   const query = searchParams.q?.trim() || "";
   const orders = await getAdminOrders(query);
@@ -35,9 +36,21 @@ export default async function AdminOrdersPage({
         </form>
       </div>
 
+      {searchParams.message ? (
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
+            searchParams.status === "error"
+              ? "border-red-200 bg-red-50 text-red-700"
+              : "border-green-200 bg-green-50 text-green-700"
+          }`}
+        >
+          {searchParams.message}
+        </div>
+      ) : null}
+
       {orders.length > 0 ? (
         <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
-          <table className="min-w-[760px] w-full text-left">
+          <table className="min-w-[920px] w-full text-left">
             <thead className="border-b border-gray-100 bg-gray-50/50">
               <tr>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -54,6 +67,9 @@ export default async function AdminOrdersPage({
                 </th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
                   Status
+                </th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                  Payment
                 </th>
               </tr>
             </thead>
@@ -106,6 +122,29 @@ export default async function AdminOrdersPage({
                         {order.status}
                       </span>
                     </Link>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${order.paymentStatusTone}`}
+                      >
+                        {order.paymentStatus === "captured" || order.paymentStatus === "paid"
+                          ? "Paid"
+                          : "Not Paid"}
+                      </span>
+                      <form action={toggleOrderPaymentStatusAction}>
+                        <input type="hidden" name="locale" value={locale} />
+                        <input type="hidden" name="orderId" value={order.orderId} />
+                        <button
+                          type="submit"
+                          className="rounded-full border border-gray-200 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"
+                        >
+                          {order.paymentStatus === "captured" || order.paymentStatus === "paid"
+                            ? "Mark as Not Paid"
+                            : "Mark as Paid"}
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}

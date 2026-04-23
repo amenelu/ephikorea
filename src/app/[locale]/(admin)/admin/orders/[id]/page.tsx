@@ -55,11 +55,20 @@ export default async function AdminOrderDetailsPage({
             </p>
           </div>
           <div className="w-full sm:w-auto sm:text-right">
-            <span
-              className={`inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${order.statusTone}`}
-            >
-              {order.status}
-            </span>
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              <span
+                className={`inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${order.statusTone}`}
+              >
+                {order.status}
+              </span>
+              <span
+                className={`inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${order.paymentStatusTone}`}
+              >
+                {order.paymentStatus === "captured" || order.paymentStatus === "paid"
+                  ? "Paid"
+                  : "Not Paid"}
+              </span>
+            </div>
             <p className="mt-3 text-2xl font-black text-gray-900">
               {order.total}
             </p>
