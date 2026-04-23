@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AdminToast } from "@/components/admin/admin-toast";
 import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { getAdminProducts } from "@/lib/admin-data";
 import {
@@ -45,18 +46,7 @@ export default async function AdminProductsPage({
           Products and inventory pulled directly from the database.
         </p>
       </div>
-
-      {message ? (
-        <div
-          className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
-            status === "error"
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-green-200 bg-green-50 text-green-700"
-          }`}
-        >
-          {message}
-        </div>
-      ) : null}
+      <AdminToast status={status} message={message} />
 
       <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="mb-5">

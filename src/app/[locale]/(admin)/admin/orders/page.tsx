@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { AdminToast } from "@/components/admin/admin-toast";
 import { getAdminOrders } from "@/lib/admin-data";
 import { toggleOrderPaymentStatusAction } from "./actions";
 
@@ -35,18 +36,7 @@ export default async function AdminOrdersPage({
           />
         </form>
       </div>
-
-      {searchParams.message ? (
-        <div
-          className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
-            searchParams.status === "error"
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-green-200 bg-green-50 text-green-700"
-          }`}
-        >
-          {searchParams.message}
-        </div>
-      ) : null}
+      <AdminToast status={searchParams.status} message={searchParams.message} />
 
       {orders.length > 0 ? (
         <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">

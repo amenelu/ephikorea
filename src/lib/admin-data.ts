@@ -142,20 +142,56 @@ export async function getAdminDashboardData() {
   await assertAdminAuthenticated();
 
   return withClient(async (client) => {
-    const productCount = await client.query<{ count: number }>(
-      'select count(*)::int as count from "product"',
-    );
-    const customerCount = await client.query<{ count: number }>(
-      'select count(*)::int as count from "customer"',
-    );
-    const orderCount = await client.query<{ count: number }>(
-      'select count(*)::int as count from "order"',
-    );
-    const revenueTotal = await client.query<{ total: number }>(`
-        select coalesce(sum(li.unit_price * li.quantity), 0)::int as total
-        from "order" o
-        left join line_item li on li.order_id = o.id
-      `);
+    const dashboardSnapshot = await client.query<{
+      product_count: number;
+      customer_count: number;
+      order_count: number;
+      revenue_total: number;
+      pending_order_count: number;
+      low_stock_count: number;
+      lowest_inventory: number | null;
+    }>(`
+      with product_inventory as (
+        select
+          p.id,
+          coalesce(sum(pv.inventory_quantity), 0)::int as inventory
+        from product p
+        left join product_variant pv
+          on pv.product_id = p.id
+          and pv.deleted_at is null
+        where p.deleted_at is null
+        group by p.id
+      )
+      select
+        (select count(*)::int from "product") as product_count,
+        (select count(*)::int from "customer") as customer_count,
+        (select count(*)::int from "order") as order_count,
+        (
+          select coalesce(sum(li.unit_price * li.quantity), 0)::int
+          from "order" o
+          left join line_item li on li.order_id = o.id
+        ) as revenue_total,
+        (
+          select count(*)::int
+          from "order"
+          where coalesce(payment_status::text, fulfillment_status::text, status::text) in (
+            'pending',
+            'requires_action',
+            'not_fulfilled',
+            'partially_fulfilled'
+          )
+        ) as pending_order_count,
+        (
+          select count(*)::int
+          from product_inventory
+          where inventory <= 3
+        ) as low_stock_count,
+        (
+          select min(inventory)::int
+          from product_inventory
+          where inventory <= 3
+        ) as lowest_inventory
+    `);
     const recentOrders = await client.query<{
       display_id: number | null;
       created_at: string;
@@ -182,41 +218,12 @@ export async function getAdminDashboardData() {
       order by o.created_at desc
       limit 5
     `);
-    const pendingOrderCount = await client.query<{ count: number }>(`
-      select count(*)::int as count
-      from "order"
-      where coalesce(payment_status::text, fulfillment_status::text, status::text) in (
-        'pending',
-        'requires_action',
-        'not_fulfilled',
-        'partially_fulfilled'
-      )
-    `);
-    const lowStockProducts = await client.query<{
-      count: number;
-      lowest_inventory: number | null;
-    }>(`
-      select
-        count(*)::int as count,
-        min(inventory)::int as lowest_inventory
-      from (
-        select
-          p.id,
-          coalesce(sum(pv.inventory_quantity), 0)::int as inventory
-        from product p
-        left join product_variant pv
-          on pv.product_id = p.id
-          and pv.deleted_at is null
-        where p.deleted_at is null
-        group by p.id
-      ) product_inventory
-      where inventory <= 3
-    `);
 
     const notifications = [];
-    const pendingOrders = pendingOrderCount.rows[0]?.count ?? 0;
-    const lowStockCount = lowStockProducts.rows[0]?.count ?? 0;
-    const lowestInventory = lowStockProducts.rows[0]?.lowest_inventory ?? 0;
+    const snapshot = dashboardSnapshot.rows[0];
+    const pendingOrders = snapshot?.pending_order_count ?? 0;
+    const lowStockCount = snapshot?.low_stock_count ?? 0;
+    const lowestInventory = snapshot?.lowest_inventory ?? 0;
 
     if (pendingOrders > 0) {
       notifications.push({
@@ -255,19 +262,19 @@ export async function getAdminDashboardData() {
       stats: [
         {
           label: "Revenue",
-          value: formatAmount(revenueTotal.rows[0]?.total ?? 0, "USD"),
+          value: formatAmount(snapshot?.revenue_total ?? 0, "USD"),
         },
         {
           label: "Orders",
-          value: String(orderCount.rows[0]?.count ?? 0),
+          value: String(snapshot?.order_count ?? 0),
         },
         {
           label: "Products",
-          value: String(productCount.rows[0]?.count ?? 0),
+          value: String(snapshot?.product_count ?? 0),
         },
         {
           label: "Customers",
-          value: String(customerCount.rows[0]?.count ?? 0),
+          value: String(snapshot?.customer_count ?? 0),
         },
       ],
       recentOrders: recentOrders.rows.map((order) => ({
@@ -594,94 +601,78 @@ export async function getAdminCustomers() {
       metadata: Record<string, unknown> | null;
       orders: number;
       spent: number;
+      purchase_history: Array<{
+        order_id: string;
+        display_id: number | null;
+        created_at: string;
+        total: number;
+        status: string | null;
+      }> | null;
     }>(`
-      select
-        c.id,
-        c.email,
-        c.first_name,
-        c.last_name,
-        c.phone,
-        c.metadata,
-        count(distinct o.id)::int as orders,
-        coalesce(sum(li.unit_price * li.quantity), 0)::int as spent
-      from customer c
-      left join "order" o on o.customer_id = c.id
-      left join line_item li on li.order_id = o.id
-      group by c.id
-      order by c.created_at desc
-    `);
-    const customerIds = rows.map((customer) => customer.id);
-    const purchaseHistoryRows = customerIds.length
-      ? await client.query<{
-          customer_id: string;
-          order_id: string;
-          display_id: number | null;
-          created_at: string;
-          total: number;
-          status: string | null;
-        }>(
-          `
-            with customer_orders as (
-              select
-                o.customer_id,
-                o.id as order_id,
-                o.display_id,
-                o.created_at,
-                coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
-                coalesce(
-                  o.payment_status::text,
-                  o.fulfillment_status::text,
-                  o.status::text
-                ) as status,
-                row_number() over (
-                  partition by o.customer_id
-                  order by o.created_at desc
-                ) as row_number
-              from "order" o
-              left join line_item li on li.order_id = o.id
-              where o.customer_id = any($1)
-              group by o.id
+      with customer_summary as (
+        select
+          c.id,
+          c.email,
+          c.first_name,
+          c.last_name,
+          c.phone,
+          c.metadata,
+          count(distinct o.id)::int as orders,
+          coalesce(sum(li.unit_price * li.quantity), 0)::int as spent,
+          c.created_at
+        from customer c
+        left join "order" o on o.customer_id = c.id
+        left join line_item li on li.order_id = o.id
+        group by c.id
+      ),
+      customer_orders as (
+        select
+          o.customer_id,
+          o.id as order_id,
+          o.display_id,
+          o.created_at,
+          coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
+          o.status::text as status,
+          row_number() over (
+            partition by o.customer_id
+            order by o.created_at desc
+          ) as row_number
+        from "order" o
+        left join line_item li on li.order_id = o.id
+        where o.customer_id is not null
+        group by o.id
+      ),
+      customer_history as (
+        select
+          customer_id,
+          json_agg(
+            json_build_object(
+              'order_id', order_id,
+              'display_id', display_id,
+              'created_at', created_at,
+              'total', total,
+              'status', status
             )
-            select
-              customer_id,
-              order_id,
-              display_id,
-              created_at,
-              total,
-              status
-            from customer_orders
-            where row_number <= 3
             order by created_at desc
-          `,
-          [customerIds],
-        )
-      : { rows: [] };
-    const purchaseHistoryByCustomer = purchaseHistoryRows.rows.reduce(
-      (history, order) => {
-        const entries = history.get(order.customer_id) || [];
-        entries.push({
-          orderId: order.order_id,
-          displayId: order.display_id ? `#${order.display_id}` : "Draft",
-          date: formatAdminDate(order.created_at),
-          total: formatAmount(order.total, "USD"),
-          status: order.status || "pending",
-          statusTone: toStatusTone(order.status),
-        });
-        history.set(order.customer_id, entries);
-        return history;
-      },
-      new Map<
-        string,
-        Array<{
-          orderId: string;
-          displayId: string;
-          date: string;
-          total: string;
-          status: string;
-          statusTone: string;
-        }>
-      >(),
-    );
+          ) as purchase_history
+        from customer_orders
+        where row_number <= 3
+        group by customer_id
+      )
+      select
+        cs.id,
+        cs.email,
+        cs.first_name,
+        cs.last_name,
+        cs.phone,
+        cs.metadata,
+        cs.orders,
+        cs.spent,
+        ch.purchase_history
+      from customer_summary cs
+      left join customer_history ch on ch.customer_id = cs.id
+      order by cs.created_at desc
+    `);
 
     return rows.map((customer) => {
       const name =
@@ -719,7 +710,14 @@ export async function getAdminCustomers() {
             : "N/A",
         spent: formatAmount(customer.spent, "USD"),
         initials: initials || customer.email.slice(0, 2).toUpperCase(),
-        purchaseHistory: purchaseHistoryByCustomer.get(customer.id) || [],
+        purchaseHistory: (customer.purchase_history || []).map((order) => ({
+          orderId: order.order_id,
+          displayId: order.display_id ? `#${order.display_id}` : "Draft",
+          date: formatAdminDate(order.created_at),
+          total: formatAmount(order.total, "USD"),
+          status: order.status || "pending",
+          statusTone: toStatusTone(order.status),
+        })),
       };
     });
   });
@@ -1235,12 +1233,21 @@ export async function getAdminSettingsData() {
   await assertAdminAuthenticated();
 
   return withClient(async (client) => {
-    const storeResult = await client.query<{
+    const settingsSnapshot = await client.query<{
       name: string | null;
       default_currency_code: string | null;
       default_sales_channel_id: string | null;
+      product_count: number;
     }>(
-      "select name, default_currency_code, default_sales_channel_id from store limit 1",
+      `
+        select
+          s.name,
+          s.default_currency_code,
+          s.default_sales_channel_id,
+          (select count(*)::int from "product") as product_count
+        from store s
+        limit 1
+      `,
     );
     const salesChannelsResult = await client.query<{
       id: string;
@@ -1250,14 +1257,18 @@ export async function getAdminSettingsData() {
     }>(
       "select id, name, description, is_disabled from sales_channel order by created_at asc",
     );
-    const productCountResult = await client.query<{ count: number }>(
-      'select count(*)::int as count from "product"',
-    );
+    const snapshot = settingsSnapshot.rows[0];
 
     return {
-      store: storeResult.rows[0] ?? null,
+      store: snapshot
+        ? {
+            name: snapshot.name,
+            default_currency_code: snapshot.default_currency_code,
+            default_sales_channel_id: snapshot.default_sales_channel_id,
+          }
+        : null,
       salesChannels: salesChannelsResult.rows,
-      productCount: productCountResult.rows[0]?.count ?? 0,
+      productCount: snapshot?.product_count ?? 0,
     };
   });
 }

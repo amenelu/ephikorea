@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 
+import { AdminToast } from "@/components/admin/admin-toast";
 import { getAdminOrderDetails } from "@/lib/admin-data";
 import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { completeOrderAction } from "./actions";
@@ -31,18 +32,7 @@ export default async function AdminOrderDetailsPage({
           Back to orders
         </Link>
       </div>
-
-      {searchParams.message ? (
-        <div
-          className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
-            searchParams.status === "error"
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-green-200 bg-green-50 text-green-700"
-          }`}
-        >
-          {searchParams.message}
-        </div>
-      ) : null}
+      <AdminToast status={searchParams.status} message={searchParams.message} />
 
       <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
