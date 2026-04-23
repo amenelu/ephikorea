@@ -3,6 +3,7 @@
 import { useEffect, useTransition } from "react";
 
 import { useLocalCart } from "@/lib/local-cart";
+import { getTranslator } from "@/lib/translations";
 
 type CartClientProps = {
   locale: string;
@@ -22,6 +23,7 @@ export default function CartClient({
   checkoutAction,
   countries,
 }: CartClientProps) {
+  const t = getTranslator(locale);
   const { items, updateQuantity, removeItem, clearCart } = useLocalCart();
   const [isSubmitting, startTransition] = useTransition();
 
@@ -45,10 +47,9 @@ export default function CartClient({
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="max-w-2xl">
-        <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t("cart.checkout")}</h1>
         <p className="mt-3 text-sm text-gray-500">
-          No account required. Share your delivery details and we will process
-          your order directly.
+          {t("cart.description")}
         </p>
       </div>
 
@@ -67,7 +68,7 @@ export default function CartClient({
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-black uppercase tracking-tight text-gray-900">
-            Order Summary
+            {t("cart.orderSummary")}
           </h2>
 
           {items.length > 0 ? (
@@ -89,7 +90,7 @@ export default function CartClient({
                       onClick={() => removeItem(item.variantId)}
                       className="text-xs font-black uppercase tracking-widest text-red-500"
                     >
-                      Remove
+                      {t("cart.remove")}
                     </button>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -124,24 +125,23 @@ export default function CartClient({
               ))}
 
               <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm font-black uppercase tracking-widest text-gray-900">
-                <span>Subtotal</span>
+                <span>{t("cart.subtotal")}</span>
                 <span>${(subtotal / 100).toFixed(2)}</span>
               </div>
             </div>
           ) : (
             <div className="mt-6 rounded-3xl border-2 border-dashed border-gray-100 p-8 text-center text-gray-400 sm:p-16">
-              Your shopping bag is empty.
+              {t("cart.empty")}
             </div>
           )}
         </div>
 
         <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-black uppercase tracking-tight text-gray-900">
-            Delivery Details
+            {t("cart.deliveryDetails")}
           </h2>
           <p className="mt-2 text-sm text-gray-500">
-            These details create a real order for admin and provide the address
-            needed for delivery.
+            {t("cart.deliveryDescription")}
           </p>
 
           <form
@@ -157,7 +157,7 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                Full Name
+                {t("cart.fullName")}
               </span>
               <input
                 type="text"
@@ -170,7 +170,7 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                Email Address
+                {t("cart.email")}
               </span>
               <input
                 type="email"
@@ -183,7 +183,7 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                Phone Number
+                {t("cart.phone")}
               </span>
               <input
                 type="tel"
@@ -195,7 +195,7 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                Address Line 1
+                {t("cart.address1")}
               </span>
               <input
                 type="text"
@@ -208,7 +208,7 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                Address Line 2
+                {t("cart.address2")}
               </span>
               <input
                 type="text"
@@ -221,7 +221,7 @@ export default function CartClient({
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  City
+                  {t("cart.city")}
                 </span>
                 <input
                   type="text"
@@ -234,7 +234,7 @@ export default function CartClient({
 
               <label className="block">
                 <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  Province / State
+                  {t("cart.province")}
                 </span>
                 <input
                   type="text"
@@ -248,7 +248,7 @@ export default function CartClient({
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  Postal Code
+                  {t("cart.postalCode")}
                 </span>
                 <input
                   type="text"
@@ -260,7 +260,7 @@ export default function CartClient({
 
               <label className="block">
                 <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  Country
+                  {t("cart.country")}
                 </span>
                 <select
                   name="countryCode"
@@ -282,7 +282,7 @@ export default function CartClient({
               disabled={items.length === 0 || isSubmitting}
               className="w-full rounded-full bg-black px-6 py-4 text-sm font-black uppercase tracking-widest text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? "Submitting..." : "Submit Order"}
+              {isSubmitting ? t("cart.submitting") : t("cart.submit")}
             </button>
           </form>
         </div>

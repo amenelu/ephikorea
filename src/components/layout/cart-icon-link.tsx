@@ -4,16 +4,18 @@ import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
 import { useLocalCart } from "@/lib/local-cart";
+import { getTranslator } from "@/lib/translations";
 
 export function CartIconLink({ locale }: { locale: string }) {
   const { items } = useLocalCart();
+  const t = getTranslator(locale);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <Link
       href={`/${locale}/cart`}
       className="relative p-2 text-gray-600 transition-colors hover:text-yellow-500"
-      aria-label={`Shopping cart${itemCount ? ` with ${itemCount} items` : ""}`}
+      aria-label={t("cart.aria", itemCount)}
     >
       <ShoppingCart className="h-5 w-5" />
       {itemCount > 0 ? (

@@ -18,6 +18,7 @@ import {
   getStoredReferenceSpecSections,
   getStoredReferenceSpecs,
 } from "@/lib/product-specs";
+import { getTranslator } from "@/lib/translations";
 import { formatAmount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,7 @@ export default async function ProductDetailsPage({
 }: {
   params: { locale: string; id: string };
 }) {
+  const t = getTranslator(locale);
   const product = await getCatalogProductByIdOrHandle(id);
 
   if (!product) {
@@ -51,10 +53,10 @@ export default async function ProductDetailsPage({
   const editableFacts = getEditableProductFacts(product.metadata);
   const listingDetails = [
     typeof product.battery_health === "number"
-      ? { label: "Battery Health", value: `${product.battery_health}%` }
+      ? { label: t("product.batteryHealth"), value: `${product.battery_health}%` }
       : null,
     product.grading_data
-      ? { label: "Grading", value: product.grading_data }
+      ? { label: t("product.grading"), value: product.grading_data }
       : null,
     editableFacts.imei ? { label: "IMEI", value: editableFacts.imei } : null,
   ].filter(Boolean) as Array<{ label: string; value: string }>;
@@ -69,7 +71,7 @@ export default async function ProductDetailsPage({
         className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-gray-400 transition-colors hover:text-black"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Collection
+        {t("product.back")}
       </Link>
 
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
@@ -93,7 +95,7 @@ export default async function ProductDetailsPage({
             )
           ) : (
             <div className="flex h-full items-center justify-center text-center text-sm font-semibold uppercase tracking-[0.3em] text-gray-300">
-              No image available
+              {t("product.noImage")}
             </div>
           )}
         </div>
@@ -102,7 +104,7 @@ export default async function ProductDetailsPage({
           <div className="mb-6">
             {product.is_certified_pre_owned && (
               <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-700">
-                Certified Pre-Owned
+                {t("product.certified")}
               </span>
             )}
             <h1 className="mt-4 text-3xl font-black uppercase tracking-tighter text-gray-900 sm:text-5xl">
@@ -111,7 +113,7 @@ export default async function ProductDetailsPage({
             <p className="mt-4 text-lg leading-relaxed text-gray-500">
               {product.description ||
                 product.subtitle ||
-                "No description available yet."}
+                t("product.noDescription")}
             </p>
             {referenceUrl ? (
               <a
@@ -120,7 +122,7 @@ export default async function ProductDetailsPage({
                 rel="noreferrer"
                 className="mt-4 inline-flex text-sm font-bold text-yellow-600 transition-colors hover:text-yellow-700"
               >
-                View original spec sheet
+                {t("product.originalSpec")}
               </a>
             ) : null}
           </div>
@@ -130,7 +132,7 @@ export default async function ProductDetailsPage({
               {formatAmount(price)}
             </p>
             <p className="mt-1 text-xs italic text-gray-400">
-              Free express shipping & local taxes included.
+              {t("product.shippingNote")}
             </p>
           </div>
 
@@ -151,7 +153,7 @@ export default async function ProductDetailsPage({
               disabled
               className="flex w-full cursor-not-allowed items-center justify-center rounded-2xl bg-gray-200 py-5 text-base font-bold text-gray-500"
             >
-              Variant unavailable
+              {t("product.variantUnavailable")}
             </button>
           )}
 
@@ -159,7 +161,7 @@ export default async function ProductDetailsPage({
             <div className="mt-5 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
               <div className="border-b border-gray-100 bg-gray-50 px-5 py-3">
                 <h3 className="text-[11px] font-black uppercase tracking-[0.22em] text-gray-600">
-                  Listing Details
+                  {t("product.listingDetails")}
                 </h3>
               </div>
               <div className="divide-y divide-gray-100">
@@ -176,7 +178,7 @@ export default async function ProductDetailsPage({
                         href={`/${locale}/imei-verifier?imei=${encodeURIComponent(detail.value)}&returnTo=${encodeURIComponent(productPath)}`}
                         className="inline-flex w-fit max-w-full items-center break-all rounded-full bg-yellow-50 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-yellow-700 transition hover:bg-yellow-100"
                       >
-                        Verify IMEI: {detail.value}
+                        {t("product.verifyImei", detail.value)}
                       </Link>
                     ) : (
                       <span className="text-sm font-semibold text-gray-900">
@@ -193,19 +195,19 @@ export default async function ProductDetailsPage({
             <div className="flex flex-col items-center gap-2 text-center">
               <Truck className="h-5 w-5 text-yellow-600" />
               <p className="text-[10px] font-black uppercase tracking-tight">
-                Express
+                {t("product.express")}
               </p>
             </div>
             <div className="flex flex-col items-center gap-2 border-y border-gray-100 py-4 text-center min-[420px]:border-x min-[420px]:border-y-0 min-[420px]:px-2 min-[420px]:py-0">
               <ShieldCheck className="h-5 w-5 text-yellow-600" />
               <p className="text-[10px] font-black uppercase tracking-tight">
-                Global Care
+                {t("product.globalCare")}
               </p>
             </div>
             <div className="flex flex-col items-center gap-2 text-center">
               <RotateCcw className="h-5 w-5 text-yellow-600" />
               <p className="text-[10px] font-black uppercase tracking-tight">
-                Returns
+                {t("product.returns")}
               </p>
             </div>
           </div>
@@ -215,19 +217,18 @@ export default async function ProductDetailsPage({
       <section className="mt-24 border-t border-gray-100 pt-16">
         <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-            Product <span className="text-yellow-500">Spec Sheet</span>
+            {t("product.specSheet")}{" "}
+            <span className="text-yellow-500">{t("product.specSheetAccent")}</span>
           </h2>
           {referenceUrl ? (
             <span className="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
-              {hasImportedSpecs ? "Spec sheet imported" : "Spec sheet linked"}
+              {hasImportedSpecs ? t("product.specImported") : t("product.specLinked")}
             </span>
           ) : null}
         </div>
         {referenceUrl && !hasImportedSpecs ? (
           <p className="mb-6 max-w-2xl text-sm text-gray-500">
-            We have the original product spec page linked for this listing, but
-            the structured specs have not been imported yet. Re-save the product
-            in admin to cache the latest specs from the source page.
+            {t("product.specLinkedBody")}
           </p>
         ) : null}
         <div className="space-y-8">
@@ -282,7 +283,8 @@ export default async function ProductDetailsPage({
         <section className="mt-32">
           <div className="mb-12 flex items-end justify-between border-b border-gray-100 pb-8">
             <h2 className="text-xl font-black uppercase tracking-tight text-gray-900 sm:text-2xl">
-              Similar <span className="text-yellow-500">Innovation</span>
+              {t("product.similar")}{" "}
+              <span className="text-yellow-500">{t("product.similarAccent")}</span>
             </h2>
           </div>
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">

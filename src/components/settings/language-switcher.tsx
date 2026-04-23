@@ -8,10 +8,12 @@ import {
   type SupportedLocale,
   replacePathLocale,
 } from "@/lib/locales";
+import { getTranslator } from "@/lib/translations";
 
 export function LanguageSwitcher({ locale }: { locale: string }) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = getTranslator(locale);
 
   const handleLocaleChange = (nextLocale: SupportedLocale) => {
     document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
@@ -38,12 +40,12 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-black text-gray-900">
-                  {item.label}
+                  {t(item.code === "ko" ? "language.ko" : "language.en")}
                 </h2>
                 <p className="text-sm text-gray-500">{item.code}</p>
               </div>
               <span className="text-xs font-black uppercase tracking-[0.2em] text-yellow-600">
-                {isActive ? "Current" : "Switch"}
+                {isActive ? t("common.current") : t("common.switch")}
               </span>
             </div>
           </button>

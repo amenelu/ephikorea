@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { ProductCard } from "@/components/product/product-card";
 import { getCatalogProducts } from "@/lib/catalog-data";
+import { getTranslator } from "@/lib/translations";
 
 export default async function HomePage({
   params: { locale },
 }: {
   params: { locale: string };
 }) {
+  const t = getTranslator(locale);
   const featuredProducts = await getCatalogProducts(3);
 
   return (
@@ -14,19 +16,20 @@ export default async function HomePage({
       <section className="relative min-h-[520px] w-full overflow-hidden bg-black sm:h-[70vh]">
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <span className="mb-4 text-sm font-bold uppercase tracking-widest text-yellow-500">
-            Next Generation Electronics
+            {t("home.eyebrow")}
           </span>
           <h1 className="text-4xl font-black tracking-tighter text-white sm:text-7xl lg:text-8xl">
-            AMAN<span className="text-yellow-500">MOBILE</span>
+            {t("common.brand")}
+            <span className="text-yellow-500">{t("common.brandAccent")}</span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-gray-400">
-            Browse the latest products available in your live Medusa catalog.
+            {t("home.description")}
           </p>
           <Link
             href={`/${locale}/products`}
             className="mt-10 rounded-full bg-yellow-500 px-8 py-4 text-sm font-bold text-black transition-transform hover:scale-105 active:scale-95"
           >
-            Explore Collection
+            {t("home.cta")}
           </Link>
         </div>
       </section>
@@ -34,13 +37,13 @@ export default async function HomePage({
       <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 border-b border-gray-100 pb-8 sm:flex-row sm:items-end sm:justify-between">
           <h2 className="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">
-            Featured Products
+            {t("home.featured")}
           </h2>
           <Link
             href={`/${locale}/products`}
             className="text-sm font-bold text-yellow-600 hover:underline"
           >
-            View All
+            {t("home.viewAll")}
           </Link>
         </div>
 
@@ -52,7 +55,7 @@ export default async function HomePage({
           </div>
         ) : (
           <div className="mt-10 rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-12 text-center text-gray-500">
-            No products are in the catalog yet.
+            {t("home.empty")}
           </div>
         )}
       </section>

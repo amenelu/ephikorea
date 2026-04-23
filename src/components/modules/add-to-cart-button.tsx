@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Check, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useLocalCart } from "@/lib/local-cart";
+import { getTranslator } from "@/lib/translations";
 
 interface AddToCartButtonProps {
   locale: string;
@@ -19,6 +20,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   thumbnail,
   unitPrice,
 }) => {
+  const t = getTranslator(locale);
   const { items, addItem, updateQuantity } = useLocalCart();
   const [isAdding, setIsAdding] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -86,7 +88,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
             type="button"
             onClick={decreaseQuantity}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition hover:bg-gray-50"
-            aria-label="Decrease quantity"
+            aria-label={t("addToCart.decrease")}
           >
             <Minus className="h-4 w-4" />
           </button>
@@ -103,7 +105,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
               ) : null}
             </div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
-              In shopping bag
+              {t("addToCart.inBag")}
             </p>
           </div>
 
@@ -111,7 +113,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
             type="button"
             onClick={increaseQuantity}
             className="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white transition hover:bg-gray-800"
-            aria-label="Increase quantity"
+            aria-label={t("addToCart.increase")}
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -123,14 +125,14 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           className="flex w-full items-center justify-center gap-3 rounded-2xl bg-black py-4 text-sm font-bold text-white transition-all hover:bg-gray-800 active:scale-[0.98]"
         >
           <ShoppingBag className="h-4 w-4 text-yellow-500" />
-          Add One More
+          {t("addToCart.addMore")}
         </button>
 
         <a
           href={checkoutHref}
           className="flex w-full items-center justify-center rounded-2xl border border-gray-200 bg-white py-4 text-sm font-black uppercase tracking-widest text-gray-900 transition hover:bg-gray-50"
         >
-          Proceed to Checkout
+          {t("addToCart.checkout")}
         </a>
       </div>
     );
@@ -152,10 +154,10 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         <ShoppingBag className="h-5 w-5 text-yellow-500" />
       )}
       {isAdding
-        ? "Adding..."
+        ? t("addToCart.adding")
         : showConfirmation
-          ? "Added to Shopping Bag"
-          : "Add to Shopping Bag"}
+          ? t("addToCart.added")
+          : t("addToCart.add")}
     </button>
   );
 };
