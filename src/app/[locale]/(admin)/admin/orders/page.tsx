@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
 import { AdminToast } from "@/components/admin/admin-toast";
+import { AdminLiveSearch } from "@/components/admin/admin-live-search";
 import { getAdminOrders } from "@/lib/admin-data";
 import { toggleOrderPaymentStatusAction } from "./actions";
 
@@ -13,33 +13,114 @@ export default async function AdminOrdersPage({
 }) {
   const query = searchParams.q?.trim() || "";
   const orders = await getAdminOrders(query);
+  const paidOrders = orders.filter(
+    (order) => order.paymentStatus === "captured" || order.paymentStatus === "paid",
+  ).length;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6 sm:space-y-8">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
             Order <span className="text-yellow-500">Management</span>
           </h1>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-gray-500 sm:text-base">
             Track and manage orders stored in the database.
           </p>
         </div>
-        <form className="relative w-full sm:w-auto">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            name="q"
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+            <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+                Orders
+              </p>
+              <p className="mt-1 text-lg font-black text-gray-900">{orders.length}</p>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+                Paid
+              </p>
+              <p className="mt-1 text-lg font-black text-gray-900">{paidOrders}</p>
+            </div>
+          </div>
+          <AdminLiveSearch
             defaultValue={query}
             placeholder="Search orders..."
-            className="w-full rounded-full border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-yellow-500/20 sm:w-64"
+            className="w-full sm:w-64"
           />
-        </form>
+        </div>
       </div>
       <AdminToast status={searchParams.status} message={searchParams.message} />
 
       {orders.length > 0 ? (
-        <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
+        <>
+          <div className="grid gap-4 md:hidden">
+            {orders.map((order) => (
+              <section
+                key={`${order.orderId}-${order.date}`}
+                className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <Link
+                      href={`/${locale}/admin/orders/${order.orderId}`}
+                      className="text-base font-black text-gray-900"
+                    >
+                      {order.productSummary}
+                    </Link>
+                    <p className="mt-1 text-sm font-medium text-gray-500">
+                      {order.customer}
+                    </p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-gray-400">
+                      {order.id}
+                    </p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-gray-400">
+                      {order.date}
+                    </p>
+                  </div>
+                  <p className="text-lg font-black text-gray-900">{order.total}</p>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${order.statusTone}`}
+                  >
+                    {order.status}
+                  </span>
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${order.paymentStatusTone}`}
+                  >
+                    {order.paymentStatus === "captured" || order.paymentStatus === "paid"
+                      ? "Paid"
+                      : "Not Paid"}
+                  </span>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <Link
+                    href={`/${locale}/admin/orders/${order.orderId}`}
+                    className="flex items-center justify-center rounded-full border border-gray-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.14em] text-gray-700 transition hover:bg-gray-50"
+                  >
+                    View Order
+                  </Link>
+                  <form action={toggleOrderPaymentStatusAction}>
+                    <input type="hidden" name="locale" value={locale} />
+                    <input type="hidden" name="orderId" value={order.orderId} />
+                    <button
+                      type="submit"
+                      className="w-full rounded-full border border-gray-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.14em] text-gray-700 transition hover:bg-gray-50"
+                    >
+                      {order.paymentStatus === "captured" || order.paymentStatus === "paid"
+                        ? "Mark as Not Paid"
+                        : "Mark as Paid"}
+                    </button>
+                  </form>
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <div className="hidden overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm md:block">
           <table className="min-w-[920px] w-full text-left">
             <thead className="border-b border-gray-100 bg-gray-50/50">
               <tr>
@@ -74,7 +155,12 @@ export default async function AdminOrdersPage({
                       href={`/${locale}/admin/orders/${order.orderId}`}
                       className="block"
                     >
-                      {order.id}
+                      <span className="block font-black text-gray-900">
+                        {order.productSummary}
+                      </span>
+                      <span className="mt-1 block text-xs uppercase tracking-[0.14em] text-gray-400">
+                        {order.id}
+                      </span>
                     </Link>
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-600">
@@ -82,7 +168,12 @@ export default async function AdminOrdersPage({
                       href={`/${locale}/admin/orders/${order.orderId}`}
                       className="block"
                     >
-                      {order.customer}
+                      <span className="block font-medium text-gray-700">
+                        {order.customer}
+                      </span>
+                      <span className="mt-1 block text-xs text-gray-400">
+                        {order.date}
+                      </span>
                     </Link>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
@@ -90,7 +181,7 @@ export default async function AdminOrdersPage({
                       href={`/${locale}/admin/orders/${order.orderId}`}
                       className="block"
                     >
-                      {order.date}
+                      {order.customer}
                     </Link>
                   </td>
                   <td className="px-6 py-4 font-black text-gray-900">
@@ -140,9 +231,10 @@ export default async function AdminOrdersPage({
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       ) : (
-        <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-12 text-center text-gray-500">
+        <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm leading-6 text-gray-500 sm:p-12 sm:text-base">
           {query
             ? "No orders matched your search."
             : "No orders are in the database yet."}

@@ -10,18 +10,18 @@ export default async function AdminCustomersPage({
   const customers = await getAdminCustomers();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
         <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
           Customer <span className="text-yellow-500">Directory</span>
         </h1>
-        <p className="mt-2 text-gray-500">
+        <p className="mt-2 text-sm leading-6 text-gray-500 sm:text-base">
           Customer records pulled directly from the database.
         </p>
       </div>
 
       {customers.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {customers.map((customer) => (
             <div
               key={customer.id}
@@ -31,7 +31,7 @@ export default async function AdminCustomersPage({
                 {customer.initials}
               </div>
 
-              <h3 className="text-xl font-black text-gray-900">
+              <h3 className="text-lg font-black text-gray-900 sm:text-xl">
                 {customer.name}
               </h3>
               <p className="mb-6 break-all text-sm font-medium text-gray-400">
@@ -43,7 +43,7 @@ export default async function AdminCustomersPage({
                 </p>
               ) : null}
 
-              <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-6">
+              <div className="grid grid-cols-2 gap-3 border-t border-gray-50 pt-6 sm:gap-4">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                     Orders
@@ -146,7 +146,7 @@ export default async function AdminCustomersPage({
           ))}
         </div>
       ) : (
-        <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-12 text-center text-gray-500">
+        <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm leading-6 text-gray-500 sm:p-12 sm:text-base">
           No customers have been created yet.
         </div>
       )}

@@ -84,7 +84,7 @@ export default function ProductFormFields({
             setIsBrandManual(true);
             setBrandName(event.target.value);
           }}
-          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-base text-gray-900 outline-none transition focus:border-yellow-400 sm:text-sm"
           placeholder="Auto-filled from model when recognized"
         />
       </label>
@@ -99,7 +99,7 @@ export default function ProductFormFields({
           required
           value={modelName}
           onChange={(event) => setModelName(event.target.value)}
-          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-base text-gray-900 outline-none transition focus:border-yellow-400 sm:text-sm"
           placeholder="Galaxy S24 Ultra"
         />
       </label>
@@ -116,7 +116,7 @@ export default function ProductFormFields({
             setIsHandleManual(true);
             setHandle(event.target.value);
           }}
-          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-base text-gray-900 outline-none transition focus:border-yellow-400 sm:text-sm"
           placeholder="auto-generated-from-brand-and-model"
         />
         <span className="mt-2 block text-xs text-gray-400">

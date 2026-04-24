@@ -5,18 +5,18 @@ export default async function AdminSettingsPage() {
   const { store, salesChannels, productCount } = await getAdminSettingsData();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
         <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
           Store <span className="text-yellow-500">Settings</span>
         </h1>
-        <p className="mt-2 text-gray-500">
+        <p className="mt-2 text-sm leading-6 text-gray-500 sm:text-base">
           Store configuration currently saved in the database.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="space-y-8 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
+        <div className="space-y-6 sm:space-y-8 lg:col-span-2">
           <section className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <div className="mb-8 flex items-center gap-3">
               <Globe className="h-5 w-5 text-yellow-500" />
@@ -26,7 +26,7 @@ export default async function AdminSettingsPage() {
             </div>
 
             {store ? (
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <p className="text-xs font-black uppercase tracking-widest text-gray-400">
                     Store Name
@@ -92,7 +92,7 @@ export default async function AdminSettingsPage() {
           </section>
         </div>
 
-        <aside className="space-y-8">
+        <aside className="space-y-6 sm:space-y-8">
           <div className="rounded-3xl bg-black p-6 text-white shadow-2xl sm:p-8">
             <Bell className="mb-6 h-8 w-8 text-yellow-500" />
             <h4 className="mb-2 text-xl font-black uppercase tracking-tighter">

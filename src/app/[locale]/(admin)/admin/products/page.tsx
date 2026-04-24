@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { AdminToast } from "@/components/admin/admin-toast";
+import { AdminLiveSearch } from "@/components/admin/admin-live-search";
 import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { getAdminProducts } from "@/lib/admin-data";
 import {
@@ -15,12 +16,36 @@ export default async function AdminProductsPage({
   searchParams,
 }: {
   params: { locale: string };
-  searchParams: { status?: string; message?: string; edit?: string; reset?: string };
+  searchParams: {
+    status?: string;
+    message?: string;
+    edit?: string;
+    reset?: string;
+    q?: string;
+  };
 }) {
-  const products = await getAdminProducts();
+  const allProducts = await getAdminProducts();
   const status = searchParams.status;
   const message = searchParams.message;
-  const editingProduct = products.find(
+  const query = searchParams.q?.trim().toLowerCase() || "";
+  const products = query
+    ? allProducts.filter((product) =>
+        [
+          product.title,
+          product.handle,
+          product.brandName,
+          product.modelName,
+          product.color,
+          product.storage,
+          product.gradingData,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(query),
+      )
+    : allProducts;
+  const editingProduct = allProducts.find(
     (product) => product.id === searchParams.edit,
   );
   const formAction = editingProduct ? updateProductAction : addProductAction;
@@ -36,14 +61,15 @@ export default async function AdminProductsPage({
     { value: "2048", label: "2TB" },
   ];
   const gradeOptions = ["Grade A", "Grade B", "Grade C"];
+  const publishedCount = products.filter((product) => product.status === "published").length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
         <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
           Inventory <span className="text-yellow-500">Management</span>
         </h1>
-        <p className="mt-2 text-gray-500">
+        <p className="mt-2 text-sm leading-6 text-gray-500 sm:text-base">
           Products and inventory pulled directly from the database.
         </p>
       </div>
@@ -276,7 +302,7 @@ export default async function AdminProductsPage({
             />
           </label>
 
-          <div className="flex flex-col gap-3 sm:flex-row md:col-span-2">
+          <div className="sticky bottom-3 z-10 -mx-1 flex flex-col gap-3 rounded-3xl bg-white/95 p-1 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:flex-row md:col-span-2">
             <button
               type="submit"
               className="rounded-full bg-yellow-500 px-6 py-3 text-sm font-black uppercase tracking-widest text-black transition hover:bg-yellow-400"
@@ -295,8 +321,152 @@ export default async function AdminProductsPage({
         </form>
       </div>
 
+      <div className="w-full sm:w-64 lg:w-80">
+        <AdminLiveSearch
+          defaultValue={searchParams.q || ""}
+          placeholder="Search products..."
+        />
+      </div>
+
       {products.length > 0 ? (
-        <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
+        <>
+          <div className="grid gap-4 md:hidden">
+            {products.map((product) => (
+              <section
+                key={product.id}
+                className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400 shadow-inner">
+                    {product.thumbnail && isLikelyImageUrl(product.thumbnail) ? (
+                      canUseNextImage(product.thumbnail) ? (
+                        <Image
+                          src={product.thumbnail}
+                          alt={product.title}
+                          width={64}
+                          height={64}
+                          className="h-16 w-16 rounded-2xl object-cover"
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={product.thumbnail}
+                          alt={product.title}
+                          className="h-16 w-16 rounded-2xl object-cover"
+                        />
+                      )
+                    ) : (
+                      "PKG"
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-black text-gray-900">{product.title}</p>
+                        <p className="mt-1 break-all text-xs text-gray-400">
+                          {product.handle}
+                        </p>
+                      </div>
+                      <span className="inline-flex rounded-full bg-green-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-green-700">
+                        {product.status}
+                      </span>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-gray-50 px-3 py-2.5">
+                        <p className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-400">
+                          Price
+                        </p>
+                        <p className="mt-1 font-black text-gray-900">
+                          ${(product.price / 100).toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-gray-50 px-3 py-2.5">
+                        <p className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-400">
+                          Inventory
+                        </p>
+                        <p className="mt-1 font-black text-gray-900">
+                          {product.inventory} in stock
+                        </p>
+                      </div>
+                    </div>
+                    {(product.color ||
+                      product.storage ||
+                      product.gradingData ||
+                      product.batteryHealth !== "") && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {product.color ? (
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
+                            {product.color}
+                          </span>
+                        ) : null}
+                        {product.storage ? (
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
+                            {product.storage}
+                          </span>
+                        ) : null}
+                        {product.gradingData ? (
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
+                            {product.gradingData}
+                          </span>
+                        ) : null}
+                        {product.batteryHealth !== "" ? (
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
+                            {product.batteryHealth}% battery
+                          </span>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-gray-100 bg-gray-50 p-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-gray-400">
+                    Quick Stock Update
+                  </p>
+                  <form action={addInventoryAction} className="mt-3 flex gap-2">
+                    <input type="hidden" name="locale" value={locale} />
+                    <input type="hidden" name="productId" value={product.id} />
+                    <input
+                      type="number"
+                      name="amount"
+                      min="1"
+                      step="1"
+                      defaultValue="1"
+                      aria-label={`Inventory amount for ${product.title}`}
+                      className="w-20 rounded-full border border-gray-200 bg-white px-3 py-2 text-sm font-bold text-gray-700 outline-none transition focus:border-yellow-400"
+                    />
+                    <button
+                      type="submit"
+                      className="flex-1 rounded-full border border-yellow-300 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-yellow-700 transition hover:bg-yellow-50"
+                    >
+                      Add Stock
+                    </button>
+                  </form>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <a
+                    href={`/${locale}/admin/products?edit=${product.id}`}
+                    className="flex items-center justify-center rounded-full border border-gray-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.14em] text-gray-700 transition hover:bg-gray-50"
+                  >
+                    Edit Product
+                  </a>
+                  <form action={removeProductAction}>
+                    <input type="hidden" name="locale" value={locale} />
+                    <input type="hidden" name="productId" value={product.id} />
+                    <button
+                      type="submit"
+                      className="w-full rounded-full border border-red-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.14em] text-red-600 transition hover:border-red-300 hover:bg-red-50"
+                    >
+                      Remove
+                    </button>
+                  </form>
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <div className="hidden overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm md:block">
           <table className="min-w-[760px] w-full text-left">
             <thead className="border-b border-gray-100 bg-gray-50/50">
               <tr>
@@ -320,8 +490,8 @@ export default async function AdminProductsPage({
                   key={product.id}
                   className="transition-colors hover:bg-gray-50/50"
                 >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
+                  <td className="px-4 py-4 sm:px-6">
+                    <div className="flex items-center gap-3 sm:gap-4">
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400 shadow-inner">
                         {product.thumbnail && isLikelyImageUrl(product.thumbnail) ? (
                           canUseNextImage(product.thumbnail) ? (
@@ -350,12 +520,12 @@ export default async function AdminProductsPage({
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-4 sm:px-6">
                     <span className="inline-block rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase text-green-700">
                       {product.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-medium text-gray-600">
+                  <td className="px-4 py-4 font-medium text-gray-600 sm:px-6">
                     <div>{product.inventory} in stock</div>
                     <div className="text-xs text-gray-400">
                       ${(product.price / 100).toFixed(2)}
@@ -373,9 +543,9 @@ export default async function AdminProductsPage({
                       </div>
                     ) : null}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-2">
-                      <form action={addInventoryAction} className="flex items-center gap-2">
+                  <td className="px-4 py-4 sm:px-6">
+                    <div className="flex min-w-[220px] flex-wrap gap-2">
+                      <form action={addInventoryAction} className="flex flex-wrap items-center gap-2">
                         <input type="hidden" name="locale" value={locale} />
                         <input type="hidden" name="productId" value={product.id} />
                         <input
@@ -416,10 +586,11 @@ export default async function AdminProductsPage({
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       ) : (
-        <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-12 text-center text-gray-500">
-          No products are in the database yet.
+        <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm leading-6 text-gray-500 sm:p-12 sm:text-base">
+          {query ? "No products matched your search." : "No products are in the database yet."}
         </div>
       )}
     </div>

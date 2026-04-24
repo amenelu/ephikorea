@@ -22,7 +22,7 @@ export default async function AdminOrderDetailsPage({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
         <Link
           href={`/${locale}/admin/orders`}
@@ -40,7 +40,7 @@ export default async function AdminOrderDetailsPage({
             <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
               Order <span className="text-yellow-500">{order.displayId}</span>
             </h1>
-            <p className="mt-2 text-gray-500">
+            <p className="mt-2 text-sm leading-6 text-gray-500 sm:text-base">
               Placed {order.date} by {order.customer.name}
             </p>
           </div>
@@ -82,12 +82,12 @@ export default async function AdminOrderDetailsPage({
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
           <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
             Ordered Products
           </h2>
-          <div className="mt-6 space-y-4">
+          <div className="mt-5 space-y-4 sm:mt-6">
             {order.items.map((item) => (
               <div
                 key={item.id}
@@ -137,7 +137,7 @@ export default async function AdminOrderDetailsPage({
           </div>
         </section>
 
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <section className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <h2 className="text-xl font-black uppercase tracking-tight text-gray-900">
               Buyer Details

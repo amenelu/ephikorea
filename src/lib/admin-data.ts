@@ -192,24 +192,26 @@ export async function getAdminDashboardData() {
           where inventory <= 3
         ) as lowest_inventory
     `);
-    const recentOrders = await client.query<{
-      display_id: number | null;
-      created_at: string;
-      total: number;
-      customer_name: string | null;
-      email: string | null;
-      status: string | null;
-    }>(`
-      select
-        o.display_id,
-        o.created_at,
-        coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
-        nullif(trim(concat(coalesce(c.first_name, ''), ' ', coalesce(c.last_name, ''))), '') as customer_name,
-        coalesce(c.email, o.email) as email,
-        coalesce(
-          o.payment_status::text,
-          o.fulfillment_status::text,
-          o.status::text
+      const recentOrders = await client.query<{
+        display_id: number | null;
+        created_at: string;
+        total: number;
+        customer_name: string | null;
+        email: string | null;
+        status: string | null;
+        product_summary: string | null;
+      }>(`
+        select
+          o.display_id,
+          o.created_at,
+          coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
+          nullif(trim(concat(coalesce(c.first_name, ''), ' ', coalesce(c.last_name, ''))), '') as customer_name,
+          coalesce(c.email, o.email) as email,
+          coalesce(string_agg(distinct li.title, ', '), 'No items') as product_summary,
+          coalesce(
+            o.payment_status::text,
+            o.fulfillment_status::text,
+            o.status::text
         ) as status
       from "order" o
       left join customer c on c.id = o.customer_id
@@ -277,16 +279,17 @@ export async function getAdminDashboardData() {
           value: String(snapshot?.customer_count ?? 0),
         },
       ],
-      recentOrders: recentOrders.rows.map((order) => ({
-        id: order.display_id ? `#${order.display_id}` : "Draft",
-        customer: order.customer_name || order.email || "Guest",
-        date: formatAdminDate(order.created_at),
-        total: formatAmount(order.total, "USD"),
-        status: order.status || "pending",
-        statusTone: toStatusTone(order.status),
-      })),
-      notifications,
-    };
+        recentOrders: recentOrders.rows.map((order) => ({
+          id: order.display_id ? `#${order.display_id}` : "Draft",
+          customer: order.customer_name || order.email || "Guest",
+          date: formatAdminDate(order.created_at),
+          total: formatAmount(order.total, "USD"),
+          status: order.status || "pending",
+          statusTone: toStatusTone(order.status),
+          productSummary: order.product_summary || "No items",
+        })),
+        notifications,
+      };
   });
 }
 
@@ -298,40 +301,44 @@ export async function getAdminOrders(query?: string) {
     const params: unknown[] = [];
     let whereClause = "";
 
-    if (searchTerm) {
-      params.push(`%${searchTerm}%`);
-      whereClause = `
-        where
-          cast(o.display_id as text) ilike $1
-          or coalesce(c.email, o.email, '') ilike $1
-          or coalesce(c.first_name, '') ilike $1
-          or coalesce(c.last_name, '') ilike $1
-      `;
-    }
+      if (searchTerm) {
+        params.push(`%${searchTerm}%`);
+        whereClause = `
+          where
+            cast(o.display_id as text) ilike $1
+            or o.id::text ilike $1
+            or coalesce(c.email, o.email, '') ilike $1
+            or coalesce(c.first_name, '') ilike $1
+            or coalesce(c.last_name, '') ilike $1
+            or coalesce(li.title, '') ilike $1
+        `;
+      }
 
-    const { rows } = await client.query<{
-      order_id: string;
-      display_id: number | null;
-      created_at: string;
-      total: number;
-      customer_name: string | null;
-      email: string | null;
-      status: string | null;
-      payment_status: string | null;
-    }>(
-      `
-        select
-          o.id as order_id,
-          o.display_id,
-          o.created_at,
-          coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
-          nullif(trim(concat(coalesce(c.first_name, ''), ' ', coalesce(c.last_name, ''))), '') as customer_name,
-          coalesce(c.email, o.email) as email,
-          o.status::text as status,
-          o.payment_status::text as payment_status
-        from "order" o
-        left join customer c on c.id = o.customer_id
-        left join line_item li on li.order_id = o.id
+      const { rows } = await client.query<{
+        order_id: string;
+        display_id: number | null;
+        created_at: string;
+        total: number;
+        customer_name: string | null;
+        email: string | null;
+        status: string | null;
+        payment_status: string | null;
+        product_summary: string | null;
+      }>(
+        `
+          select
+            o.id as order_id,
+            o.display_id,
+            o.created_at,
+            coalesce(sum(li.unit_price * li.quantity), 0)::int as total,
+            nullif(trim(concat(coalesce(c.first_name, ''), ' ', coalesce(c.last_name, ''))), '') as customer_name,
+            coalesce(c.email, o.email) as email,
+            o.status::text as status,
+            o.payment_status::text as payment_status,
+            coalesce(string_agg(distinct li.title, ', '), 'No items') as product_summary
+          from "order" o
+          left join customer c on c.id = o.customer_id
+          left join line_item li on li.order_id = o.id
         ${whereClause}
         group by o.id, c.id
         order by o.created_at desc
@@ -344,14 +351,15 @@ export async function getAdminOrders(query?: string) {
       id: order.display_id ? `#${order.display_id}` : "Draft",
       customer: order.customer_name || order.email || "Guest",
       date: formatAdminDate(order.created_at),
-      total: formatAmount(order.total, "USD"),
-      status: order.status || "pending",
-      statusTone: toStatusTone(order.status),
-      paymentStatus: order.payment_status || "not_paid",
-      paymentStatusTone:
-        order.payment_status === "captured" || order.payment_status === "paid"
-          ? "bg-green-100 text-green-700"
-          : "bg-gray-100 text-gray-600",
+        total: formatAmount(order.total, "USD"),
+        status: order.status || "pending",
+        statusTone: toStatusTone(order.status),
+        productSummary: order.product_summary || "No items",
+        paymentStatus: order.payment_status || "not_paid",
+        paymentStatusTone:
+          order.payment_status === "captured" || order.payment_status === "paid"
+            ? "bg-green-100 text-green-700"
+            : "bg-gray-100 text-gray-600",
     }));
   });
 }
