@@ -13,6 +13,7 @@ import {
   removeAdminProduct,
   updateAdminProduct,
 } from "@/lib/admin-data";
+import { inferReferenceUrlFromBrandAndModel } from "@/lib/product-specs";
 
 function buildRedirectPath(
   locale: string,
@@ -187,6 +188,28 @@ function buildProductTitle(brandName: string, modelName: string) {
   return title;
 }
 
+function inferBrandName(modelName: string) {
+  const normalized = modelName.toLowerCase();
+
+  if (normalized.includes("iphone")) {
+    return "Apple";
+  }
+
+  if (normalized.includes("galaxy")) {
+    return "Samsung";
+  }
+
+  if (normalized.includes("pixel")) {
+    return "Google";
+  }
+
+  return "";
+}
+
+function resolveBrandName(rawBrandName: string, modelName: string) {
+  return rawBrandName.trim() || inferBrandName(modelName);
+}
+
 function revalidateAdminProductPaths(locale: string) {
   revalidatePath(`/${locale}`);
   revalidatePath(`/${locale}/products`);
@@ -195,18 +218,35 @@ function revalidateAdminProductPaths(locale: string) {
   revalidatePath(`/${locale}/admin/products`);
 }
 
+function resolveReferenceUrl(brandName: string, modelName: string, rawReferenceUrl: string) {
+  const referenceUrl = rawReferenceUrl.trim();
+
+  if (referenceUrl) {
+    return referenceUrl;
+  }
+
+  return inferReferenceUrlFromBrandAndModel(brandName, modelName) || "";
+}
+
 export async function addProductAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
   await requireAdminActionAccess(locale);
 
   try {
-    const brandName = String(formData.get("brandName") || "").trim();
     const modelName = String(formData.get("modelName") || "").trim();
+    const brandName = resolveBrandName(
+      String(formData.get("brandName") || ""),
+      modelName,
+    );
     const title = buildProductTitle(brandName, modelName);
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
     const thumbnail = await resolveThumbnailValue(formData);
-    const referenceUrl = String(formData.get("referenceUrl") || "");
+    const referenceUrl = resolveReferenceUrl(
+      brandName,
+      modelName,
+      String(formData.get("referenceUrl") || ""),
+    );
     const color = String(formData.get("color") || "");
     const storage = parseStorage(formData.get("storage"));
     const imei = parseImei(formData.get("imei"));
@@ -258,13 +298,20 @@ export async function updateProductAction(formData: FormData) {
   await requireAdminActionAccess(locale);
 
   try {
-    const brandName = String(formData.get("brandName") || "").trim();
     const modelName = String(formData.get("modelName") || "").trim();
+    const brandName = resolveBrandName(
+      String(formData.get("brandName") || ""),
+      modelName,
+    );
     const title = buildProductTitle(brandName, modelName);
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
     const thumbnail = await resolveThumbnailValue(formData);
-    const referenceUrl = String(formData.get("referenceUrl") || "");
+    const referenceUrl = resolveReferenceUrl(
+      brandName,
+      modelName,
+      String(formData.get("referenceUrl") || ""),
+    );
     const color = String(formData.get("color") || "");
     const storage = parseStorage(formData.get("storage"));
     const imei = parseImei(formData.get("imei"));

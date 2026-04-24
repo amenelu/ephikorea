@@ -157,8 +157,9 @@ export default async function AdminProductsPage({
               placeholder="https://www.samsung.com/.../specs/"
             />
             <span className="mt-2 block text-xs text-gray-400">
-              Paste the official Samsung specs page or an Apple Support tech specs
-              page and we&apos;ll use it to build the spec sheet automatically.
+              Leave this blank for supported iPhone and Galaxy models and we&apos;ll
+              auto-fill it. You can still paste a Samsung specs page or an Apple
+              Support tech specs page manually anytime.
             </span>
           </label>
 

@@ -11,6 +11,24 @@ function slugify(value: string) {
     .slice(0, 80);
 }
 
+function inferBrandName(modelName: string) {
+  const normalized = modelName.toLowerCase();
+
+  if (normalized.includes("iphone")) {
+    return "Apple";
+  }
+
+  if (normalized.includes("galaxy")) {
+    return "Samsung";
+  }
+
+  if (normalized.includes("pixel")) {
+    return "Google";
+  }
+
+  return "";
+}
+
 type ProductFormFieldsProps = {
   initialBrandName?: string;
   initialModelName?: string;
@@ -25,10 +43,23 @@ export default function ProductFormFields({
   const [brandName, setBrandName] = useState(initialBrandName);
   const [modelName, setModelName] = useState(initialModelName);
   const [handle, setHandle] = useState(initialHandle);
+  const [isBrandManual, setIsBrandManual] = useState(Boolean(initialBrandName));
   const [isHandleManual, setIsHandleManual] = useState(
     Boolean(initialHandle) &&
       initialHandle !== slugify(`${initialBrandName} ${initialModelName}`),
   );
+
+  useEffect(() => {
+    if (isBrandManual) {
+      return;
+    }
+
+    const inferredBrand = inferBrandName(modelName);
+
+    if (inferredBrand) {
+      setBrandName(inferredBrand);
+    }
+  }, [modelName, isBrandManual]);
 
   useEffect(() => {
     if (isHandleManual) {
@@ -49,9 +80,12 @@ export default function ProductFormFields({
           name="brandName"
           required
           value={brandName}
-          onChange={(event) => setBrandName(event.target.value)}
+          onChange={(event) => {
+            setIsBrandManual(true);
+            setBrandName(event.target.value);
+          }}
           className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-          placeholder="Samsung"
+          placeholder="Auto-filled from model when recognized"
         />
       </label>
 

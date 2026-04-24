@@ -97,6 +97,198 @@ export function sanitizeHttpUrl(value?: string | null) {
   }
 }
 
+function normalizeReferenceLookupValue(value?: string | null) {
+  return value
+    ?.toLowerCase()
+    .replace(/[+]/g, " plus ")
+    .replace(/\b5g\b/g, " ")
+    .replace(/[\(\)]/g, " ")
+    .replace(/\bthird\b/g, "3rd")
+    .replace(/\bsecond\b/g, "2nd")
+    .replace(/\bfirst\b/g, "1st")
+    .replace(/\bgen\b/g, "generation")
+    .replace(/\bmax\b/g, " max ")
+    .replace(/\bpro\b/g, " pro ")
+    .replace(/\bultra\b/g, " ultra ")
+    .replace(/\bplus\b/g, " plus ")
+    .replace(/\bmini\b/g, " mini ")
+    .replace(/\bfold\b/g, " fold ")
+    .replace(/\bflip\b/g, " flip ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+type ReferenceUrlPattern = {
+  patterns: string[];
+  url: string;
+};
+
+const APPLE_REFERENCE_URLS: ReferenceUrlPattern[] = [
+  {
+    patterns: ["iphone 16 pro max", "iphone16promax", "16 pro max iphone"],
+    url: "https://support.apple.com/en-us/121032",
+  },
+  {
+    patterns: ["iphone 16 pro", "iphone16pro", "16 pro iphone"],
+    url: "https://support.apple.com/en-us/121031",
+  },
+  {
+    patterns: ["iphone 16 plus", "iphone16plus", "16 plus iphone"],
+    url: "https://support.apple.com/en-us/121030",
+  },
+  {
+    patterns: ["iphone 16", "iphone16"],
+    url: "https://support.apple.com/en-us/121029",
+  },
+  {
+    patterns: ["iphone 15 pro max", "iphone15promax", "15 pro max iphone"],
+    url: "https://support.apple.com/en-us/111828",
+  },
+  {
+    patterns: ["iphone 15 pro", "iphone15pro", "15 pro iphone"],
+    url: "https://support.apple.com/en-us/111829",
+  },
+  {
+    patterns: ["iphone 15 plus", "iphone15plus", "15 plus iphone"],
+    url: "https://support.apple.com/en-us/111830",
+  },
+  {
+    patterns: ["iphone 15", "iphone15"],
+    url: "https://support.apple.com/en-us/111831",
+  },
+  {
+    patterns: ["iphone 14 plus", "iphone14plus", "14 plus iphone"],
+    url: "https://support.apple.com/en-us/111854",
+  },
+  {
+    patterns: ["iphone 14", "iphone14"],
+    url: "https://support.apple.com/en-us/111850",
+  },
+  {
+    patterns: ["iphone 13", "iphone13"],
+    url: "https://support.apple.com/en-us/111872",
+  },
+  {
+    patterns: [
+      "iphone se 3",
+      "iphone se 3rd generation",
+      "iphone se 3rd gen",
+      "iphone se third generation",
+      "iphone se 2022",
+      "iphone se3",
+    ],
+    url: "https://support.apple.com/kb/SP867",
+  },
+];
+
+const SAMSUNG_REFERENCE_URLS: ReferenceUrlPattern[] = [
+  {
+    patterns: [
+      "galaxy s25 ultra",
+      "s25 ultra",
+      "galaxys25ultra",
+      "sm s938",
+      "sm s938b",
+    ],
+    url: "https://www.samsung.com/ae/smartphones/galaxy-s25-ultra/specs/",
+  },
+  {
+    patterns: ["galaxy s25", "s25", "galaxys25", "sm s931", "sm s931b"],
+    url: "https://www.samsung.com/ae/smartphones/galaxy-s25/specs/",
+  },
+  {
+    patterns: [
+      "galaxy s24 ultra",
+      "s24 ultra",
+      "galaxys24ultra",
+      "sm s928",
+      "sm s928b",
+    ],
+    url: "https://www.samsung.com/ae/smartphones/galaxy-s24-ultra/specs/",
+  },
+  {
+    patterns: ["galaxy s24", "s24", "galaxys24", "sm s921", "sm s921b"],
+    url: "https://www.samsung.com/ae/smartphones/galaxy-s24/specs/",
+  },
+  {
+    patterns: ["galaxy z fold6", "z fold6", "fold6", "sm f956", "sm f956b"],
+    url: "https://www.samsung.com/ae/smartphones/galaxy-z-fold6/specs/",
+  },
+  {
+    patterns: ["galaxy z flip6", "z flip6", "flip6", "sm f741", "sm f741b"],
+    url: "https://www.samsung.com/ae/smartphones/galaxy-z-flip6/specs/",
+  },
+];
+
+function matchesReferencePattern(normalizedModel: string, pattern: string) {
+  const normalizedPattern = normalizeReferenceLookupValue(pattern) || pattern;
+
+  return (
+    normalizedModel === normalizedPattern ||
+    normalizedModel.includes(normalizedPattern) ||
+    normalizedModel.replace(/\s+/g, "").includes(normalizedPattern.replace(/\s+/g, ""))
+  );
+}
+
+function inferSamsungReferenceUrl(normalizedModel: string) {
+  const matchedEntry = SAMSUNG_REFERENCE_URLS.find((entry) =>
+    entry.patterns.some((pattern) => matchesReferencePattern(normalizedModel, pattern)),
+  );
+
+  if (matchedEntry) {
+    return matchedEntry.url;
+  }
+
+  const galaxySMatch = normalizedModel.match(/\b(?:galaxy\s*)?s\s*(2[4-9])\s*(ultra)?\b/);
+
+  if (galaxySMatch) {
+    const generation = galaxySMatch[1];
+    const suffix = galaxySMatch[2] ? "-ultra" : "";
+    return `https://www.samsung.com/ae/smartphones/galaxy-s${generation}${suffix}/specs/`;
+  }
+
+  const foldMatch = normalizedModel.match(/\b(?:galaxy\s*z\s*)?fold\s*(6|7)\b/);
+
+  if (foldMatch) {
+    return `https://www.samsung.com/ae/smartphones/galaxy-z-fold${foldMatch[1]}/specs/`;
+  }
+
+  const flipMatch = normalizedModel.match(/\b(?:galaxy\s*z\s*)?flip\s*(6|7)\b/);
+
+  if (flipMatch) {
+    return `https://www.samsung.com/ae/smartphones/galaxy-z-flip${flipMatch[1]}/specs/`;
+  }
+
+  return undefined;
+}
+
+export function inferReferenceUrlFromBrandAndModel(
+  brandName?: string | null,
+  modelName?: string | null,
+) {
+  const normalizedBrand = normalizeReferenceLookupValue(brandName);
+  const normalizedModel = normalizeReferenceLookupValue(modelName);
+
+  if (!normalizedModel) {
+    return undefined;
+  }
+
+  if (normalizedBrand?.includes("apple") || normalizedModel.includes("iphone")) {
+    const match = APPLE_REFERENCE_URLS.find((entry) =>
+      entry.patterns.some((pattern) => matchesReferencePattern(normalizedModel, pattern)),
+    );
+
+    return match?.url;
+  }
+
+  if (normalizedBrand?.includes("samsung") || normalizedModel.includes("galaxy")) {
+    return inferSamsungReferenceUrl(normalizedModel);
+  }
+
+  return undefined;
+}
+
 function getSamsungSpecsUrl(referenceUrl?: string | null) {
   const sanitizedUrl = sanitizeHttpUrl(referenceUrl);
 
