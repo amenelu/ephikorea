@@ -46,12 +46,12 @@ export default function CartClient({
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
       <AdminToast status={status} message={message} />
 
       <div className="max-w-2xl">
-        <h1 className="text-3xl font-bold text-gray-900">{t("cart.checkout")}</h1>
-        <p className="mt-3 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("cart.checkout")}</h1>
+        <p className="mt-3 text-sm leading-7 text-gray-500">
           {t("cart.description")}
         </p>
       </div>
@@ -67,14 +67,14 @@ export default function CartClient({
         </div>
       ) : null}
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
         <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-black uppercase tracking-tight text-gray-900">
             {t("cart.orderSummary")}
           </h2>
 
           {items.length > 0 ? (
-            <div className="mt-6 space-y-4">
+            <div className="mt-5 space-y-3 sm:mt-6 sm:space-y-4">
               {items.map((item) => (
                 <div
                   key={item.variantId}
@@ -90,7 +90,7 @@ export default function CartClient({
                     <button
                       type="button"
                       onClick={() => removeItem(item.variantId)}
-                      className="text-xs font-black uppercase tracking-widest text-red-500"
+                      className="self-start text-xs font-black uppercase tracking-widest text-red-500"
                     >
                       {t("cart.remove")}
                     </button>
@@ -102,7 +102,7 @@ export default function CartClient({
                         onClick={() =>
                           updateQuantity(item.variantId, item.quantity - 1)
                         }
-                        className="px-4 py-2 text-sm font-black text-gray-700"
+                        className="px-3 py-2 text-sm font-black text-gray-700 sm:px-4"
                       >
                         -
                       </button>
@@ -114,7 +114,7 @@ export default function CartClient({
                         onClick={() =>
                           updateQuantity(item.variantId, item.quantity + 1)
                         }
-                        className="px-4 py-2 text-sm font-black text-gray-700"
+                        className="px-3 py-2 text-sm font-black text-gray-700 sm:px-4"
                       >
                         +
                       </button>
@@ -152,7 +152,7 @@ export default function CartClient({
                 await checkoutAction(formData);
               });
             }}
-            className="mt-6 space-y-4"
+            className="mt-5 space-y-4 sm:mt-6"
           >
             <input type="hidden" name="locale" value={locale} />
             <input type="hidden" name="cartSnapshot" value={cartSnapshot} />
@@ -282,7 +282,7 @@ export default function CartClient({
             <button
               type="submit"
               disabled={items.length === 0 || isSubmitting}
-              className="w-full rounded-full bg-black px-6 py-4 text-sm font-black uppercase tracking-widest text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-full bg-black px-6 py-3.5 text-sm font-black uppercase tracking-widest text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 sm:py-4"
             >
               {isSubmitting ? t("cart.submitting") : t("cart.submit")}
             </button>

@@ -22,7 +22,7 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
   };
 
   return (
-    <div className="mt-10 grid gap-4">
+    <div className="mt-8 grid gap-3 sm:mt-10 sm:gap-4">
       {LOCALE_OPTIONS.map((item) => {
         const isActive = item.code === locale;
 
@@ -31,20 +31,20 @@ export function LanguageSwitcher({ locale }: { locale: string }) {
             key={item.code}
             type="button"
             onClick={() => handleLocaleChange(item.code)}
-            className={`rounded-3xl border p-6 text-left transition-colors ${
+            className={`rounded-3xl border p-4 text-left transition-colors sm:p-6 ${
               isActive
                 ? "border-yellow-500 bg-yellow-50"
                 : "border-gray-200 hover:bg-gray-50"
             }`}
           >
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
-                <h2 className="text-lg font-black text-gray-900">
+                <h2 className="text-base font-black text-gray-900 sm:text-lg">
                   {t(item.code === "ko" ? "language.ko" : "language.en")}
                 </h2>
                 <p className="text-sm text-gray-500">{item.code}</p>
               </div>
-              <span className="text-xs font-black uppercase tracking-[0.2em] text-yellow-600">
+              <span className="text-[11px] font-black uppercase tracking-[0.18em] text-yellow-600 sm:text-xs sm:tracking-[0.2em]">
                 {isActive ? t("common.current") : t("common.switch")}
               </span>
             </div>
