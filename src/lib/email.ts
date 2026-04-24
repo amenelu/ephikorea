@@ -67,6 +67,43 @@ function formatAddress(order: AdminOrderNotification) {
     .join("\n");
 }
 
+function formatCompactAddress(order: AdminOrderNotification) {
+  const { deliveryAddress } = order;
+
+  return [
+    deliveryAddress.address1,
+    deliveryAddress.address2,
+    deliveryAddress.city,
+    deliveryAddress.province,
+    deliveryAddress.postalCode,
+    deliveryAddress.countryCode.toUpperCase(),
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function formatOrderReference(orderId: string) {
+  const normalized = orderId.replace(/^order_/i, "");
+
+  if (normalized.length <= 10) {
+    return normalized;
+  }
+
+  return normalized.slice(-10);
+}
+
+function humanizeTitle(value: string) {
+  return value
+    .trim()
+    .split(/\s+/)
+    .map((part) =>
+      part.length <= 3 && /\d/.test(part)
+        ? part.toUpperCase()
+        : part.charAt(0).toUpperCase() + part.slice(1),
+    )
+    .join(" ");
+}
+
 function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (character) => {
     const entities: Record<string, string> = {
@@ -145,33 +182,37 @@ function buildHtmlEmail(order: AdminOrderNotification) {
 function buildTelegramMessage(order: AdminOrderNotification) {
   const itemLines = order.items
     .map((item) => {
-      const variant = item.variantTitle ? ` (${item.variantTitle})` : "";
-      const lineTotal = item.unitPrice * item.quantity;
+      const variant =
+        item.variantTitle && item.variantTitle.toLowerCase() !== "default"
+          ? `, ${item.variantTitle}`
+          : "";
 
-      return `- ${item.title}${variant} x ${item.quantity} - ${formatAmount(
-        lineTotal,
-        order.currencyCode,
-      )}`;
+      return `- ${humanizeTitle(item.title)} x${item.quantity}${variant}`;
     })
     .join("\n");
 
-  const address = formatAddress(order);
+  const address = formatCompactAddress(order);
+  const contactLine =
+    order.customerPhone?.trim() || order.customerEmail
+      ? `Contact: ${order.customerPhone?.trim() || order.customerEmail}`
+      : null;
 
   return [
-    "New order received",
+    "New order",
     "",
-    `Order: ${order.orderId}`,
+    `Ref: ${formatOrderReference(order.orderId)}`,
     `Customer: ${order.customerName}`,
-    `Email: ${order.customerEmail}`,
-    `Phone: ${order.customerPhone || "Not provided"}`,
+    contactLine,
     `Total: ${formatAmount(order.total, order.currencyCode)}`,
     "",
     "Items:",
     itemLines,
     "",
-    "Delivery address:",
+    "Delivery:",
     address,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 async function sleep(milliseconds: number) {
