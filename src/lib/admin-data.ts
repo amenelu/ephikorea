@@ -1229,6 +1229,41 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
   });
 }
 
+export async function incrementAdminProductInventory(
+  productId: string,
+  amount: number,
+) {
+  await assertAdminAuthenticated();
+
+  return withClient(async (client) => {
+    const normalizedId = productId.trim();
+    const normalizedAmount = Math.trunc(amount);
+
+    if (!normalizedId) {
+      throw new Error("Product id is required.");
+    }
+
+    if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) {
+      throw new Error("Inventory increase must be greater than zero.");
+    }
+
+    const { rows } = await client.query<{ id: string }>(
+      `
+        update product_variant
+        set
+          inventory_quantity = inventory_quantity + $2,
+          updated_at = now()
+        where product_id = $1
+          and deleted_at is null
+        returning id
+      `,
+      [normalizedId, normalizedAmount],
+    );
+
+    return rows.length > 0;
+  });
+}
+
 export async function getAdminSettingsData() {
   await assertAdminAuthenticated();
 

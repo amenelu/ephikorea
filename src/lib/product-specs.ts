@@ -97,6 +97,57 @@ export function sanitizeHttpUrl(value?: string | null) {
   }
 }
 
+function getSamsungSpecsUrl(referenceUrl?: string | null) {
+  const sanitizedUrl = sanitizeHttpUrl(referenceUrl);
+
+  if (!sanitizedUrl) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(sanitizedUrl);
+
+    if (!/samsung\.com$/i.test(url.hostname) && !/\.samsung\.com$/i.test(url.hostname)) {
+      return sanitizedUrl;
+    }
+
+    if (/\/specs\/?$/i.test(url.pathname)) {
+      return url.toString();
+    }
+
+    url.pathname = `${url.pathname.replace(/\/+$/, "")}/specs/`;
+    url.search = "";
+    url.hash = "";
+
+    return url.toString();
+  } catch {
+    return sanitizedUrl;
+  }
+}
+
+function getAppleSupportSpecsUrl(referenceUrl?: string | null) {
+  const sanitizedUrl = sanitizeHttpUrl(referenceUrl);
+
+  if (!sanitizedUrl) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(sanitizedUrl);
+
+    if (
+      url.hostname !== "support.apple.com" &&
+      !url.hostname.endsWith(".support.apple.com")
+    ) {
+      return undefined;
+    }
+
+    return url.toString();
+  } catch {
+    return undefined;
+  }
+}
+
 function decodeHtmlEntities(value: string) {
   return value
     .replace(/&nbsp;/g, " ")
@@ -569,6 +620,219 @@ function normalizeSamsungImageUrl(value?: string | null) {
   return sanitizeHttpUrl(value);
 }
 
+function cleanSectionTitle(value: string) {
+  return stripHtml(value).replace(/\s+\d+$/, "").trim();
+}
+
+function inferAppleSpecLabel(sectionTitle: string, value: string, index: number) {
+  const normalizedSection = normalizeSpecKey(sectionTitle);
+  const normalizedValue = normalizeSpecKey(value);
+
+  if (normalizedSection === "finish") {
+    return index === 0 ? "Materials" : `Finish Option ${index}`;
+  }
+
+  if (normalizedSection === "capacity") {
+    return `Capacity Option ${index + 1}`;
+  }
+
+  if (normalizedSection === "size and weight") {
+    if (normalizedValue.includes("width")) return "Width";
+    if (normalizedValue.includes("height")) return "Height";
+    if (normalizedValue.includes("depth")) return "Depth";
+    if (normalizedValue.includes("weight")) return "Weight";
+  }
+
+  if (normalizedSection === "display") {
+    if (normalizedValue.includes("super retina") || normalizedValue.includes("oled")) {
+      return "Display Type";
+    }
+    if (normalizedValue.includes("inch")) return "Size";
+    if (normalizedValue.includes("resolution")) return "Resolution";
+    if (normalizedValue.includes("promotion") || normalizedValue.includes("refresh")) {
+      return "Refresh Rate";
+    }
+    if (normalizedValue.includes("brightness")) return "Brightness";
+    if (normalizedValue.includes("dynamic island")) return "Interface";
+    if (normalizedValue.includes("true tone")) return "True Tone";
+    if (normalizedValue.includes("wide color")) return "Color Gamut";
+  }
+
+  if (normalizedSection === "chip") {
+    if (normalizedValue.includes("chip")) return "Chip";
+    if (normalizedValue.includes("cpu")) return "CPU";
+    if (normalizedValue.includes("gpu")) return "GPU";
+    if (normalizedValue.includes("neural")) return "Neural Engine";
+  }
+
+  if (normalizedSection === "camera" || normalizedSection === "truedepth camera") {
+    if (normalizedValue.includes("digital zoom")) return "Digital Zoom";
+    if (normalizedValue.includes("optical zoom")) return "Optical Zoom";
+    if (normalizedValue.includes("camera control")) return "Camera Control";
+    if (normalizedValue.includes("night mode")) return "Night Mode";
+    if (normalizedValue.includes("photonic engine")) return "Photonic Engine";
+    if (normalizedValue.includes("deep fusion")) return "Deep Fusion";
+  }
+
+  if (normalizedSection === "power and battery") {
+    if (normalizedValue.includes("video playback streamed")) {
+      return "Streaming Playback";
+    }
+    if (normalizedValue.includes("video playback")) return "Video Playback";
+    if (normalizedValue.includes("audio playback")) return "Audio Playback";
+    if (normalizedValue.includes("magsafe")) return "MagSafe Charging";
+    if (normalizedValue.includes("qi2")) return "Qi2 Charging";
+    if (normalizedValue.includes("qi wireless")) return "Qi Charging";
+    if (normalizedValue.includes("fast charge")) return "Fast Charge";
+  }
+
+  if (normalizedSection === "cellular and wireless") {
+    if (normalizedValue.includes("wi fi")) return "Wi-Fi";
+    if (normalizedValue.includes("bluetooth")) return "Bluetooth";
+    if (normalizedValue.includes("ultra wideband")) return "Ultra Wideband";
+    if (normalizedValue.includes("thread networking")) return "Thread Networking";
+    if (normalizedValue.includes("nfc")) return "NFC";
+    if (normalizedValue.includes("express cards")) return "Express Cards";
+    if (normalizedValue.includes("satellite")) return "Satellite";
+    if (normalizedValue.includes("5g")) return "5G";
+    if (normalizedValue.includes("lte")) return "LTE";
+  }
+
+  if (normalizedSection === "charging and expansion") {
+    if (normalizedValue.includes("usb c")) return "Port";
+    if (normalizedValue.includes("charging")) return "Charging";
+    if (normalizedValue.includes("displayport")) return "Display Output";
+    if (normalizedValue.includes("usb 3")) return "Data Speed";
+  }
+
+  if (normalizedSection === "sensors") {
+    if (normalizedValue.includes("face id")) return "Face ID";
+    if (normalizedValue.includes("lidar")) return "LiDAR Scanner";
+    if (normalizedValue.includes("barometer")) return "Barometer";
+    if (normalizedValue.includes("gyro")) return "Gyroscope";
+    if (normalizedValue.includes("accelerometer")) return "Accelerometer";
+    if (normalizedValue.includes("proximity")) return "Proximity Sensor";
+    if (normalizedValue.includes("ambient light")) return "Ambient Light Sensor";
+  }
+
+  return `${sectionTitle} Detail ${index + 1}`;
+}
+
+function parseAppleSupportSpecs(sectionTitle: string, sectionHtml: string) {
+  const specs: ProductSpec[] = [];
+  const introParagraphs = Array.from(
+    sectionHtml.matchAll(
+      /<p[^>]*class=["'][^"']*gb-paragraph[^"']*["'][^>]*>([\s\S]*?)<\/p>/gi,
+    ),
+  )
+    .map((match) => match[1])
+    .filter((content) => !/<\/?li\b/i.test(content));
+
+  const firstParagraph = introParagraphs[0]
+    ? stripHtml(introParagraphs[0]).replace(/:$/, "").trim()
+    : "";
+
+  if (firstParagraph && !firstParagraph.includes("http")) {
+    if (normalizeSpecKey(sectionTitle) === "camera") {
+      specs.push({ label: "Camera System", value: firstParagraph });
+    } else if (normalizeSpecKey(sectionTitle) === "truedepth camera") {
+      specs.push({ label: "Front Camera", value: firstParagraph });
+    }
+  }
+
+  const listItems = Array.from(sectionHtml.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)).map(
+    (match) => match[1],
+  );
+
+  listItems.forEach((itemHtml, index) => {
+    const boldLabelMatch = itemHtml.match(
+      /^\s*(?:<p[^>]*>)?\s*<b[^>]*>([\s\S]*?)<\/b>\s*(.*)$/i,
+    );
+
+    if (boldLabelMatch) {
+      const label = stripHtml(boldLabelMatch[1]).replace(/:\s*$/, "").trim();
+      const value = stripHtml(boldLabelMatch[2]).trim();
+
+      if (label && value) {
+        specs.push({ label, value });
+        return;
+      }
+    }
+
+    const text = stripHtml(itemHtml).trim();
+
+    if (!text) {
+      return;
+    }
+
+    const colonMatch = text.match(/^([^:]{1,80}):\s+(.+)$/);
+
+    if (colonMatch) {
+      specs.push({
+        label: colonMatch[1].trim(),
+        value: colonMatch[2].trim(),
+      });
+      return;
+    }
+
+    specs.push({
+      label: inferAppleSpecLabel(sectionTitle, text, index),
+      value: text,
+    });
+  });
+
+  return mergeSpecs(specs);
+}
+
+const fetchAppleSupportReferenceData = cache(async (referenceUrl: string) => {
+  const appleSupportUrl = getAppleSupportSpecsUrl(referenceUrl);
+
+  if (!appleSupportUrl) {
+    return null;
+  }
+
+  const response = await fetch(appleSupportUrl, {
+    headers: {
+      "user-agent": "Mozilla/5.0 EphiKorea Specs Fetcher",
+      "accept-language": "en-US,en;q=0.9",
+    },
+    next: { revalidate: 86400 },
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const html = await response.text();
+  const previewImage = collectPreviewImage(html);
+  const sections: ProductSpecSection[] = [];
+  const headingMatches = Array.from(
+    html.matchAll(
+      /<h3[^>]*class=["'][^"']*gb-header[^"']*["'][^>]*>([\s\S]*?)<\/h3>/gi,
+    ),
+  );
+
+  for (let index = 0; index < headingMatches.length; index += 1) {
+    const currentMatch = headingMatches[index];
+    const nextMatch = headingMatches[index + 1];
+    const title = cleanSectionTitle(currentMatch[1]);
+    const start = currentMatch.index! + currentMatch[0].length;
+    const end = nextMatch?.index ?? html.length;
+    const sectionHtml = html.slice(start, end);
+    const specs = parseAppleSupportSpecs(title, sectionHtml);
+
+    if (title && specs.length > 0) {
+      sections.push({ title, specs });
+    }
+  }
+
+  return {
+    previewImage,
+    specs: mergeSpecs(...sections.map((section) => section.specs)),
+    sections: mergeSections(sections),
+  };
+});
+
 function extractSamsungInputValue(html: string, inputId: string) {
   const match = html.match(
     new RegExp(
@@ -663,7 +927,13 @@ function flattenSamsungSpecItems(items: SamsungSpecApiItem[] | null | undefined)
 }
 
 const fetchSamsungReferenceData = cache(async (referenceUrl: string) => {
-  const pageResponse = await fetch(referenceUrl, {
+  const samsungSpecsUrl = getSamsungSpecsUrl(referenceUrl);
+
+  if (!samsungSpecsUrl) {
+    return null;
+  }
+
+  const pageResponse = await fetch(samsungSpecsUrl, {
     headers: {
       "user-agent": "Mozilla/5.0 EphiKorea Specs Fetcher",
       "accept-language": "en-US,en;q=0.9",
@@ -776,11 +1046,19 @@ export async function fetchReferenceSpecs(referenceUrl?: string | null) {
   }
 
   try {
-    if (/samsung\.com\/.+\/specs\/?$/i.test(referenceUrl)) {
+    if (/samsung\.com/i.test(referenceUrl)) {
       const samsungData = await fetchSamsungReferenceData(referenceUrl);
 
       if (samsungData?.specs.length) {
         return samsungData.specs;
+      }
+    }
+
+    if (/support\.apple\.com/i.test(referenceUrl)) {
+      const appleSupportData = await fetchAppleSupportReferenceData(referenceUrl);
+
+      if (appleSupportData?.specs.length) {
+        return appleSupportData.specs;
       }
     }
 
@@ -820,9 +1098,14 @@ export async function fetchReferenceSpecSections(referenceUrl?: string | null) {
   }
 
   try {
-    if (/samsung\.com\/.+\/specs\/?$/i.test(referenceUrl)) {
+    if (/samsung\.com/i.test(referenceUrl)) {
       const samsungData = await fetchSamsungReferenceData(referenceUrl);
       return samsungData?.sections || [];
+    }
+
+    if (/support\.apple\.com/i.test(referenceUrl)) {
+      const appleSupportData = await fetchAppleSupportReferenceData(referenceUrl);
+      return appleSupportData?.sections || [];
     }
   } catch {}
 
@@ -835,9 +1118,14 @@ export async function fetchReferencePreviewImage(referenceUrl?: string | null) {
   }
 
   try {
-    if (/samsung\.com\/.+\/specs\/?$/i.test(referenceUrl)) {
+    if (/samsung\.com/i.test(referenceUrl)) {
       const samsungData = await fetchSamsungReferenceData(referenceUrl);
       return samsungData?.previewImage;
+    }
+
+    if (/support\.apple\.com/i.test(referenceUrl)) {
+      const appleSupportData = await fetchAppleSupportReferenceData(referenceUrl);
+      return appleSupportData?.previewImage;
     }
 
     const controller = new AbortController();
@@ -1045,13 +1333,25 @@ export function buildProductSpecSections(
 const BUYER_SPEC_PRIORITIES: Record<string, string[]> = {
   Overview: ["brand", "model", "color", "storage"],
   Processor: ["cpu speed", "cpu type"],
+  Chip: ["chip", "cpu", "gpu", "neural engine"],
+  Capacity: ["capacity option 1", "capacity option 2", "capacity option 3"],
+  "Size and Weight": ["width", "height", "depth", "weight"],
   Display: [
+    "display type",
+    "size",
+    "resolution",
+    "brightness",
+    "refresh rate",
     "size main display",
     "resolution main display",
     "technology main display",
     "max refresh rate main display",
   ],
   Camera: [
+    "camera system",
+    "48mp fusion",
+    "48mp ultra wide",
+    "12mp 5x telephoto",
     "rear camera resolution multiple",
     "rear camera zoom",
     "front camera resolution",
@@ -1065,6 +1365,13 @@ const BUYER_SPEC_PRIORITIES: Record<string, string[]> = {
     "battery capacity mah typical",
     "video playback time hours wireless",
   ],
+  "Power and Battery": [
+    "video playback",
+    "streaming playback",
+    "audio playback",
+    "fast charge",
+  ],
+  "Cellular and Wireless": ["5g", "wi-fi", "bluetooth", "satellite"],
 };
 
 function pickImportantSpecs(section: ProductSpecSection) {

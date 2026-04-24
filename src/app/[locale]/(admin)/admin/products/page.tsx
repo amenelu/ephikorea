@@ -4,6 +4,7 @@ import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { getAdminProducts } from "@/lib/admin-data";
 import {
   addProductAction,
+  addInventoryAction,
   removeProductAction,
   updateProductAction,
 } from "./actions";
@@ -140,8 +141,8 @@ export default async function AdminProductsPage({
               placeholder="https://www.samsung.com/.../specs/"
             />
             <span className="mt-2 block text-xs text-gray-400">
-              Paste the official product detail or specs page and we&apos;ll use it
-              to build the spec sheet automatically.
+              Paste the official Samsung specs page or an Apple Support tech specs
+              page and we&apos;ll use it to build the spec sheet automatically.
             </span>
           </label>
 
@@ -357,6 +358,25 @@ export default async function AdminProductsPage({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-2">
+                      <form action={addInventoryAction} className="flex items-center gap-2">
+                        <input type="hidden" name="locale" value={locale} />
+                        <input type="hidden" name="productId" value={product.id} />
+                        <input
+                          type="number"
+                          name="amount"
+                          min="1"
+                          step="1"
+                          defaultValue="1"
+                          aria-label={`Inventory amount for ${product.title}`}
+                          className="w-20 rounded-full border border-gray-200 px-3 py-1.5 text-[11px] font-bold text-gray-700 outline-none transition focus:border-yellow-400"
+                        />
+                        <button
+                          type="submit"
+                          className="rounded-full border border-yellow-300 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-yellow-700 transition hover:bg-yellow-50"
+                        >
+                          Add Stock
+                        </button>
+                      </form>
                       <a
                         href={`/${locale}/admin/products?edit=${product.id}`}
                         className="rounded-full border border-gray-200 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"

@@ -47,8 +47,12 @@ export default async function ProductDetailsPage({
       ? product.thumbnail
       : undefined;
 
+  const hasImportedSpecs =
+    storedReferenceSpecs.length > 0 || storedReferenceSections.length > 0;
   const specs = buildProductSpecSheet(product);
-  const specSections = buildBuyerFacingSpecSections(product);
+  const specSections = hasImportedSpecs
+    ? buildBuyerFacingSpecSections(product)
+    : [];
   const productPath = `/${locale}/products/${product.handle || product.id}`;
   const editableFacts = getEditableProductFacts(product.metadata);
   const listingDetails = [
@@ -60,9 +64,6 @@ export default async function ProductDetailsPage({
       : null,
     editableFacts.imei ? { label: "IMEI", value: editableFacts.imei } : null,
   ].filter(Boolean) as Array<{ label: string; value: string }>;
-  const hasImportedSpecs =
-    storedReferenceSpecs.length > 0 ||
-    storedReferenceSections.length > 0;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { requireAdminActionAccess } from "@/lib/admin-auth";
 import {
   createAdminProduct,
+  incrementAdminProductInventory,
   removeAdminProduct,
   updateAdminProduct,
 } from "@/lib/admin-data";
@@ -261,4 +262,34 @@ export async function removeProductAction(formData: FormData) {
   }
 
   redirect(buildRedirectPath(locale, "success", "Product removed successfully."));
+}
+
+export async function addInventoryAction(formData: FormData) {
+  const locale = String(formData.get("locale") || "en");
+  const productId = String(formData.get("productId") || "");
+  const amount = Number.parseInt(String(formData.get("amount") || "1"), 10);
+  let updated = false;
+  await requireAdminActionAccess(locale);
+
+  try {
+    updated = await incrementAdminProductInventory(productId, amount);
+
+    revalidateAdminProductPaths(locale);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unable to update inventory.";
+    redirect(buildRedirectPath(locale, "error", message));
+  }
+
+  if (!updated) {
+    redirect(buildRedirectPath(locale, "error", "Product was not found."));
+  }
+
+  redirect(
+    buildRedirectPath(
+      locale,
+      "success",
+      `Inventory increased by ${amount}.`,
+    ),
+  );
 }
