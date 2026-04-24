@@ -2,6 +2,7 @@
 
 import { useEffect, useTransition } from "react";
 
+import { AdminToast } from "@/components/admin/admin-toast";
 import { useLocalCart } from "@/lib/local-cart";
 import { getTranslator } from "@/lib/translations";
 
@@ -46,6 +47,8 @@ export default function CartClient({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <AdminToast status={status} message={message} />
+
       <div className="max-w-2xl">
         <h1 className="text-3xl font-bold text-gray-900">{t("cart.checkout")}</h1>
         <p className="mt-3 text-sm text-gray-500">
@@ -53,15 +56,14 @@ export default function CartClient({
         </p>
       </div>
 
-      {message ? (
-        <div
-          className={`mt-8 rounded-2xl border px-4 py-3 text-sm font-medium ${
-            status === "error"
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-green-200 bg-green-50 text-green-700"
-          }`}
-        >
-          {message}
+      {status === "success" ? (
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <a
+            href={`/${locale}`}
+            className="inline-flex items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-black uppercase tracking-widest text-white transition hover:bg-gray-800"
+          >
+            {t("cart.backHome")}
+          </a>
         </div>
       ) : null}
 

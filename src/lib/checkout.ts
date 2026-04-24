@@ -524,17 +524,19 @@ export async function submitGuestOrder(input: {
         items: notificationItems,
       };
 
-      try {
-        await sendAdminOrderNotification(notificationPayload);
-      } catch (error) {
-        console.error("Unable to send admin order notification email.", error);
-      }
+      void (async () => {
+        try {
+          await sendAdminOrderNotification(notificationPayload);
+        } catch (error) {
+          console.error("Unable to send admin order notification email.", error);
+        }
 
-      try {
-        await sendAdminOrderTelegramNotification(notificationPayload);
-      } catch (error) {
-        console.error("Unable to send admin Telegram order notification.", error);
-      }
+        try {
+          await sendAdminOrderTelegramNotification(notificationPayload);
+        } catch (error) {
+          console.error("Unable to send admin Telegram order notification.", error);
+        }
+      })();
 
       return orderId;
     } catch (error) {
