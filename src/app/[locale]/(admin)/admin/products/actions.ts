@@ -1,5 +1,8 @@
 "use server";
 
+import { randomUUID } from "crypto";
+import { mkdir, writeFile } from "fs/promises";
+import path from "path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -43,6 +46,65 @@ function parsePriceToMinorUnits(rawValue: string) {
   }
 
   return Math.round(Number(trimmed) * 100);
+}
+
+function getUploadExtension(file: File) {
+  const fileName = file.name || "";
+  const fileExtension = path.extname(fileName).toLowerCase();
+
+  if ([".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"].includes(fileExtension)) {
+    return fileExtension;
+  }
+
+  switch (file.type) {
+    case "image/jpeg":
+      return ".jpg";
+    case "image/png":
+      return ".png";
+    case "image/webp":
+      return ".webp";
+    case "image/gif":
+      return ".gif";
+    case "image/avif":
+      return ".avif";
+    default:
+      return null;
+  }
+}
+
+async function resolveThumbnailValue(formData: FormData) {
+  const thumbnail = String(formData.get("thumbnail") || "").trim();
+  const thumbnailFile = formData.get("thumbnailFile");
+
+  if (!(thumbnailFile instanceof File) || thumbnailFile.size === 0) {
+    return thumbnail;
+  }
+
+  if (!thumbnailFile.type.startsWith("image/")) {
+    throw new Error("Uploaded thumbnail must be an image file.");
+  }
+
+  const maxFileSize = 5 * 1024 * 1024;
+
+  if (thumbnailFile.size > maxFileSize) {
+    throw new Error("Uploaded thumbnail must be 5MB or smaller.");
+  }
+
+  const extension = getUploadExtension(thumbnailFile);
+
+  if (!extension) {
+    throw new Error("Unsupported image format. Use JPG, PNG, WebP, GIF, or AVIF.");
+  }
+
+  const uploadDirectory = path.join(process.cwd(), "public", "uploads", "products");
+  const fileName = `${randomUUID()}${extension}`;
+  const filePath = path.join(uploadDirectory, fileName);
+  const fileBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
+
+  await mkdir(uploadDirectory, { recursive: true });
+  await writeFile(filePath, fileBuffer);
+
+  return `/uploads/products/${fileName}`;
 }
 
 function parseStatus(rawValue: FormDataEntryValue | null) {
@@ -143,7 +205,7 @@ export async function addProductAction(formData: FormData) {
     const title = buildProductTitle(brandName, modelName);
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
-    const thumbnail = String(formData.get("thumbnail") || "");
+    const thumbnail = await resolveThumbnailValue(formData);
     const referenceUrl = String(formData.get("referenceUrl") || "");
     const color = String(formData.get("color") || "");
     const storage = parseStorage(formData.get("storage"));
@@ -201,7 +263,7 @@ export async function updateProductAction(formData: FormData) {
     const title = buildProductTitle(brandName, modelName);
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
-    const thumbnail = String(formData.get("thumbnail") || "");
+    const thumbnail = await resolveThumbnailValue(formData);
     const referenceUrl = String(formData.get("referenceUrl") || "");
     const color = String(formData.get("color") || "");
     const storage = parseStorage(formData.get("storage"));

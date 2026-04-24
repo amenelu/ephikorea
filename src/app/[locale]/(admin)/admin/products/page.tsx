@@ -64,6 +64,7 @@ export default async function AdminProductsPage({
         <form
           key={`${editingProduct?.id || "new"}-${searchParams.reset || "default"}`}
           action={formAction}
+          encType="multipart/form-data"
           className="grid gap-4 md:grid-cols-2"
         >
           <input type="hidden" name="locale" value={locale} />
@@ -126,6 +127,21 @@ export default async function AdminProductsPage({
             />
             <span className="mt-2 block text-xs text-gray-400">
               Use a direct image URL here, not the manufacturer specs page.
+            </span>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Upload Thumbnail
+            </span>
+            <input
+              type="file"
+              name="thumbnailFile"
+              accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-yellow-50 file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-widest file:text-yellow-700 focus:border-yellow-400"
+            />
+            <span className="mt-2 block text-xs text-gray-400">
+              Upload a local image instead of pasting a URL. Max size 5MB.
             </span>
           </label>
 

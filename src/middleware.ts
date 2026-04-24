@@ -11,6 +11,10 @@ import {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname.startsWith("/uploads/")) {
+    return NextResponse.next();
+  }
+
   // Check if the pathname is missing a locale
   const pathnameIsMissingLocale = SUPPORTED_LOCALES.every(
     (locale) =>
@@ -30,5 +34,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|uploads).*)"],
 };
