@@ -1,7 +1,10 @@
 import "server-only";
 
 import { randomUUID } from "crypto";
-import { sendAdminOrderNotification } from "@/lib/email";
+import {
+  sendAdminOrderNotification,
+  sendAdminOrderTelegramNotification,
+} from "@/lib/email";
 
 const { Pool } = require("pg");
 
@@ -503,26 +506,34 @@ export async function submitGuestOrder(input: {
 
       await client.query("commit");
 
+      const notificationPayload = {
+        orderId,
+        customerName: fullName,
+        customerEmail: email,
+        customerPhone: phone,
+        deliveryAddress: {
+          address1,
+          address2,
+          city,
+          province,
+          postalCode,
+          countryCode,
+        },
+        currencyCode,
+        total,
+        items: notificationItems,
+      };
+
       try {
-        await sendAdminOrderNotification({
-          orderId,
-          customerName: fullName,
-          customerEmail: email,
-          customerPhone: phone,
-          deliveryAddress: {
-            address1,
-            address2,
-            city,
-            province,
-            postalCode,
-            countryCode,
-          },
-          currencyCode,
-          total,
-          items: notificationItems,
-        });
+        await sendAdminOrderNotification(notificationPayload);
       } catch (error) {
         console.error("Unable to send admin order notification email.", error);
+      }
+
+      try {
+        await sendAdminOrderTelegramNotification(notificationPayload);
+      } catch (error) {
+        console.error("Unable to send admin Telegram order notification.", error);
       }
 
       return orderId;

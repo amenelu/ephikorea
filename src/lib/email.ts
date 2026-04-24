@@ -37,6 +37,14 @@ function getSenderEmail() {
   return process.env.ORDER_NOTIFICATION_FROM_EMAIL?.trim() || "";
 }
 
+function getTelegramBotToken() {
+  return process.env.TELEGRAM_BOT_TOKEN?.trim() || "";
+}
+
+function getTelegramChatId() {
+  return process.env.TELEGRAM_CHAT_ID?.trim() || "";
+}
+
 function formatAmount(amount: number, currencyCode: string) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -132,6 +140,110 @@ function buildHtmlEmail(order: AdminOrderNotification) {
     <h2>Delivery address</h2>
     <p>${address}</p>
   `;
+}
+
+function buildTelegramMessage(order: AdminOrderNotification) {
+  const itemLines = order.items
+    .map((item) => {
+      const variant = item.variantTitle ? ` (${item.variantTitle})` : "";
+      const lineTotal = item.unitPrice * item.quantity;
+
+      return `- ${item.title}${variant} x ${item.quantity} - ${formatAmount(
+        lineTotal,
+        order.currencyCode,
+      )}`;
+    })
+    .join("\n");
+
+  const address = formatAddress(order);
+
+  return [
+    "New order received",
+    "",
+    `Order: ${order.orderId}`,
+    `Customer: ${order.customerName}`,
+    `Email: ${order.customerEmail}`,
+    `Phone: ${order.customerPhone || "Not provided"}`,
+    `Total: ${formatAmount(order.total, order.currencyCode)}`,
+    "",
+    "Items:",
+    itemLines,
+    "",
+    "Delivery address:",
+    address,
+  ].join("\n");
+}
+
+async function sleep(milliseconds: number) {
+  await new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+export async function sendAdminOrderTelegramNotification(
+  order: AdminOrderNotification,
+) {
+  const botToken = getTelegramBotToken();
+  const chatId = getTelegramChatId();
+
+  if (!botToken || !chatId) {
+    console.info(
+      "Telegram order notification skipped. Configure TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID.",
+    );
+    return;
+  }
+
+  const telegramEndpoint = `https://api.telegram.org/bot${botToken}/sendMessage`;
+  const telegramBody = JSON.stringify({
+    chat_id: chatId,
+    text: buildTelegramMessage(order),
+    disable_web_page_preview: true,
+  });
+  const timeouts = [15_000, 25_000];
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < timeouts.length; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeouts[attempt]);
+
+    try {
+      const response = await fetch(telegramEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: telegramBody,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`Telegram sendMessage failed: ${response.status} ${body}`);
+      }
+
+      console.info(
+        `Admin order notification sent to Telegram on attempt ${attempt + 1}.`,
+      );
+      return;
+    } catch (error) {
+      clearTimeout(timeout);
+      lastError = error;
+
+      if (attempt < timeouts.length - 1) {
+        console.warn(
+          `Telegram send attempt ${attempt + 1} failed. Retrying...`,
+          error,
+        );
+        await sleep(1500);
+      }
+    }
+  }
+
+  throw new Error(
+    `Telegram notification failed after ${timeouts.length} attempts: ${
+      lastError instanceof Error ? lastError.message : String(lastError)
+    }`,
+  );
 }
 
 export async function sendAdminOrderNotification(
