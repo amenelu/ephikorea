@@ -83,7 +83,7 @@ function getCatalogRows(options: { limit?: number; excludeProductId?: string } =
     .prepare(
       `
         with selected_products as (
-          select p.*
+          select p.*, p.rowid as product_sort_id
           from products p
           where ${where.join(" and ")}
           order by p.created_at desc, p.rowid desc
@@ -110,7 +110,7 @@ function getCatalogRows(options: { limit?: number; excludeProductId?: string } =
         left join product_variants pv
           on pv.product_id = p.id
           and pv.deleted_at is null
-        order by p.created_at desc, p.rowid desc, pv.created_at asc
+        order by p.created_at desc, p.product_sort_id desc, pv.created_at asc
       `,
     )
     .all(params) as CatalogProductRow[];
