@@ -1,18 +1,22 @@
 import Link from "next/link";
+import { OrderSuccessHandler } from "@/components/cart/order-success-handler";
 import { ProductCard } from "@/components/product/product-card";
 import { getCatalogProducts } from "@/lib/catalog-data";
 import { getTranslator } from "@/lib/translations";
 
 export default async function HomePage({
   params: { locale },
+  searchParams,
 }: {
   params: { locale: string };
+  searchParams: { order?: string };
 }) {
   const t = getTranslator(locale);
   const featuredProducts = await getCatalogProducts(3);
 
   return (
     <div className="flex flex-col gap-10 pb-16 sm:gap-12 sm:pb-20">
+      <OrderSuccessHandler shouldClear={searchParams.order === "success"} />
       <section className="relative min-h-[336px] w-full overflow-hidden bg-black sm:min-h-[420px] sm:h-[58vh]">
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pb-6 pt-10 text-center sm:pb-8 sm:pt-0">
           <span className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-yellow-500 sm:mb-4 sm:text-sm sm:tracking-widest">

@@ -41,6 +41,10 @@ function writeCart(items: LocalCartItem[]) {
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
+export function clearStoredCart() {
+  writeCart([]);
+}
+
 export function useLocalCart() {
   const [items, setItems] = useState<LocalCartItem[]>([]);
 
@@ -111,8 +115,9 @@ export function useLocalCart() {
   );
 
   const clearCart = useCallback(() => {
-    commit([]);
-  }, [commit]);
+    clearStoredCart();
+    setItems([]);
+  }, []);
 
   return useMemo(
     () => ({

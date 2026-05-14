@@ -15,6 +15,11 @@ function buildRedirectPath(locale: string, status: string, message: string) {
   return `/${locale}/cart?${params.toString()}`;
 }
 
+function buildSuccessfulOrderRedirectPath(locale: string) {
+  const params = new URLSearchParams({ order: "success" });
+  return `/${locale}?${params.toString()}`;
+}
+
 export async function submitCheckoutAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
   const name = String(formData.get("name") || "");
@@ -52,11 +57,5 @@ export async function submitCheckoutAction(formData: FormData) {
     redirect(buildRedirectPath(locale, "error", message));
   }
 
-  redirect(
-    buildRedirectPath(
-      locale,
-      "success",
-      "Order submitted successfully. Our team can now process it for delivery.",
-    ),
-  );
+  redirect(buildSuccessfulOrderRedirectPath(locale));
 }
