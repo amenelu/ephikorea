@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { AdminToast } from "@/components/admin/admin-toast";
+import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { getAdminOrderDetails } from "@/lib/admin-data";
 import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { completeOrderAction } from "./actions";
@@ -15,6 +16,8 @@ export default async function AdminOrderDetailsPage({
   params: { locale: string; id: string };
   searchParams: { status?: string; message?: string };
 }) {
+  await requireAdminPageAccess(locale);
+
   const order = await getAdminOrderDetails(id);
 
   if (!order) {

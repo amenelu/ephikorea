@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AdminToast } from "@/components/admin/admin-toast";
 import { AdminLiveSearch } from "@/components/admin/admin-live-search";
+import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { getAdminOrders } from "@/lib/admin-data";
 import { toggleOrderPaymentStatusAction } from "./actions";
 
@@ -11,6 +12,8 @@ export default async function AdminOrdersPage({
   params: { locale: string };
   searchParams: { q?: string; status?: string; message?: string };
 }) {
+  await requireAdminPageAccess(locale);
+
   const query = searchParams.q?.trim() || "";
   const orders = await getAdminOrders(query);
   const paidOrders = orders.filter(

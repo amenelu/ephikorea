@@ -2,16 +2,42 @@ import Link from "next/link";
 import { Building2, Headphones, Laptop, LayoutGrid, Watch } from "lucide-react";
 
 import { getCatalogProducts } from "@/lib/catalog-data";
-import { generateLocaleStaticParams } from "@/lib/locales";
 import { inferBrand, inferProductProfile } from "@/lib/product-specs";
 import { getTranslator } from "@/lib/translations";
 
-export const generateStaticParams = generateLocaleStaticParams;
+export const dynamic = "force-dynamic";
 
 type CollectionsPageProps = {
   params: { locale: string };
   searchParams?: { organize?: string };
 };
+
+type BrandProductGroup = {
+  brand: string;
+  products: Awaited<ReturnType<typeof getCatalogProducts>>;
+};
+
+function normalizeBrandKey(brand: string) {
+  return brand.trim().toLocaleLowerCase();
+}
+
+function formatBrandLabel(brand: string) {
+  const normalized = normalizeBrandKey(brand);
+
+  if (normalized === "iphone") {
+    return "iPhone";
+  }
+
+  if (normalized === "samsung") {
+    return "Samsung";
+  }
+
+  if (normalized === "apple") {
+    return "Apple";
+  }
+
+  return brand.trim();
+}
 
 export default async function CollectionsPage({
   params: { locale },
@@ -53,16 +79,25 @@ export default async function CollectionsPage({
             handle: product.handle,
             metadata: product.metadata,
           }) || t("collections.otherBrand");
-        const entry = groups.get(brand) || [];
-        entry.push(product);
-        groups.set(brand, entry);
+        const brandKey = normalizeBrandKey(brand);
+        const entry = groups.get(brandKey) || {
+          brand: formatBrandLabel(brand),
+          products: [],
+        };
+        entry.products.push(product);
+        groups.set(brandKey, entry);
         return groups;
       },
-      new Map<string, typeof products>(),
+      new Map<string, BrandProductGroup>(),
     ),
   )
-    .sort((left, right) => right[1].length - left[1].length || left[0].localeCompare(right[0]))
-    .map(([brand, brandProducts]) => ({
+    .map(([, group]) => group)
+    .sort(
+      (left, right) =>
+        right.products.length - left.products.length ||
+        left.brand.localeCompare(right.brand),
+    )
+    .map(({ brand, products: brandProducts }) => ({
       brand,
       href: `/${locale}/search?q=${encodeURIComponent(brand)}`,
       countLabel: t("collections.brandCount", brandProducts.length),

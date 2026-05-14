@@ -1,5 +1,6 @@
 import { Mail, Phone } from "lucide-react";
 import Link from "next/link";
+import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { getAdminCustomers } from "@/lib/admin-data";
 
 export default async function AdminCustomersPage({
@@ -7,6 +8,8 @@ export default async function AdminCustomersPage({
 }: {
   params: { locale: string };
 }) {
+  await requireAdminPageAccess(locale);
+
   const customers = await getAdminCustomers();
 
   return (

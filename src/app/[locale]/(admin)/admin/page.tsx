@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { AdminLiveSearch } from "@/components/admin/admin-live-search";
+import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { getAdminDashboardData } from "@/lib/admin-data";
 
 const statIcons = [DollarSign, ShoppingCart, Package, Users];
@@ -43,6 +44,8 @@ export default async function AdminDashboardPage({
   params: { locale: string };
   searchParams: { q?: string };
 }) {
+  await requireAdminPageAccess(locale);
+
   const { stats, recentOrders, notifications } = await getAdminDashboardData();
   const query = searchParams.q?.trim().toLowerCase() || "";
   const filteredOrders = query

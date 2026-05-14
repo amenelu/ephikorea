@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { AdminToast } from "@/components/admin/admin-toast";
 import { AdminLiveSearch } from "@/components/admin/admin-live-search";
+import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { getAdminProducts } from "@/lib/admin-data";
 import {
@@ -24,6 +25,8 @@ export default async function AdminProductsPage({
     q?: string;
   };
 }) {
+  await requireAdminPageAccess(locale);
+
   const allProducts = await getAdminProducts();
   const status = searchParams.status;
   const message = searchParams.message;

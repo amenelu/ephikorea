@@ -1,7 +1,14 @@
 import { Bell, CreditCard, Globe } from "lucide-react";
+import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { getAdminSettingsData } from "@/lib/admin-data";
 
-export default async function AdminSettingsPage() {
+export default async function AdminSettingsPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  await requireAdminPageAccess(locale);
+
   const { store, salesChannels, productCount } = await getAdminSettingsData();
 
   return (
