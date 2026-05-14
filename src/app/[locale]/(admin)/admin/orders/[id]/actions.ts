@@ -20,12 +20,6 @@ export async function completeOrderAction(formData: FormData) {
   const locale = String(formData.get("locale") || "en");
   const orderId = String(formData.get("orderId") || "");
   let result: "updated" | "already_completed" = "already_completed";
-  let redirectPath = buildRedirectPath(
-    locale,
-    orderId,
-    "error",
-    "Unable to complete order.",
-  );
   await requireAdminActionAccess(locale);
 
   try {
@@ -37,14 +31,10 @@ export async function completeOrderAction(formData: FormData) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to complete order.";
-    redirectPath = buildRedirectPath(locale, orderId, "error", message);
+    redirect(buildRedirectPath(locale, orderId, "error", message));
   }
 
-  if (redirectPath.includes("status=error")) {
-    redirect(redirectPath);
-  }
-
-  redirectPath =
+  redirect(
     result === "already_completed"
       ? buildRedirectPath(
           locale,
@@ -57,7 +47,6 @@ export async function completeOrderAction(formData: FormData) {
           orderId,
           "success",
           "Order marked as completed.",
-        );
-
-  redirect(redirectPath);
+        ),
+  );
 }
