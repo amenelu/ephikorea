@@ -4,12 +4,13 @@
 
 - Node.js 20.x or newer
 - npm 10.x or newer
-- PostgreSQL 13 or newer
+- Persistent disk for `data/ephikorea.sqlite` in production
 
 ## External Services
 
 - Resend account for admin order notification emails
 - Verified Resend domain for production sending
+- Optional Telegram bot and chat ID for order notifications
 
 For local testing, Resend's test sender can be used with the Resend account owner email.
 
@@ -21,34 +22,16 @@ Install JavaScript dependencies from the lockfile:
 npm install
 ```
 
-Run the frontend:
+Create or migrate the SQLite database and seed starter data:
+
+```bash
+npm run db:init
+```
+
+Run the storefront/admin app:
 
 ```bash
 npm run dev
-```
-
-Run the Medusa backend:
-
-```bash
-npm run backend
-```
-
-Run Medusa database migrations:
-
-```bash
-npm run backend:migrate
-```
-
-Apply storefront-specific schema additions:
-
-```bash
-psql "postgres://postgres:YOUR_PASSWORD@127.0.0.1:5432/medusa_db" -f data/schema.sql
-```
-
-Seed the database:
-
-```bash
-npm run backend:seed
 ```
 
 ## Required Environment Variables
@@ -56,19 +39,29 @@ npm run backend:seed
 Create a `.env` file from `.env.example` and fill in real values:
 
 ```env
-PORT=9000
-DATABASE_URL=postgres://postgres:12345678@127.0.0.1:5434/medusa_db
-JWT_SECRET=replace-with-a-secure-jwt-secret
-COOKIE_SECRET=replace-with-a-secure-cookie-secret
-NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://127.0.0.1:9000
-MEDUSA_DEFAULT_CURRENCY=KRW
+SQLITE_PATH=./data/ephikorea.sqlite
+DEFAULT_CURRENCY=USD
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=replace-with-a-secure-admin-password
 ADMIN_SESSION_SECRET=replace-with-a-secure-admin-session-secret
 RESEND_API_KEY=re_your_api_key_here
 ORDER_NOTIFICATION_FROM_EMAIL=orders@yourdomain.com
 ADMIN_ORDER_NOTIFICATION_EMAIL=admin@example.com
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
 ```
+
+## Production Hosting
+
+This app no longer needs a separate Medusa or PostgreSQL service. Host the Next.js app on a Node.js host with persistent storage, then keep `SQLITE_PATH` on that persistent disk.
+
+Good fits:
+
+- VPS running Node.js with PM2 or systemd
+- Railway/Render/Fly service with a mounted persistent volume
+- Docker host with a mounted volume for `/app/data`
+
+Vercel-style serverless hosting is not recommended for local SQLite because its filesystem is not durable between deploys. If you want serverless hosting, use a remote SQLite-compatible service such as Turso/libSQL instead of a local file.
 
 ## Verification
 

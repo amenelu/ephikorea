@@ -26,7 +26,7 @@ export default function AboutPage({
         },
         {
           title: "How It Runs",
-          body: "The storefront is powered by Next.js on the frontend with Medusa handling the commerce backend. That makes it a good starter foundation for adding real payments, shipping rules, and customer accounts later.",
+          body: "The storefront is powered by Next.js with a compact SQLite-backed commerce layer. That keeps hosting simple while leaving room for adding real payments, shipping rules, and customer accounts later.",
         },
         {
           title: "Why It Exists",

@@ -23,6 +23,10 @@ export function canUseNextImage(url?: string | null) {
     return false;
   }
 
+  if (url.startsWith("/media/") || url.startsWith("/uploads/")) {
+    return false;
+  }
+
   if (url.startsWith("/")) {
     return true;
   }

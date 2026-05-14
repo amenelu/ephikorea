@@ -4,16 +4,18 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "http", hostname: "localhost" },
-      // Add your Medusa production storage bucket URL here later
+      // Add your production storage bucket URL here later
     ],
   },
   experimental: {
+    serverComponentsExternalPackages: ["better-sqlite3"],
     outputFileTracingExcludes: {
       "*": [
         ".cache/**/*",
         "battery-report.html",
-        "postgresql_13.exe",
         "uploads/**/*",
+        "data/*.sqlite",
+        "data/*.sqlite-*",
       ],
     },
   },

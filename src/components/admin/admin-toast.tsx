@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
 type AdminToastProps = {
@@ -10,6 +10,17 @@ type AdminToastProps = {
 
 export function AdminToast({ status, message }: AdminToastProps) {
   const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (!message || typeof window === "undefined") {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("status");
+    url.searchParams.delete("message");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [message]);
 
   if (!message || !isVisible) {
     return null;

@@ -2,7 +2,7 @@ import "server-only";
 
 import { createHmac, timingSafeEqual } from "crypto";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 const ADMIN_SESSION_COOKIE = "admin_session";
@@ -23,6 +23,54 @@ function getAdminPassword() {
 
 function getAdminSessionSecret() {
   return process.env.ADMIN_SESSION_SECRET || process.env.COOKIE_SECRET || "";
+}
+
+function isPrivateNetworkHost(host: string) {
+  const normalizedHost = host.trim().toLowerCase();
+
+  if (
+    normalizedHost.startsWith("localhost") ||
+    normalizedHost.startsWith("127.") ||
+    normalizedHost.startsWith("192.168.") ||
+    normalizedHost.startsWith("10.")
+  ) {
+    return true;
+  }
+
+  const match = normalizedHost.match(/^172\.(\d{1,3})\./);
+  if (!match) {
+    return false;
+  }
+
+  const secondOctet = Number.parseInt(match[1], 10);
+  return secondOctet >= 16 && secondOctet <= 31;
+}
+
+async function shouldUseSecureAdminCookie() {
+  const secureOverride = process.env.ADMIN_SESSION_SECURE?.trim().toLowerCase();
+
+  if (secureOverride === "true") {
+    return true;
+  }
+
+  if (secureOverride === "false") {
+    return false;
+  }
+
+  const headerStore = await headers();
+  const forwardedProto = headerStore.get("x-forwarded-proto")?.toLowerCase();
+
+  if (forwardedProto) {
+    return forwardedProto === "https";
+  }
+
+  const host = headerStore.get("host") || "";
+
+  if (isPrivateNetworkHost(host)) {
+    return false;
+  }
+
+  return process.env.NODE_ENV === "production";
 }
 
 function encodeBase64Url(value: string) {
@@ -90,6 +138,7 @@ export function isAdminAuthConfigured() {
 
 export async function createAdminSession(email: string) {
   const cookieStore = await cookies();
+  const secure = await shouldUseSecureAdminCookie();
   const token = createSessionToken({
     email,
     expiresAt: Date.now() + ADMIN_SESSION_DURATION_MS,
@@ -98,7 +147,7 @@ export async function createAdminSession(email: string) {
   cookieStore.set(ADMIN_SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure,
     path: "/",
     maxAge: Math.floor(ADMIN_SESSION_DURATION_MS / 1000),
   });

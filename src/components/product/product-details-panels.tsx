@@ -24,6 +24,33 @@ type ProductDetailsPanelsProps = {
 
 type PanelKey = "specs" | "reference";
 
+const MAX_VISIBLE_SPECS = 5;
+
+function splitSpecSections(sections: SpecSection[]) {
+  let visibleCount = 0;
+  const visibleSections: SpecSection[] = [];
+  const moreSections: SpecSection[] = [];
+
+  for (const section of sections) {
+    const visibleSpecs = section.specs.slice(
+      0,
+      Math.max(MAX_VISIBLE_SPECS - visibleCount, 0),
+    );
+    const moreSpecs = section.specs.slice(visibleSpecs.length);
+
+    if (visibleSpecs.length > 0) {
+      visibleSections.push({ ...section, specs: visibleSpecs });
+      visibleCount += visibleSpecs.length;
+    }
+
+    if (moreSpecs.length > 0) {
+      moreSections.push({ ...section, specs: moreSpecs });
+    }
+  }
+
+  return { visibleSections, moreSections };
+}
+
 export default function ProductDetailsPanels({
   primarySpecsTitle,
   importedBadge,
@@ -34,7 +61,15 @@ export default function ProductDetailsPanels({
   specSections,
 }: ProductDetailsPanelsProps) {
   const [activePanel, setActivePanel] = useState<PanelKey>("specs");
-  const hasReference = Boolean(originalSpecHref || specSections.length > 0 || secondarySpecs.length > 0);
+  const { visibleSections, moreSections } = useMemo(
+    () => splitSpecSections(specSections),
+    [specSections],
+  );
+  const hasReference = Boolean(
+    originalSpecHref ||
+      moreSections.length > 0 ||
+      secondarySpecs.length > 0,
+  );
 
   const tabs = useMemo(
     () =>
@@ -71,9 +106,9 @@ export default function ProductDetailsPanels({
       </div>
 
       {activePanel === "specs" ? (
-        specSections.length > 0 ? (
+        visibleSections.length > 0 ? (
           <div className="grid gap-4 xl:grid-cols-2">
-            {specSections.map((section) => (
+            {visibleSections.map((section) => (
               <div
                 key={section.title}
                 className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm"
@@ -103,7 +138,7 @@ export default function ProductDetailsPanels({
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {[...primarySpecs, ...secondarySpecs].map((spec) => (
+            {primarySpecs.map((spec) => (
               <div
                 key={spec.label}
                 className="rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-sm"
@@ -122,8 +157,38 @@ export default function ProductDetailsPanels({
 
       {activePanel === "reference" ? (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          {secondarySpecs.length > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-2">
+          {secondarySpecs.length > 0 || moreSections.length > 0 ? (
+            <div className="grid gap-4">
+              {moreSections.map((section) => (
+                <div
+                  key={section.title}
+                  className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm"
+                >
+                  <div className="border-b border-gray-100 bg-gray-50 px-4 py-4 sm:px-6">
+                    <h3 className="text-sm font-black uppercase tracking-[0.18em] text-gray-700 lg:text-base">
+                      {section.title}
+                    </h3>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {section.specs.map((spec) => (
+                      <div
+                        key={`${section.title}-${spec.label}`}
+                        className="grid gap-2 px-4 py-4 md:grid-cols-[160px_1fr] md:items-start md:px-6"
+                      >
+                        <span className="text-xs font-black uppercase tracking-[0.15em] text-gray-400 lg:text-[13px]">
+                          {spec.label}
+                        </span>
+                        <span className="text-sm font-semibold leading-relaxed text-gray-900 lg:text-base">
+                          {spec.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {secondarySpecs.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2">
               {secondarySpecs.map((spec) => (
                 <div
                   key={spec.label}
@@ -137,6 +202,8 @@ export default function ProductDetailsPanels({
                   </p>
                 </div>
               ))}
+                </div>
+              ) : null}
             </div>
           ) : (
             <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-6 text-sm leading-6 text-gray-500">

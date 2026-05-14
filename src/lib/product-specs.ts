@@ -1390,9 +1390,10 @@ export function buildProductSpecSheet(
 
   const supplementalSpecs = [...getProfileSpecs(profile)];
 
-  if (source.is_certified_pre_owned) {
-    specs.push({ label: "Condition", value: "Certified Pre-Owned" });
-  }
+  specs.push({
+    label: "Condition",
+    value: source.is_certified_pre_owned ? "Certified Pre-Owned" : "New",
+  });
 
   if (typeof source.battery_health === "number") {
     specs.push({
@@ -1479,9 +1480,10 @@ export function buildProductSpecSections(
     conditionSpecs.push({ label: "IMEI", value: facts.imei });
   }
 
-  if (source.is_certified_pre_owned) {
-    conditionSpecs.push({ label: "Condition", value: "Certified Pre-Owned" });
-  }
+  conditionSpecs.push({
+    label: "Condition",
+    value: source.is_certified_pre_owned ? "Certified Pre-Owned" : "New",
+  });
 
   if (typeof source.battery_health === "number") {
     conditionSpecs.push({

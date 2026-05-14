@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/modules/add-to-cart-button";
 import ProductDetailsPanels from "@/components/product/product-details-panels";
@@ -76,8 +76,8 @@ export default async function ProductDetailsPage({
       : null,
     editableFacts.imei ? { label: "IMEI", value: editableFacts.imei } : null,
   ].filter(Boolean) as Array<{ label: string; value: string }>;
-  const primarySpecs = specs.slice(0, 6);
-  const secondarySpecs = specs.slice(6);
+  const primarySpecs = specs.slice(0, 5);
+  const secondarySpecs = specs.slice(5);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -120,6 +120,11 @@ export default async function ProductDetailsPage({
             {product.is_certified_pre_owned && (
               <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-700 lg:px-4 lg:text-[11px]">
                 {t("product.certified")}
+              </span>
+            )}
+            {!product.is_certified_pre_owned && (
+              <span className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700 lg:px-4 lg:text-[11px]">
+                {t("product.new")}
               </span>
             )}
             <h1 className="mt-4 text-2xl font-black uppercase tracking-tighter text-gray-900 sm:text-4xl lg:text-6xl xl:text-[4.25rem]">
@@ -188,9 +193,14 @@ export default async function ProductDetailsPage({
                     {detail.label === "IMEI" ? (
                       <Link
                         href={`/${locale}/imei-verifier?imei=${encodeURIComponent(detail.value)}&returnTo=${encodeURIComponent(productPath)}`}
-                        className="mt-2 inline-flex w-fit max-w-full items-center break-all rounded-full bg-yellow-50 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-yellow-700 transition hover:bg-yellow-100 lg:text-sm"
+                        className="mt-2 inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-yellow-50 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-yellow-700 underline decoration-yellow-300 underline-offset-4 transition hover:bg-yellow-100 hover:text-yellow-800 lg:text-sm"
+                        title="Verify IMEI"
                       >
-                        {detail.value}
+                        <ShieldCheck className="h-4 w-4 shrink-0" />
+                        <span className="break-all">{detail.value}</span>
+                        <span className="shrink-0 text-[10px] tracking-[0.14em] text-yellow-600">
+                          Verify
+                        </span>
                       </Link>
                     ) : (
                       <p className="mt-2 text-sm font-semibold leading-6 text-gray-900 lg:text-base lg:leading-7">

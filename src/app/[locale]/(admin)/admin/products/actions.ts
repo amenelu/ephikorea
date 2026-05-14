@@ -105,7 +105,7 @@ async function resolveThumbnailValue(formData: FormData) {
   await mkdir(uploadDirectory, { recursive: true });
   await writeFile(filePath, fileBuffer);
 
-  return `/uploads/products/${fileName}`;
+  return `/media/products/${fileName}`;
 }
 
 function parseStatus(rawValue: FormDataEntryValue | null) {
@@ -162,6 +162,20 @@ function parseGrade(rawValue: FormDataEntryValue | null) {
   }
 
   throw new Error("Grading option is invalid.");
+}
+
+function parseProductCondition(rawValue: FormDataEntryValue | null) {
+  const normalized = String(rawValue || "certified_pre_owned").trim();
+
+  if (normalized === "certified_pre_owned") {
+    return true;
+  }
+
+  if (normalized === "new") {
+    return false;
+  }
+
+  throw new Error("Product condition is invalid.");
 }
 
 function parseImei(rawValue: FormDataEntryValue | null) {
@@ -252,6 +266,9 @@ export async function addProductAction(formData: FormData) {
     const imei = parseImei(formData.get("imei"));
     const gradingData = parseGrade(formData.get("gradingData"));
     const batteryHealth = parseBatteryHealth(formData.get("batteryHealth"));
+    const isCertifiedPreOwned = parseProductCondition(
+      formData.get("productCondition"),
+    );
     const inventory = Number.parseInt(String(formData.get("inventory") || "0"), 10);
     const price = parsePriceToMinorUnits(String(formData.get("price") || ""));
     const status = parseStatus(formData.get("status"));
@@ -269,6 +286,7 @@ export async function addProductAction(formData: FormData) {
       imei,
       gradingData,
       batteryHealth,
+      isCertifiedPreOwned,
       inventory,
       price,
       status,
@@ -317,6 +335,9 @@ export async function updateProductAction(formData: FormData) {
     const imei = parseImei(formData.get("imei"));
     const gradingData = parseGrade(formData.get("gradingData"));
     const batteryHealth = parseBatteryHealth(formData.get("batteryHealth"));
+    const isCertifiedPreOwned = parseProductCondition(
+      formData.get("productCondition"),
+    );
     const inventory = Number.parseInt(String(formData.get("inventory") || "0"), 10);
     const price = parsePriceToMinorUnits(String(formData.get("price") || ""));
     const status = parseStatus(formData.get("status"));
@@ -335,6 +356,7 @@ export async function updateProductAction(formData: FormData) {
       imei,
       gradingData,
       batteryHealth,
+      isCertifiedPreOwned,
       inventory,
       price,
       status,

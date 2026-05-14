@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe, Search, Shield } from "lucide-react";
+import { Globe } from "lucide-react";
 
 import { CartIconLink } from "@/components/layout/cart-icon-link";
+import { GlobalSearch } from "@/components/layout/global-search";
 import { getLocaleOption } from "@/lib/locales";
 import { getTranslator } from "@/lib/translations";
 
@@ -43,27 +44,13 @@ export const Header = ({ locale }: { locale: string }) => {
 
             {showFloatingSearch ? (
               <div className="hidden lg:block lg:w-full lg:max-w-2xl lg:flex-[1.2]">
-                <form
-                  action={`/${locale}/search`}
-                  method="get"
+                <GlobalSearch
+                  locale={locale}
+                  inputId="global-search-input-desktop"
+                  placeholder={searchPlaceholder}
                   className="relative"
-                >
-                  <label htmlFor="global-search-input-desktop" className="sr-only">
-                    {t("header.searchLabel")}
-                  </label>
-                  <Search
-                    className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
-                    aria-hidden="true"
-                  />
-                  <input
-                    id="global-search-input-desktop"
-                    type="search"
-                    name="q"
-                    autoComplete="off"
-                    placeholder={searchPlaceholder}
-                    className="w-full rounded-full border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-yellow-500/20"
-                  />
-                </form>
+                  inputClassName="w-full rounded-full border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-base outline-none transition-all focus:ring-2 focus:ring-yellow-500/20 sm:text-sm"
+                />
               </div>
             ) : null}
 
@@ -78,14 +65,6 @@ export const Header = ({ locale }: { locale: string }) => {
                 {localeOption.shortLabel}
               </Link>
 
-              <Link
-                href={`/${locale}/admin`}
-                className="rounded-full p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-yellow-500"
-                title={t("header.adminDashboard")}
-              >
-                <Shield className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-              </Link>
-
               <CartIconLink locale={locale} />
             </div>
           </div>
@@ -94,27 +73,13 @@ export const Header = ({ locale }: { locale: string }) => {
         {showFloatingSearch ? (
           <div className="border-b border-gray-100/80 bg-white/90 px-4 py-2.5 shadow-sm backdrop-blur-md sm:px-6 lg:hidden">
             <div className="mx-auto max-w-7xl">
-              <form
-                action={`/${locale}/search`}
-                method="get"
+              <GlobalSearch
+                locale={locale}
+                inputId="global-search-input"
+                placeholder={searchPlaceholder}
                 className="relative mx-auto max-w-2xl rounded-full border border-gray-200 bg-white shadow-lg shadow-black/5"
-              >
-                <label htmlFor="global-search-input" className="sr-only">
-                  {t("header.searchLabel")}
-                </label>
-                <Search
-                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
-                  aria-hidden="true"
-                />
-                <input
-                  id="global-search-input"
-                  type="search"
-                  name="q"
-                  autoComplete="off"
-                  placeholder={searchPlaceholder}
-                  className="w-full rounded-full bg-transparent py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-yellow-500/20 sm:py-3"
-                />
-              </form>
+                inputClassName="w-full rounded-full bg-transparent py-2.5 pl-10 pr-4 text-base outline-none transition-all focus:ring-2 focus:ring-yellow-500/20 sm:py-3 sm:text-sm"
+              />
             </div>
           </div>
         ) : null}

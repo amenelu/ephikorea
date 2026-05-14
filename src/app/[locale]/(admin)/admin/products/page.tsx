@@ -38,6 +38,7 @@ export default async function AdminProductsPage({
           product.color,
           product.storage,
           product.gradingData,
+          product.isCertifiedPreOwned ? "certified pre owned" : "new",
         ]
           .filter(Boolean)
           .join(" ")
@@ -202,6 +203,24 @@ export default async function AdminProductsPage({
               <option value="draft">Draft</option>
               <option value="proposed">Proposed</option>
               <option value="rejected">Rejected</option>
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Product Condition
+            </span>
+            <select
+              name="productCondition"
+              defaultValue={
+                editingProduct?.isCertifiedPreOwned === false
+                  ? "new"
+                  : "certified_pre_owned"
+              }
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+            >
+              <option value="certified_pre_owned">Certified Pre-Owned</option>
+              <option value="new">New</option>
             </select>
           </label>
 
@@ -409,6 +428,11 @@ export default async function AdminProductsPage({
                             {product.gradingData}
                           </span>
                         ) : null}
+                        <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
+                          {product.isCertifiedPreOwned
+                            ? "Certified Pre-Owned"
+                            : "New"}
+                        </span>
                         {product.batteryHealth !== "" ? (
                           <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
                             {product.batteryHealth}% battery
@@ -535,6 +559,11 @@ export default async function AdminProductsPage({
                         {[product.color, product.storage].filter(Boolean).join(" / ")}
                       </div>
                     ) : null}
+                    <div className="mt-1 text-xs text-gray-400">
+                      {product.isCertifiedPreOwned
+                        ? "Certified Pre-Owned"
+                        : "New"}
+                    </div>
                     {product.gradingData || product.batteryHealth !== "" ? (
                       <div className="mt-1 text-xs text-gray-400">
                         {[product.gradingData, product.batteryHealth !== "" ? `${product.batteryHealth}% battery` : ""]

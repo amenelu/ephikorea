@@ -11,6 +11,13 @@ import {
 import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { logoutAdminAction } from "@/app/[locale]/admin/login/actions";
 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 export default async function AdminLayout({
   children,
   params: { locale },

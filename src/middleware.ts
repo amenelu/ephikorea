@@ -11,8 +11,17 @@ import {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/uploads/")) {
+  if (pathname.startsWith("/uploads/") || pathname.startsWith("/media/")) {
     return NextResponse.next();
+  }
+
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    const savedLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
+    const locale = savedLocale && isSupportedLocale(savedLocale)
+      ? savedLocale
+      : DEFAULT_LOCALE;
+
+    return NextResponse.redirect(new URL(`/${locale}`, request.url));
   }
 
   // Check if the pathname is missing a locale
@@ -34,5 +43,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|uploads).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|uploads|media).*)"],
 };

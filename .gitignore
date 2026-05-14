@@ -34,3 +34,9 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 postgresql_13.exe
+*.sqlite
+*.sqlite-*
+
+# Runtime product uploads
+/public/uploads/products/*
+!/public/uploads/products/.gitkeep
