@@ -359,19 +359,24 @@ export async function submitGuestOrder(input: {
 
   const { orderId, notificationPayload } = submitOrder();
 
-  void (async () => {
-    try {
-      await sendAdminOrderNotification(notificationPayload);
-    } catch (error) {
-      console.error("Unable to send admin order notification email.", error);
-    }
+  const [emailResult, telegramResult] = await Promise.allSettled([
+    sendAdminOrderNotification(notificationPayload),
+    sendAdminOrderTelegramNotification(notificationPayload),
+  ]);
 
-    try {
-      await sendAdminOrderTelegramNotification(notificationPayload);
-    } catch (error) {
-      console.error("Unable to send admin Telegram order notification.", error);
-    }
-  })();
+  if (emailResult.status === "rejected") {
+    console.error(
+      "Unable to send admin order notification email.",
+      emailResult.reason,
+    );
+  }
+
+  if (telegramResult.status === "rejected") {
+    console.error(
+      "Unable to send admin Telegram order notification.",
+      telegramResult.reason,
+    );
+  }
 
   return orderId;
 }
