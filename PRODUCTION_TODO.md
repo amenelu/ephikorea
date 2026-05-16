@@ -9,11 +9,12 @@ This file tracks the remaining work before deploying the SQLite-based version to
 
 ## 1. Environment Cleanup
 
-- [ ] Replace the current `.env` with production-focused variables only.
-- [ ] Remove old Medusa/Postgres variables from `.env`.
-- [ ] Keep only the variables the current app uses:
+- [x] Replace the current `.env` with production-focused variables only.
+- [x] Remove old Medusa/Postgres variables from `.env`.
+- [x] Keep only the variables the current app uses:
   - `SQLITE_PATH`
   - `DEFAULT_CURRENCY`
+  - `NEXT_PUBLIC_SITE_URL`
   - `ADMIN_EMAIL`
   - `ADMIN_PASSWORD`
   - `ADMIN_SESSION_SECRET`
@@ -22,7 +23,7 @@ This file tracks the remaining work before deploying the SQLite-based version to
   - `ADMIN_ORDER_NOTIFICATION_EMAIL`
   - optional: `TELEGRAM_BOT_TOKEN`
   - optional: `TELEGRAM_CHAT_ID`
-- [ ] Replace placeholder secrets with real values.
+- [x] Replace placeholder secrets with real values.
 
 ## 2. Hosting Decision
 
@@ -94,10 +95,29 @@ This file tracks the remaining work before deploying the SQLite-based version to
 
 ## 8. Backups and Recovery
 
-- [ ] Back up `data/ephikorea.sqlite`.
-- [ ] Back up `public/uploads/products`.
-- [ ] Define backup frequency.
-- [ ] Define restore procedure.
+- [x] Back up `data/ephikorea.sqlite`.
+- [x] Back up `public/uploads/products`.
+- [x] Define backup frequency.
+- [x] Define restore procedure.
+
+Backup command:
+
+```bash
+npm run backup:data
+```
+
+Restore command:
+
+```bash
+npm run restore:data -- backups/<timestamp>
+```
+
+Recommended production frequency:
+
+- Run a daily backup at minimum.
+- Run a manual backup before deploys, schema changes, bulk imports, or large inventory updates.
+- Keep at least 7 daily backups and 4 weekly backups on storage separate from the app server.
+- After restore, restart the app so the SQLite connection reopens against the restored file.
 
 ## 9. Functional Verification
 
@@ -122,35 +142,35 @@ This file tracks the remaining work before deploying the SQLite-based version to
 
 ## 11. SEO Cleanup
 
-- [ ] Replace generic site metadata with production brand copy.
-- [ ] Define per-page `title` and `description` for:
+- [x] Replace generic site metadata with production brand copy.
+- [x] Define per-page `title` and `description` for:
   - home
   - products listing
   - product details
   - collections
   - support/info pages
-- [ ] Add canonical URLs for public pages.
-- [ ] Add `metadataBase` for the production domain.
-- [ ] Generate a proper `robots.txt`.
-- [ ] Generate a proper `sitemap.xml`.
-- [ ] Confirm locale-aware URLs are reflected consistently in metadata.
-- [ ] Add Open Graph metadata:
+- [x] Add canonical URLs for public pages.
+- [x] Add `metadataBase` for the production domain.
+- [x] Generate a proper `robots.txt`.
+- [x] Generate a proper `sitemap.xml`.
+- [x] Confirm locale-aware URLs are reflected consistently in metadata.
+- [x] Add Open Graph metadata:
   - `og:title`
   - `og:description`
   - `og:url`
   - `og:image`
-- [ ] Add Twitter card metadata.
-- [ ] Ensure product pages expose useful crawlable content:
+- [x] Add Twitter card metadata.
+- [x] Ensure product pages expose useful crawlable content:
   - product title
   - description
   - price
   - availability/inventory state where appropriate
-- [ ] Add structured data where useful:
+- [x] Add structured data where useful:
   - Organization
   - WebSite / SearchAction
   - Product on product pages
-- [ ] Confirm no accidental indexing of admin pages.
-- [ ] Confirm search result pages should or should not be indexed.
+- [x] Confirm no accidental indexing of admin pages.
+- [x] Confirm search result pages should or should not be indexed.
 - [ ] Review heading structure on key public pages.
 - [ ] Verify all important pages are reachable by internal links.
 - [ ] Replace placeholder/fallback thumbnails with real share images where needed.

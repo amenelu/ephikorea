@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "db:init": "node scripts/init-db.js",
+    "backup:data": "node scripts/backup-data.js",
+    "restore:data": "node scripts/restore-data.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

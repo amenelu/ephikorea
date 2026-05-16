@@ -2,7 +2,20 @@ import Link from "next/link";
 import { OrderSuccessHandler } from "@/components/cart/order-success-handler";
 import { ProductCard } from "@/components/product/product-card";
 import { getCatalogProducts } from "@/lib/catalog-data";
+import { absoluteUrl, buildPageMetadata, jsonLd, SITE_DESCRIPTION, SITE_NAME } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
+
+export function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return buildPageMetadata({
+    locale,
+    title: "Premium Electronics",
+    description: SITE_DESCRIPTION,
+  });
+}
 
 export default async function HomePage({
   params: { locale },
@@ -13,9 +26,34 @@ export default async function HomePage({
 }) {
   const t = getTranslator(locale);
   const featuredProducts = await getCatalogProducts(3);
+  const websiteData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: absoluteUrl(`/${locale}`),
+    potentialAction: {
+      "@type": "SearchAction",
+      target: absoluteUrl(`/${locale}/search?q={search_term_string}`),
+      "query-input": "required name=search_term_string",
+    },
+  };
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: absoluteUrl(`/${locale}`),
+  };
 
   return (
     <div className="flex flex-col gap-10 pb-16 sm:gap-12 sm:pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(organizationData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(websiteData) }}
+      />
       <OrderSuccessHandler shouldClear={searchParams.order === "success"} />
       <section className="relative min-h-[336px] w-full overflow-hidden bg-black sm:min-h-[420px] sm:h-[58vh]">
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pb-6 pt-10 text-center sm:pb-8 sm:pt-0">

@@ -3,6 +3,7 @@ import { Building2, Headphones, Laptop, LayoutGrid, Watch } from "lucide-react";
 
 import { getCatalogProducts } from "@/lib/catalog-data";
 import { inferBrand, inferProductProfile } from "@/lib/product-specs";
+import { buildPageMetadata } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,20 @@ type CollectionsPageProps = {
   params: { locale: string };
   searchParams?: { organize?: string };
 };
+
+export function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return buildPageMetadata({
+    locale,
+    pathname: "/collections",
+    title: "Collections",
+    description:
+      "Explore Aman Mobile collections by brand or category for faster browsing across premium electronics.",
+  });
+}
 
 type BrandProductGroup = {
   brand: string;

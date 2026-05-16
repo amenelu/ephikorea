@@ -1,10 +1,26 @@
 import { Metadata } from "next";
+import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Aman mobile | Premium Technology",
-  description:
-    "Discover innovative technology and premium devices at Aman mobile.",
+  metadataBase: getSiteUrl(),
+  title: {
+    default: `${SITE_NAME} | Premium Electronics`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} | Premium Electronics`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: `${SITE_NAME} | Premium Electronics`,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

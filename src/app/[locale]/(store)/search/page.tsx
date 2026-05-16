@@ -1,8 +1,23 @@
 import { ProductCard } from "@/components/product/product-card";
 import { getCatalogProducts } from "@/lib/catalog-data";
+import { buildPageMetadata } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
 
 export const dynamic = "force-dynamic";
+
+export function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return buildPageMetadata({
+    locale,
+    pathname: "/search",
+    title: "Search",
+    description: "Search the Aman Mobile live product catalog.",
+    noIndex: true,
+  });
+}
 
 export default async function SearchPage({
   params: { locale },

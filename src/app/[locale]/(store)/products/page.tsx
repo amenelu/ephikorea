@@ -1,8 +1,23 @@
 import { ProductCard } from "@/components/product/product-card";
 import { getCatalogProducts } from "@/lib/catalog-data";
+import { buildPageMetadata } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
 
 export const dynamic = "force-dynamic";
+
+export function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return buildPageMetadata({
+    locale,
+    pathname: "/products",
+    title: "Products",
+    description:
+      "Browse Aman Mobile products, including premium electronics, new devices, and certified pre-owned phones.",
+  });
+}
 
 export default async function ProductsPage({
   params: { locale },

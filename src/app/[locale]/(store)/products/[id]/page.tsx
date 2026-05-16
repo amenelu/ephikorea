@@ -16,13 +16,57 @@ import {
   buildProductSpecSheet,
   getEditableProductFacts,
   getProductReferenceUrl,
+  inferBrand,
   getStoredReferenceSpecSections,
   getStoredReferenceSpecs,
 } from "@/lib/product-specs";
+import { absoluteUrl, buildPageMetadata, jsonLd } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
 import { formatAmount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+function productDescription(product: {
+  title: string;
+  description?: string;
+  subtitle?: string;
+}) {
+  return (
+    product.description ||
+    product.subtitle ||
+    `Shop ${product.title} from Aman Mobile.`
+  );
+}
+
+export async function generateMetadata({
+  params: { locale, id },
+}: {
+  params: { locale: string; id: string };
+}) {
+  const product = await getCatalogProductByIdOrHandle(id);
+
+  if (!product) {
+    return buildPageMetadata({
+      locale,
+      pathname: `/products/${id}`,
+      title: "Product",
+      description: "Product details from Aman Mobile.",
+    });
+  }
+
+  const productPath = `/products/${product.handle || product.id}`;
+
+  return buildPageMetadata({
+    locale,
+    pathname: productPath,
+    title: product.title,
+    description: productDescription(product),
+    image:
+      product.thumbnail && isLikelyImageUrl(product.thumbnail)
+        ? product.thumbnail
+        : undefined,
+  });
+}
 
 export default async function ProductDetailsPage({
   params: { locale, id },
@@ -78,9 +122,39 @@ export default async function ProductDetailsPage({
   ].filter(Boolean) as Array<{ label: string; value: string }>;
   const primarySpecs = specs.slice(0, 5);
   const secondarySpecs = specs.slice(5);
+  const inventoryQuantity = primaryVariant?.inventory_quantity ?? 0;
+  const productStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: productDescription(product),
+    image: displayImageUrl ? absoluteUrl(displayImageUrl) : undefined,
+    sku: product.id,
+    brand: inferBrand(product) || undefined,
+    itemCondition: product.is_certified_pre_owned
+      ? "https://schema.org/UsedCondition"
+      : "https://schema.org/NewCondition",
+    offers: primaryVariant?.id
+      ? {
+          "@type": "Offer",
+          price: (price / 100).toFixed(2),
+          priceCurrency:
+            primaryVariant.prices?.[0]?.currency_code?.toUpperCase() || "USD",
+          availability:
+            inventoryQuantity > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+          url: absoluteUrl(`/${locale}/products/${product.handle || product.id}`),
+        }
+      : undefined,
+  };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(productStructuredData) }}
+      />
       <Link
         href={`/${locale}/products`}
         className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-gray-400 transition-colors hover:text-black sm:mb-8 lg:text-base"

@@ -22,6 +22,7 @@
 .env.production
 .env.staging
 .env.test
+.env.backup-*
 
 # Logs
 *.log
@@ -40,3 +41,6 @@ postgresql_13.exe
 # Runtime product uploads
 /public/uploads/products/*
 !/public/uploads/products/.gitkeep
+
+# Local data backups
+/backups/
