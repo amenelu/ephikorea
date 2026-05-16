@@ -171,8 +171,8 @@ Recommended production frequency:
   - Product on product pages
 - [x] Confirm no accidental indexing of admin pages.
 - [x] Confirm search result pages should or should not be indexed.
-- [ ] Review heading structure on key public pages.
-- [ ] Verify all important pages are reachable by internal links.
+- [x] Review heading structure on key public pages.
+- [x] Verify all important pages are reachable by internal links.
 - [ ] Replace placeholder/fallback thumbnails with real share images where needed.
 
 ## Notes For Later Execution
@@ -180,6 +180,9 @@ Recommended production frequency:
 - The app is fast in local production mode. The earlier slow page loads were primarily from `next dev` route compilation, not SQLite itself.
 - The production measurement script already exists:
   - [measure-latency.ps1](c:/Users/Amen/ephikorea/scripts/measure-latency.ps1)
+- Public SEO/page verification now exists:
+  - Run `npm run verify:public` against the local production server.
+  - This checks key public pages for successful responses, one `h1`, browser errors, and internal link reachability.
 - Existing local build and latency evidence:
   - [REQUIREMENTS.md](c:/Users/Amen/ephikorea/REQUIREMENTS.md)
   - [logs](c:/Users/Amen/ephikorea/logs)
@@ -192,5 +195,5 @@ Recommended production frequency:
 4. Deploy and boot app
 5. Verify admin/auth and external notifications
 6. Run end-to-end functional check
-7. Set backups
-8. Finish SEO setup
+7. Run performance checks on the target host
+8. Replace placeholder/fallback share thumbnails where needed
