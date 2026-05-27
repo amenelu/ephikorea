@@ -1,12 +1,13 @@
 import "server-only";
 
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
 import path from "path";
 
 import { getCloudflareEnv } from "@/lib/cloudflare";
 
 const LOCAL_UPLOAD_PATH = ["public", "uploads", "products"];
 const MEDIA_PREFIX = "products";
+const DEFAULT_CLOUDINARY_FOLDER = "ephikorea/products";
 
 const CONTENT_TYPES: Record<string, string> = {
   ".avif": "image/avif",
@@ -45,6 +46,82 @@ export function getMediaContentType(filename: string) {
   return CONTENT_TYPES[path.extname(filename).toLowerCase()] || null;
 }
 
+async function getCloudinaryConfig() {
+  const env = await getCloudflareEnv();
+
+  return {
+    cloudName:
+      env?.CLOUDINARY_CLOUD_NAME?.trim() ||
+      process.env.CLOUDINARY_CLOUD_NAME?.trim() ||
+      "",
+    apiKey:
+      env?.CLOUDINARY_API_KEY?.trim() ||
+      process.env.CLOUDINARY_API_KEY?.trim() ||
+      "",
+    apiSecret:
+      env?.CLOUDINARY_API_SECRET?.trim() ||
+      process.env.CLOUDINARY_API_SECRET?.trim() ||
+      "",
+    folder:
+      env?.CLOUDINARY_FOLDER?.trim() ||
+      process.env.CLOUDINARY_FOLDER?.trim() ||
+      DEFAULT_CLOUDINARY_FOLDER,
+  };
+}
+
+function signCloudinaryUpload(params: Record<string, string>, apiSecret: string) {
+  const payload = Object.entries(params)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&");
+
+  return createHash("sha1")
+    .update(`${payload}${apiSecret}`)
+    .digest("hex");
+}
+
+async function uploadToCloudinary(file: File, fileBuffer: ArrayBuffer) {
+  const config = await getCloudinaryConfig();
+
+  if (!config.cloudName || !config.apiKey || !config.apiSecret) {
+    return null;
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000).toString();
+  const signedParams = {
+    folder: config.folder,
+    timestamp,
+  };
+  const formData = new FormData();
+
+  formData.set("file", new Blob([fileBuffer], { type: file.type || "application/octet-stream" }));
+  formData.set("api_key", config.apiKey);
+  formData.set("folder", signedParams.folder);
+  formData.set("timestamp", signedParams.timestamp);
+  formData.set("signature", signCloudinaryUpload(signedParams, config.apiSecret));
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${config.cloudName}/image/upload`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Cloudinary upload failed: ${response.status} ${body}`);
+  }
+
+  const result = (await response.json()) as { secure_url?: string };
+
+  if (!result.secure_url) {
+    throw new Error("Cloudinary upload did not return a secure image URL.");
+  }
+
+  return result.secure_url;
+}
+
 export async function saveProductMedia(file: File) {
   const extension = getUploadExtension(file);
 
@@ -56,6 +133,11 @@ export async function saveProductMedia(file: File) {
   const key = `${MEDIA_PREFIX}/${fileName}`;
   const fileBuffer = await file.arrayBuffer();
   const env = await getCloudflareEnv();
+  const cloudinaryUrl = await uploadToCloudinary(file, fileBuffer);
+
+  if (cloudinaryUrl) {
+    return cloudinaryUrl;
+  }
 
   if (!env) {
     const [{ mkdir, writeFile }] = await Promise.all([import("fs/promises")]);
