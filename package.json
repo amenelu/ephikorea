@@ -9,6 +9,7 @@
     "restore:data": "node scripts/restore-data.js",
     "verify:public": "node scripts/verify-public-pages.js",
     "build": "next build",
+    "build:cloudflare": "opennextjs-cloudflare build",
     "preview:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
