@@ -57,19 +57,27 @@ export async function saveProductMedia(file: File) {
   const fileBuffer = await file.arrayBuffer();
   const env = await getCloudflareEnv();
 
-  if (env?.PRODUCT_MEDIA) {
-    await env.PRODUCT_MEDIA.put(key, fileBuffer, {
-      httpMetadata: { contentType: file.type || getMediaContentType(fileName) || undefined },
-    });
-  } else {
+  if (!env) {
     const [{ mkdir, writeFile }] = await Promise.all([import("fs/promises")]);
     const uploadDirectory = path.join(process.cwd(), ...LOCAL_UPLOAD_PATH);
 
     await mkdir(uploadDirectory, { recursive: true });
     await writeFile(path.join(uploadDirectory, fileName), Buffer.from(fileBuffer));
+
+    return `/media/products/${fileName}`;
   }
 
-  return `/media/products/${fileName}`;
+  if (env.PRODUCT_MEDIA) {
+    await env.PRODUCT_MEDIA.put(key, fileBuffer, {
+      httpMetadata: { contentType: file.type || getMediaContentType(fileName) || undefined },
+    });
+
+    return `/media/products/${fileName}`;
+  }
+
+  throw new Error(
+    "Product image uploads are not enabled on this hosting plan. Paste an image URL instead.",
+  );
 }
 
 export async function readProductMedia(filename: string) {
@@ -93,6 +101,10 @@ export async function readProductMedia(filename: string) {
       body: object.body,
       contentType: object.httpMetadata?.contentType || contentType,
     };
+  }
+
+  if (env) {
+    return null;
   }
 
   try {
