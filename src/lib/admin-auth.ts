@@ -5,6 +5,8 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { getCloudflareEnv } from "@/lib/cloudflare";
+
 const ADMIN_SESSION_COOKIE = "admin_session";
 const ADMIN_SESSION_DURATION_MS = 1000 * 60 * 60 * 12;
 
@@ -13,16 +15,28 @@ type AdminSessionPayload = {
   expiresAt: number;
 };
 
-function getAdminEmail() {
-  return process.env.ADMIN_EMAIL?.trim().toLowerCase() || "";
-}
+type AdminAuthConfig = {
+  email: string;
+  password: string;
+  sessionSecret: string;
+};
 
-function getAdminPassword() {
-  return process.env.ADMIN_PASSWORD || "";
-}
+async function getAdminAuthConfig(): Promise<AdminAuthConfig> {
+  const env = await getCloudflareEnv();
 
-function getAdminSessionSecret() {
-  return process.env.ADMIN_SESSION_SECRET || process.env.COOKIE_SECRET || "";
+  return {
+    email: String(env?.ADMIN_EMAIL || process.env.ADMIN_EMAIL || "")
+      .trim()
+      .toLowerCase(),
+    password: String(env?.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || ""),
+    sessionSecret: String(
+      env?.ADMIN_SESSION_SECRET ||
+        env?.COOKIE_SECRET ||
+        process.env.ADMIN_SESSION_SECRET ||
+        process.env.COOKIE_SECRET ||
+        "",
+    ),
+  };
 }
 
 function isPrivateNetworkHost(host: string) {
@@ -81,9 +95,7 @@ function decodeBase64Url(value: string) {
   return Buffer.from(value, "base64url").toString("utf8");
 }
 
-function signValue(value: string) {
-  const secret = getAdminSessionSecret();
-
+function signValue(value: string, secret: string) {
   if (!secret) {
     throw new Error(
       "Admin auth is not configured. Set ADMIN_SESSION_SECRET or COOKIE_SECRET.",
@@ -93,20 +105,20 @@ function signValue(value: string) {
   return createHmac("sha256", secret).update(value).digest("base64url");
 }
 
-function createSessionToken(payload: AdminSessionPayload) {
+function createSessionToken(payload: AdminSessionPayload, secret: string) {
   const encodedPayload = encodeBase64Url(JSON.stringify(payload));
-  const signature = signValue(encodedPayload);
+  const signature = signValue(encodedPayload, secret);
   return `${encodedPayload}.${signature}`;
 }
 
-function parseSessionToken(token: string) {
+function parseSessionToken(token: string, secret: string) {
   const [encodedPayload, signature] = token.split(".");
 
   if (!encodedPayload || !signature) {
     return null;
   }
 
-  const expectedSignature = signValue(encodedPayload);
+  const expectedSignature = signValue(encodedPayload, secret);
   const providedSignature = Buffer.from(signature);
   const expectedSignatureBuffer = Buffer.from(expectedSignature);
 
@@ -132,17 +144,23 @@ function parseSessionToken(token: string) {
   }
 }
 
-export function isAdminAuthConfigured() {
-  return Boolean(getAdminEmail() && getAdminPassword() && getAdminSessionSecret());
+export async function isAdminAuthConfigured(config?: AdminAuthConfig) {
+  const resolvedConfig = config || (await getAdminAuthConfig());
+  return Boolean(
+    resolvedConfig.email &&
+      resolvedConfig.password &&
+      resolvedConfig.sessionSecret,
+  );
 }
 
 export async function createAdminSession(email: string) {
+  const config = await getAdminAuthConfig();
   const cookieStore = await cookies();
   const secure = await shouldUseSecureAdminCookie();
   const token = createSessionToken({
     email,
     expiresAt: Date.now() + ADMIN_SESSION_DURATION_MS,
-  });
+  }, config.sessionSecret);
 
   cookieStore.set(ADMIN_SESSION_COOKIE, token, {
     httpOnly: true,
@@ -159,15 +177,16 @@ export async function clearAdminSession() {
 }
 
 export async function isAdminAuthenticated() {
+  const config = await getAdminAuthConfig();
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
 
-  if (!token || !isAdminAuthConfigured()) {
+  if (!token || !(await isAdminAuthConfigured(config))) {
     return false;
   }
 
-  const payload = parseSessionToken(token);
-  return payload?.email === getAdminEmail();
+  const payload = parseSessionToken(token, config.sessionSecret);
+  return payload?.email === config.email;
 }
 
 export async function requireAdminPageAccess(locale: string) {
@@ -195,7 +214,9 @@ export async function assertAdminAuthenticated() {
 }
 
 export async function validateAdminCredentials(email: string, password: string) {
-  if (!isAdminAuthConfigured()) {
+  const config = await getAdminAuthConfig();
+
+  if (!(await isAdminAuthConfigured(config))) {
     throw new Error(
       "Admin auth is not configured. Add ADMIN_EMAIL, ADMIN_PASSWORD, and ADMIN_SESSION_SECRET to .env.",
     );
@@ -203,7 +224,7 @@ export async function validateAdminCredentials(email: string, password: string) 
 
   const normalizedEmail = email.trim().toLowerCase();
 
-  if (normalizedEmail !== getAdminEmail() || password !== getAdminPassword()) {
+  if (normalizedEmail !== config.email || password !== config.password) {
     return false;
   }
 

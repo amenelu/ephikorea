@@ -31,6 +31,11 @@ export type D1Database = {
 export type CloudflareEnv = {
   DB?: D1Database;
   PRODUCT_MEDIA?: R2Bucket;
+  ADMIN_EMAIL?: string;
+  ADMIN_PASSWORD?: string;
+  ADMIN_SESSION_SECRET?: string;
+  COOKIE_SECRET?: string;
+  NEXT_PUBLIC_SITE_URL?: string;
 };
 
 export async function getCloudflareEnv(): Promise<CloudflareEnv | null> {

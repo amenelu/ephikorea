@@ -5,7 +5,7 @@ import { isAdminAuthConfigured } from "@/lib/admin-auth";
 
 import { loginAdminAction } from "./actions";
 
-export default function AdminLoginPage({
+export default async function AdminLoginPage({
   params: { locale },
   searchParams,
 }: {
@@ -14,7 +14,7 @@ export default function AdminLoginPage({
 }) {
   const error =
     typeof searchParams?.error === "string" ? searchParams.error : "";
-  const isConfigured = isAdminAuthConfigured();
+  const isConfigured = await isAdminAuthConfigured();
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff6d6,_#f8fafc_55%,_#e5e7eb)] px-4 py-10">
