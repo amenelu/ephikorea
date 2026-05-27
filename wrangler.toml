@@ -10,6 +10,10 @@ binding = "ASSETS"
 [vars]
 CLOUDFLARE_BINDINGS = "1"
 
+[observability.logs]
+enabled = false
+invocation_logs = true
+
 [[services]]
 binding = "WORKER_SELF_REFERENCE"
 service = "cloudflare-deployment-migration"
