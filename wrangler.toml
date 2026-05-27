@@ -9,6 +9,11 @@ binding = "ASSETS"
 
 [vars]
 CLOUDFLARE_BINDINGS = "1"
+ADMIN_EMAIL = "fikruamen11@gmail.com"
+NEXT_PUBLIC_SITE_URL = "https://cloudflare-deployment-migration.fikruamen11.workers.dev"
+CLOUDINARY_CLOUD_NAME = "dlaaccona"
+CLOUDINARY_API_KEY = "159474719226525"
+CLOUDINARY_FOLDER = "ephikorea/products"
 
 [observability.logs]
 enabled = false
