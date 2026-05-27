@@ -39,14 +39,7 @@ export async function getCloudflareEnv(): Promise<CloudflareEnv | null> {
   }
 
   try {
-    const dynamicImport = new Function("specifier", "return import(specifier)") as <
-      T = unknown,
-    >(
-      specifier: string,
-    ) => Promise<T>;
-    const cloudflare = await dynamicImport<typeof import("@opennextjs/cloudflare")>(
-      "@opennextjs/cloudflare",
-    );
+    const cloudflare = await import("@opennextjs/cloudflare");
     const context = await cloudflare.getCloudflareContext({ async: true });
 
     return context.env as CloudflareEnv;
