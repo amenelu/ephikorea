@@ -218,7 +218,7 @@ export async function validateAdminCredentials(email: string, password: string) 
 
   if (!(await isAdminAuthConfigured(config))) {
     throw new Error(
-      "Admin auth is not configured. Add ADMIN_EMAIL, ADMIN_PASSWORD, and ADMIN_SESSION_SECRET to .env.",
+      "Admin auth is not configured. Add ADMIN_EMAIL, ADMIN_PASSWORD, and ADMIN_SESSION_SECRET to the hosting environment.",
     );
   }
 

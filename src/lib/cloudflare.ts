@@ -39,10 +39,6 @@ export type CloudflareEnv = {
 };
 
 export async function getCloudflareEnv(): Promise<CloudflareEnv | null> {
-  if (process.env.CLOUDFLARE_BINDINGS !== "1") {
-    return null;
-  }
-
   try {
     const cloudflare = await import("@opennextjs/cloudflare");
     const context = await cloudflare.getCloudflareContext({ async: true });

@@ -37,7 +37,7 @@ export default async function AdminLoginPage({
           {!isConfigured ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
               Admin auth is not configured yet. Add `ADMIN_EMAIL`,
-              `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET` to `.env`.
+              `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET` to the hosting environment.
             </div>
           ) : null}
 
