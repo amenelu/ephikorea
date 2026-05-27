@@ -1,9 +1,18 @@
 name = "ephikorea"
+main = ".open-next/worker.js"
 compatibility_date = "2026-05-27"
-compatibility_flags = ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
 
 [vars]
 CLOUDFLARE_BINDINGS = "1"
+
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "ephikorea"
 
 [[d1_databases]]
 binding = "DB"
