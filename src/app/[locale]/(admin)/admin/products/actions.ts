@@ -1,8 +1,5 @@
 "use server";
 
-import { randomUUID } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -13,6 +10,7 @@ import {
   removeAdminProduct,
   updateAdminProduct,
 } from "@/lib/admin-data";
+import { getUploadExtension, saveProductMedia } from "@/lib/product-media-storage";
 import { inferReferenceUrlFromBrandAndModel } from "@/lib/product-specs";
 
 function buildRedirectPath(
@@ -49,30 +47,6 @@ function parsePriceToMinorUnits(rawValue: string) {
   return Math.round(Number(trimmed) * 100);
 }
 
-function getUploadExtension(file: File) {
-  const fileName = file.name || "";
-  const fileExtension = path.extname(fileName).toLowerCase();
-
-  if ([".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"].includes(fileExtension)) {
-    return fileExtension;
-  }
-
-  switch (file.type) {
-    case "image/jpeg":
-      return ".jpg";
-    case "image/png":
-      return ".png";
-    case "image/webp":
-      return ".webp";
-    case "image/gif":
-      return ".gif";
-    case "image/avif":
-      return ".avif";
-    default:
-      return null;
-  }
-}
-
 async function resolveThumbnailValue(formData: FormData) {
   const thumbnail = String(formData.get("thumbnail") || "").trim();
   const thumbnailFile = formData.get("thumbnailFile");
@@ -97,15 +71,7 @@ async function resolveThumbnailValue(formData: FormData) {
     throw new Error("Unsupported image format. Use JPG, PNG, WebP, GIF, or AVIF.");
   }
 
-  const uploadDirectory = path.join(process.cwd(), "public", "uploads", "products");
-  const fileName = `${randomUUID()}${extension}`;
-  const filePath = path.join(uploadDirectory, fileName);
-  const fileBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
-
-  await mkdir(uploadDirectory, { recursive: true });
-  await writeFile(filePath, fileBuffer);
-
-  return `/media/products/${fileName}`;
+  return saveProductMedia(thumbnailFile);
 }
 
 function parseStatus(rawValue: FormDataEntryValue | null) {

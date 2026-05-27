@@ -58,22 +58,26 @@ function slugifyHandle(value: string) {
     .slice(0, 80);
 }
 
-function getSetting(key: string, fallback: string) {
-  const row = getDb()
+async function getSetting(key: string, fallback: string) {
+  const db = await getDb();
+  const row = await db
     .prepare("select value from settings where key = ?")
-    .get(key) as { value: string } | undefined;
+    .get<{ value: string }>([key]);
 
   return row?.value || fallback;
 }
 
-function getUniqueProductHandle(rawHandle: string, excludeProductId?: string) {
-  const db = getDb();
+async function getUniqueProductHandle(
+  db: Awaited<ReturnType<typeof getDb>>,
+  rawHandle: string,
+  excludeProductId?: string,
+) {
   const baseHandle = slugifyHandle(rawHandle) || `product-${Date.now()}`;
   let candidate = baseHandle;
   let suffix = 2;
 
   while (true) {
-    const existing = db
+    const existing = await db
       .prepare(
         `
           select id
@@ -84,9 +88,7 @@ function getUniqueProductHandle(rawHandle: string, excludeProductId?: string) {
           limit 1
         `,
       )
-      .get(candidate, excludeProductId || null, excludeProductId || null) as
-      | { id: string }
-      | undefined;
+      .get<{ id: string }>([candidate, excludeProductId || null, excludeProductId || null]);
 
     if (!existing) {
       return candidate;
@@ -100,8 +102,8 @@ function getUniqueProductHandle(rawHandle: string, excludeProductId?: string) {
 export async function getAdminDashboardData() {
   await assertAdminAuthenticated();
 
-  const db = getDb();
-  const snapshot = db
+  const db = await getDb();
+  const snapshot = (await db
     .prepare(
       `
         select
@@ -129,7 +131,7 @@ export async function getAdminDashboardData() {
           ) as lowest_inventory
       `,
     )
-    .get() as {
+    .get<{
     product_count: number;
     customer_count: number;
     order_count: number;
@@ -137,9 +139,17 @@ export async function getAdminDashboardData() {
     pending_order_count: number;
     low_stock_count: number;
     lowest_inventory: number | null;
+  }>()) || {
+    product_count: 0,
+    customer_count: 0,
+    order_count: 0,
+    revenue_total: 0,
+    pending_order_count: 0,
+    low_stock_count: 0,
+    lowest_inventory: null,
   };
 
-  const recentOrders = db
+  const recentOrders = await db
     .prepare(
       `
         select
@@ -158,7 +168,7 @@ export async function getAdminDashboardData() {
         limit 5
       `,
     )
-    .all() as Array<{
+    .all<{
     display_id: number | null;
     created_at: string;
     total: number;
@@ -166,7 +176,7 @@ export async function getAdminDashboardData() {
     email: string | null;
     status: string | null;
     product_summary: string | null;
-  }>;
+  }>();
 
   const notifications = [];
   const pendingOrders = snapshot.pending_order_count ?? 0;
@@ -206,7 +216,7 @@ export async function getAdminDashboardData() {
     });
   }
 
-  const currencyCode = getSetting("default_currency_code", "usd");
+  const currencyCode = await getSetting("default_currency_code", "usd");
 
   return {
     stats: [
@@ -232,8 +242,9 @@ export async function getAdminOrders(query?: string) {
   await assertAdminAuthenticated();
 
   const searchTerm = query?.trim();
-  const currencyCode = getSetting("default_currency_code", "usd");
-  const rows = getDb()
+  const currencyCode = await getSetting("default_currency_code", "usd");
+  const db = await getDb();
+  const rows = await db
     .prepare(
       `
         select
@@ -260,7 +271,7 @@ export async function getAdminOrders(query?: string) {
         order by o.created_at desc
       `,
     )
-    .all({ query: searchTerm ? `%${searchTerm}%` : null }) as Array<{
+    .all<{
     order_id: string;
     display_id: number | null;
     created_at: string;
@@ -270,7 +281,7 @@ export async function getAdminOrders(query?: string) {
     status: string | null;
     payment_status: string | null;
     product_summary: string | null;
-  }>;
+  }>({ query: searchTerm ? `%${searchTerm}%` : null });
 
   return rows.map((order) => ({
     orderId: order.order_id,
@@ -292,7 +303,8 @@ export async function getAdminOrders(query?: string) {
 export async function getAdminOrderDetails(orderId: string) {
   await assertAdminAuthenticated();
 
-  const rows = getDb()
+  const db = await getDb();
+  const rows = await db
     .prepare(
       `
         select
@@ -329,7 +341,7 @@ export async function getAdminOrderDetails(orderId: string) {
         order by oi.created_at asc
       `,
     )
-    .all(orderId) as Array<{
+    .all<{
     order_id: string;
     display_id: number | null;
     created_at: string;
@@ -355,7 +367,7 @@ export async function getAdminOrderDetails(orderId: string) {
     unit_price: number | null;
     thumbnail: string | null;
     variant_id: string | null;
-  }>;
+  }>([orderId]);
 
   const firstRow = rows[0];
   if (!firstRow) {
@@ -423,10 +435,10 @@ export async function completeAdminOrder(orderId: string) {
     throw new Error("Order id is required.");
   }
 
-  const db = getDb();
-  const existingOrder = db
+  const db = await getDb();
+  const existingOrder = await db
     .prepare("select id, status from orders where id = ? limit 1")
-    .get(normalizedId) as { id: string; status: string | null } | undefined;
+    .get<{ id: string; status: string | null }>([normalizedId]);
 
   if (!existingOrder) {
     throw new Error("Order was not found.");
@@ -436,7 +448,7 @@ export async function completeAdminOrder(orderId: string) {
     return "already_completed" as const;
   }
 
-  db.prepare(
+  await db.prepare(
     `
       update orders
       set status = 'completed',
@@ -445,7 +457,7 @@ export async function completeAdminOrder(orderId: string) {
           updated_at = datetime('now')
       where id = ?
     `,
-  ).run(normalizedId);
+  ).run([normalizedId]);
 
   return "updated" as const;
 }
@@ -458,10 +470,10 @@ export async function toggleAdminOrderPaymentStatus(orderId: string) {
     throw new Error("Order id is required.");
   }
 
-  const db = getDb();
-  const existingOrder = db
+  const db = await getDb();
+  const existingOrder = await db
     .prepare("select id, payment_status from orders where id = ? limit 1")
-    .get(normalizedId) as { id: string; payment_status: string | null } | undefined;
+    .get<{ id: string; payment_status: string | null }>([normalizedId]);
 
   if (!existingOrder) {
     throw new Error("Order was not found.");
@@ -472,10 +484,9 @@ export async function toggleAdminOrderPaymentStatus(orderId: string) {
       ? "awaiting"
       : "captured";
 
-  db.prepare("update orders set payment_status = ?, updated_at = datetime('now') where id = ?").run(
-    nextPaymentStatus,
-    normalizedId,
-  );
+  await db
+    .prepare("update orders set payment_status = ?, updated_at = datetime('now') where id = ?")
+    .run([nextPaymentStatus, normalizedId]);
 
   return nextPaymentStatus;
 }
@@ -483,9 +494,9 @@ export async function toggleAdminOrderPaymentStatus(orderId: string) {
 export async function getAdminCustomers() {
   await assertAdminAuthenticated();
 
-  const db = getDb();
-  const currencyCode = getSetting("default_currency_code", "usd");
-  const customers = db
+  const db = await getDb();
+  const currencyCode = await getSetting("default_currency_code", "usd");
+  const customers = await db
     .prepare(
       `
         select
@@ -505,7 +516,7 @@ export async function getAdminCustomers() {
         order by c.created_at desc
       `,
     )
-    .all() as Array<{
+    .all<{
     id: string;
     email: string;
     first_name: string | null;
@@ -515,7 +526,7 @@ export async function getAdminCustomers() {
     created_at: string;
     orders: number;
     spent: number;
-  }>;
+  }>();
 
   const orderHistory = db.prepare(
     `
@@ -527,7 +538,7 @@ export async function getAdminCustomers() {
     `,
   );
 
-  return customers.map((customer) => {
+  return Promise.all(customers.map(async (customer) => {
     const metadata = parseJsonObject(customer.metadata_json);
     const name =
       `${customer.first_name || ""} ${customer.last_name || ""}`.trim() ||
@@ -559,13 +570,13 @@ export async function getAdminCustomers() {
       spent: formatAmount(customer.spent, currencyCode),
       initials: initials || customer.email.slice(0, 2).toUpperCase(),
       purchaseHistory: (
-        orderHistory.all(customer.id) as Array<{
+        await orderHistory.all<{
           order_id: string;
           display_id: number | null;
           created_at: string;
           total: number;
           status: string | null;
-        }>
+        }>([customer.id])
       ).map((order) => ({
         orderId: order.order_id,
         displayId: order.display_id ? `#${order.display_id}` : "Draft",
@@ -575,13 +586,14 @@ export async function getAdminCustomers() {
         statusTone: toStatusTone(order.status),
       })),
     };
-  });
+  }));
 }
 
 export async function getAdminProducts() {
   await assertAdminAuthenticated();
 
-  const rows = getDb()
+  const db = await getDb();
+  const rows = await db
     .prepare(
       `
         select
@@ -609,7 +621,7 @@ export async function getAdminProducts() {
         order by p.created_at desc, p.rowid desc
       `,
     )
-    .all() as Array<{
+    .all<{
     id: string;
     title: string;
     description: string | null;
@@ -627,7 +639,7 @@ export async function getAdminProducts() {
     imei: string | null;
     inventory: number;
     price: number;
-  }>;
+  }>();
 
   return rows.map((row) => {
     const metadata = parseJsonObject(row.metadata_json);
@@ -714,10 +726,10 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
     fetchReferenceSpecSections(referenceUrl),
   ]);
 
-  const db = getDb();
-  const createProduct = db.transaction(() => {
-    const handle = getUniqueProductHandle(input.handle || title);
-    const currencyCode = getSetting("default_currency_code", "usd").toLowerCase();
+  const db = await getDb();
+  return db.transaction(async (transactionDb) => {
+    const handle = await getUniqueProductHandle(transactionDb, input.handle || title);
+    const currencyCode = (await getSetting("default_currency_code", "usd")).toLowerCase();
     const status = input.status || "published";
     const metadata = buildProductMetadata(undefined, {
       title,
@@ -734,7 +746,7 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
     const productId = createEntityId("prod");
     const variantId = createEntityId("variant");
 
-    db.prepare(
+    await transactionDb.prepare(
       `
         insert into products (
           id, title, description, handle, thumbnail, battery_health, grading_data,
@@ -743,7 +755,7 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
         )
         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `,
-    ).run(
+    ).run([
       productId,
       title,
       description,
@@ -759,9 +771,9 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       input.storage?.trim() || null,
       input.imei?.trim() || null,
       input.isCertifiedPreOwned === false ? 0 : 1,
-    );
+    ]);
 
-    db.prepare(
+    await transactionDb.prepare(
       `
         insert into product_variants (
           id, product_id, title, inventory_quantity, price_amount,
@@ -769,12 +781,10 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
         )
         values (?, ?, 'Default', ?, ?, ?, datetime('now'), datetime('now'))
       `,
-    ).run(variantId, productId, input.inventory, input.price, currencyCode);
+    ).run([variantId, productId, input.inventory, input.price, currencyCode]);
 
     return productId;
   });
-
-  return createProduct();
 }
 
 export async function removeAdminProduct(productId: string) {
@@ -785,20 +795,18 @@ export async function removeAdminProduct(productId: string) {
     throw new Error("Product id is required.");
   }
 
-  const db = getDb();
-  const removeProduct = db.transaction(() => {
-    db.prepare(
+  const db = await getDb();
+  return db.transaction(async (transactionDb) => {
+    await transactionDb.prepare(
       "update product_variants set deleted_at = datetime('now'), updated_at = datetime('now') where product_id = ? and deleted_at is null",
-    ).run(normalizedId);
+    ).run([normalizedId]);
 
-    const result = db.prepare(
+    const result = await transactionDb.prepare(
       "update products set deleted_at = datetime('now'), updated_at = datetime('now') where id = ? and deleted_at is null",
-    ).run(normalizedId);
+    ).run([normalizedId]);
 
     return result.changes > 0;
   });
-
-  return removeProduct();
 }
 
 type UpdateAdminProductInput = CreateAdminProductInput & {
@@ -839,17 +847,17 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
     fetchReferenceSpecSections(referenceUrl),
   ]);
 
-  const db = getDb();
-  const updateProduct = db.transaction(() => {
-    const existingProduct = db
+  const db = await getDb();
+  return db.transaction(async (transactionDb) => {
+    const existingProduct = await transactionDb
       .prepare("select id, metadata_json from products where id = ? and deleted_at is null limit 1")
-      .get(productId) as { id: string; metadata_json: string | null } | undefined;
+      .get<{ id: string; metadata_json: string | null }>([productId]);
 
     if (!existingProduct) {
       throw new Error("Product was not found.");
     }
 
-    const handle = getUniqueProductHandle(input.handle, productId);
+    const handle = await getUniqueProductHandle(transactionDb, input.handle, productId);
     const metadata = buildProductMetadata(
       parseJsonObject(existingProduct.metadata_json) || undefined,
       {
@@ -866,7 +874,7 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
       },
     );
 
-    db.prepare(
+    await transactionDb.prepare(
       `
         update products
         set title = ?,
@@ -886,7 +894,7 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
             updated_at = datetime('now')
         where id = ?
       `,
-    ).run(
+    ).run([
       title,
       description,
       handle,
@@ -902,16 +910,14 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
       input.imei?.trim() || null,
       input.isCertifiedPreOwned === false ? 0 : 1,
       productId,
-    );
+    ]);
 
-    db.prepare(
+    await transactionDb.prepare(
       "update product_variants set inventory_quantity = ?, price_amount = ?, updated_at = datetime('now') where product_id = ? and deleted_at is null",
-    ).run(input.inventory, input.price, productId);
+    ).run([input.inventory, input.price, productId]);
 
     return true;
   });
-
-  return updateProduct();
 }
 
 export async function incrementAdminProductInventory(productId: string, amount: number) {
@@ -925,7 +931,8 @@ export async function incrementAdminProductInventory(productId: string, amount: 
     throw new Error("Inventory increase must be greater than zero.");
   }
 
-  const result = getDb()
+  const db = await getDb();
+  const result = await db
     .prepare(
       `
         update product_variants
@@ -935,7 +942,7 @@ export async function incrementAdminProductInventory(productId: string, amount: 
           and deleted_at is null
       `,
     )
-    .run(normalizedAmount, normalizedId);
+    .run([normalizedAmount, normalizedId]);
 
   return result.changes > 0;
 }
@@ -943,27 +950,26 @@ export async function incrementAdminProductInventory(productId: string, amount: 
 export async function getAdminSettingsData() {
   await assertAdminAuthenticated();
 
-  const db = getDb();
-  const salesChannels = db
+  const db = await getDb();
+  const salesChannels = await db
     .prepare(
       "select id, name, description, is_disabled from sales_channels order by created_at asc",
     )
-    .all() as Array<{
+    .all<{
     id: string;
     name: string;
     description: string | null;
     is_disabled: number;
-  }>;
-  const productCount = (
-    db
-      .prepare("select count(*) as count from products where deleted_at is null")
-      .get() as { count: number }
-  ).count;
+  }>();
+  const productCountRow = await db
+    .prepare("select count(*) as count from products where deleted_at is null")
+    .get<{ count: number }>();
+  const productCount = productCountRow?.count ?? 0;
 
   return {
     store: {
-      name: getSetting("store_name", "Aman Mobile"),
-      default_currency_code: getSetting("default_currency_code", "usd"),
+      name: await getSetting("store_name", "Aman Mobile"),
+      default_currency_code: await getSetting("default_currency_code", "usd"),
       default_sales_channel_id: null,
     },
     salesChannels: salesChannels.map((channel) => ({

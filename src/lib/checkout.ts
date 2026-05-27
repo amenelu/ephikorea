@@ -25,16 +25,19 @@ function splitName(name: string) {
   };
 }
 
-function getDefaultCurrencyCode() {
-  const row = getDb()
+async function getDefaultCurrencyCode() {
+  const db = await getDb();
+  const row = await db
     .prepare("select value from settings where key = 'default_currency_code'")
-    .get() as { value: string } | undefined;
+    .get<{ value: string }>();
 
   return row?.value?.toLowerCase() || "usd";
 }
 
 export async function getCheckoutCountries() {
-  return getDb()
+  const db = await getDb();
+
+  return db
     .prepare(
       `
         select iso_2, display_name
@@ -44,17 +47,19 @@ export async function getCheckoutCountries() {
           display_name asc
       `,
     )
-    .all() as Array<{ iso_2: string; display_name: string }>;
+    .all<{ iso_2: string; display_name: string }>();
 }
 
-function getOrCreateCustomer(input: {
-  name: string;
-  email: string;
-  phone?: string;
-  addressSummary: Record<string, unknown>;
-  total: number;
-}) {
-  const db = getDb();
+async function getOrCreateCustomer(
+  db: Awaited<ReturnType<typeof getDb>>,
+  input: {
+    name: string;
+    email: string;
+    phone?: string;
+    addressSummary: Record<string, unknown>;
+    total: number;
+  },
+) {
   const { firstName, lastName } = splitName(input.name);
   const email = input.email.trim().toLowerCase();
   const phone = input.phone?.trim() || null;
@@ -64,7 +69,7 @@ function getOrCreateCustomer(input: {
     delivery: input.addressSummary,
   };
 
-  const existingCustomer = db
+  const existingCustomer = await db
     .prepare(
       `
         select id, metadata_json
@@ -74,7 +79,7 @@ function getOrCreateCustomer(input: {
         limit 1
       `,
     )
-    .get(email) as { id: string; metadata_json: string | null } | undefined;
+    .get<{ id: string; metadata_json: string | null }>([email]);
 
   if (existingCustomer) {
     const metadata = parseJsonObject(existingCustomer.metadata_json) || {};
@@ -83,7 +88,7 @@ function getOrCreateCustomer(input: {
         ? metadata.checkout_submissions
         : 0;
 
-    db.prepare(
+    await db.prepare(
       `
         update customers
         set first_name = ?,
@@ -93,7 +98,7 @@ function getOrCreateCustomer(input: {
             updated_at = datetime('now')
         where id = ?
       `,
-    ).run(
+    ).run([
       firstName,
       lastName,
       phone,
@@ -103,21 +108,21 @@ function getOrCreateCustomer(input: {
         latest_checkout: latestOrder,
       }),
       existingCustomer.id,
-    );
+    ]);
 
     return existingCustomer.id;
   }
 
   const customerId = createEntityId("cus");
 
-  db.prepare(
+  await db.prepare(
     `
       insert into customers (
         id, email, first_name, last_name, phone, metadata_json, created_at, updated_at
       )
       values (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
     `,
-  ).run(
+  ).run([
     customerId,
     email,
     firstName,
@@ -127,7 +132,7 @@ function getOrCreateCustomer(input: {
       checkout_submissions: 1,
       latest_checkout: latestOrder,
     }),
-  );
+  ]);
 
   return customerId;
 }
@@ -169,18 +174,18 @@ export async function submitGuestOrder(input: {
     throw new Error("Add at least one item before placing an order.");
   }
 
-  const db = getDb();
-  const submitOrder = db.transaction(() => {
-    const currencyCode = getDefaultCurrencyCode();
-    const country = db
+  const db = await getDb();
+  const { orderId, notificationPayload } = await db.transaction(async (transactionDb) => {
+    const currencyCode = await getDefaultCurrencyCode();
+    const country = await transactionDb
       .prepare("select iso_2 from countries where iso_2 = ? limit 1")
-      .get(countryCode) as { iso_2: string } | undefined;
+      .get<{ iso_2: string }>([countryCode]);
 
     if (!country) {
       throw new Error("Selected delivery country is not supported.");
     }
 
-    const variantRows = db
+    const variantRows = await transactionDb
       .prepare(
         `
           select
@@ -197,7 +202,7 @@ export async function submitGuestOrder(input: {
             and pv.id in (${items.map(() => "?").join(",")})
         `,
       )
-      .all(...items.map((item) => item.variantId)) as Array<{
+      .all<{
       variant_id: string;
       product_id: string;
       title: string;
@@ -205,7 +210,7 @@ export async function submitGuestOrder(input: {
       thumbnail: string | null;
       unit_price: number;
       inventory_quantity: number;
-    }>;
+    }>(items.map((item) => item.variantId));
 
     const variants = new Map(variantRows.map((row) => [row.variant_id, row] as const));
     let total = 0;
@@ -224,7 +229,7 @@ export async function submitGuestOrder(input: {
       total += variant.unit_price * item.quantity;
     }
 
-    const customerId = getOrCreateCustomer({
+    const customerId = await getOrCreateCustomer(transactionDb, {
       name: fullName,
       email,
       phone: phone || undefined,
@@ -241,7 +246,7 @@ export async function submitGuestOrder(input: {
     const { firstName, lastName } = splitName(fullName);
     const addressId = createEntityId("addr");
 
-    db.prepare(
+    await transactionDb.prepare(
       `
         insert into addresses (
           id, customer_id, first_name, last_name, address_1, address_2,
@@ -249,7 +254,7 @@ export async function submitGuestOrder(input: {
         )
         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `,
-    ).run(
+    ).run([
       addressId,
       customerId,
       firstName,
@@ -261,15 +266,15 @@ export async function submitGuestOrder(input: {
       postalCode,
       countryCode,
       phone,
-    );
+    ]);
 
     const orderId = createEntityId("order");
-    const displayId =
-      ((db.prepare("select coalesce(max(display_id), 0) as max_display_id from orders").get() as {
-        max_display_id: number;
-      }).max_display_id || 0) + 1;
+    const displayRow = await transactionDb
+      .prepare("select coalesce(max(display_id), 0) as max_display_id from orders")
+      .get<{ max_display_id: number }>();
+    const displayId = (displayRow?.max_display_id || 0) + 1;
 
-    db.prepare(
+    await transactionDb.prepare(
       `
         insert into orders (
           id, display_id, customer_id, email, shipping_address_id,
@@ -277,7 +282,7 @@ export async function submitGuestOrder(input: {
         )
         values (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `,
-    ).run(
+    ).run([
       orderId,
       displayId,
       customerId,
@@ -286,7 +291,7 @@ export async function submitGuestOrder(input: {
       total,
       currencyCode,
       stringifyJson({ checkout_source: "guest_checkout" }),
-    );
+    ]);
 
     const notificationItems: {
       title: string;
@@ -305,7 +310,7 @@ export async function submitGuestOrder(input: {
         unitPrice: variant.unit_price,
       });
 
-      db.prepare(
+      await transactionDb.prepare(
         `
           insert into order_items (
             id, order_id, product_id, variant_id, title, description,
@@ -313,7 +318,7 @@ export async function submitGuestOrder(input: {
           )
           values (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
         `,
-      ).run(
+      ).run([
         createEntityId("item"),
         orderId,
         variant.product_id,
@@ -323,16 +328,16 @@ export async function submitGuestOrder(input: {
         variant.thumbnail,
         variant.unit_price,
         item.quantity,
-      );
+      ]);
 
-      db.prepare(
+      await transactionDb.prepare(
         `
           update product_variants
           set inventory_quantity = inventory_quantity - ?,
               updated_at = datetime('now')
           where id = ?
         `,
-      ).run(item.quantity, variant.variant_id);
+      ).run([item.quantity, variant.variant_id]);
     }
 
     return {
@@ -356,8 +361,6 @@ export async function submitGuestOrder(input: {
       },
     };
   });
-
-  const { orderId, notificationPayload } = submitOrder();
 
   const [emailResult, telegramResult] = await Promise.allSettled([
     sendAdminOrderNotification(notificationPayload),

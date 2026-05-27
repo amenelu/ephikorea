@@ -63,8 +63,8 @@ function mapRowsToProducts(rows: CatalogProductRow[]) {
   return Array.from(products.values());
 }
 
-function getCatalogRows(options: { limit?: number; excludeProductId?: string } = {}) {
-  const db = getDb();
+async function getCatalogRows(options: { limit?: number; excludeProductId?: string } = {}) {
+  const db = await getDb();
   const params: Record<string, unknown> = {};
   const where = ["p.deleted_at is null"];
 
@@ -113,16 +113,16 @@ function getCatalogRows(options: { limit?: number; excludeProductId?: string } =
         order by p.created_at desc, p.product_sort_id desc, pv.created_at asc
       `,
     )
-    .all(params) as CatalogProductRow[];
+    .all<CatalogProductRow>(params);
 }
 
 export async function getCatalogProducts(limit?: number) {
-  return mapRowsToProducts(getCatalogRows({ limit }));
+  return mapRowsToProducts(await getCatalogRows({ limit }));
 }
 
 export async function getSimilarCatalogProducts(productId: string, limit = 3) {
   return mapRowsToProducts(
-    getCatalogRows({
+    await getCatalogRows({
       excludeProductId: productId,
       limit,
     }),
@@ -130,7 +130,8 @@ export async function getSimilarCatalogProducts(productId: string, limit = 3) {
 }
 
 export async function getCatalogProductByIdOrHandle(idOrHandle: string) {
-  const rows = getDb()
+  const db = await getDb();
+  const rows = await db
     .prepare(
       `
         select
@@ -159,7 +160,7 @@ export async function getCatalogProductByIdOrHandle(idOrHandle: string) {
         order by pv.created_at asc
       `,
     )
-    .all({ idOrHandle }) as CatalogProductRow[];
+    .all<CatalogProductRow>({ idOrHandle });
 
   return mapRowsToProducts(rows)[0] ?? null;
 }
