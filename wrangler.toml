@@ -1,4 +1,4 @@
-name = "ephikorea"
+name = "cloudflare-deployment-migration"
 main = ".open-next/worker.js"
 compatibility_date = "2026-05-27"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
@@ -12,7 +12,7 @@ CLOUDFLARE_BINDINGS = "1"
 
 [[services]]
 binding = "WORKER_SELF_REFERENCE"
-service = "ephikorea"
+service = "cloudflare-deployment-migration"
 
 [[d1_databases]]
 binding = "DB"
