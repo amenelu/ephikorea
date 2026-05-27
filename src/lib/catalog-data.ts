@@ -117,52 +117,67 @@ async function getCatalogRows(options: { limit?: number; excludeProductId?: stri
 }
 
 export async function getCatalogProducts(limit?: number) {
-  return mapRowsToProducts(await getCatalogRows({ limit }));
+  try {
+    return mapRowsToProducts(await getCatalogRows({ limit }));
+  } catch (error) {
+    console.error("Unable to load catalog products.", error);
+    return [];
+  }
 }
 
 export async function getSimilarCatalogProducts(productId: string, limit = 3) {
-  return mapRowsToProducts(
-    await getCatalogRows({
-      excludeProductId: productId,
-      limit,
-    }),
-  );
+  try {
+    return mapRowsToProducts(
+      await getCatalogRows({
+        excludeProductId: productId,
+        limit,
+      }),
+    );
+  } catch (error) {
+    console.error("Unable to load similar catalog products.", error);
+    return [];
+  }
 }
 
 export async function getCatalogProductByIdOrHandle(idOrHandle: string) {
-  const db = await getDb();
-  const rows = await db
-    .prepare(
-      `
-        select
-          p.id as product_id,
-          p.title,
-          p.subtitle,
-          p.description,
-          p.handle,
-          p.thumbnail,
-          p.status,
-          p.metadata_json,
-          p.is_certified_pre_owned,
-          p.battery_health,
-          p.grading_data,
-          pv.id as variant_id,
-          pv.title as variant_title,
-          pv.inventory_quantity,
-          pv.price_amount,
-          pv.currency_code
-        from products p
-        left join product_variants pv
-          on pv.product_id = p.id
-          and pv.deleted_at is null
-        where p.deleted_at is null
-          and (p.id = @idOrHandle or p.handle = @idOrHandle)
-        order by pv.created_at asc
-      `,
-    )
-    .all<CatalogProductRow>({ idOrHandle });
+  try {
+    const db = await getDb();
+    const rows = await db
+      .prepare(
+        `
+          select
+            p.id as product_id,
+            p.title,
+            p.subtitle,
+            p.description,
+            p.handle,
+            p.thumbnail,
+            p.status,
+            p.metadata_json,
+            p.is_certified_pre_owned,
+            p.battery_health,
+            p.grading_data,
+            pv.id as variant_id,
+            pv.title as variant_title,
+            pv.inventory_quantity,
+            pv.price_amount,
+            pv.currency_code
+          from products p
+          left join product_variants pv
+            on pv.product_id = p.id
+            and pv.deleted_at is null
+          where p.deleted_at is null
+            and (p.id = @idOrHandle or p.handle = @idOrHandle)
+          order by pv.created_at asc
+        `,
+      )
+      .all<CatalogProductRow>({ idOrHandle });
 
-  return mapRowsToProducts(rows)[0] ?? null;
+    return mapRowsToProducts(rows)[0] ?? null;
+  } catch (error) {
+    console.error("Unable to load catalog product.", { idOrHandle, error });
+    return null;
+  }
 }
 
 export function getCatalogProductPrice(product: {
