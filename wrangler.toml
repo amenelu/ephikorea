@@ -17,4 +17,4 @@ service = "ephikorea"
 [[d1_databases]]
 binding = "DB"
 database_name = "ephikorea"
-database_id = "replace-with-cloudflare-d1-database-id"
+database_id = "4ceb11dd-cc0d-4d40-9c61-82c928700863"
