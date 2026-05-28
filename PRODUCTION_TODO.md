@@ -1,131 +1,116 @@
-# Production Cleanup Checklist
+# Production Handoff Checklist
 
-This file tracks the remaining work before deploying the SQLite-based version to production.
+This checklist reflects the current production setup:
 
-## Status
+- Cloudflare Worker for hosting
+- Cloudflare D1 for the database
+- Cloudinary for uploaded product images
+- Direct image URLs as a fallback
 
-- Current app state: SQLite migration is implemented and builds locally.
-- Current gap: hosting decision, persistent storage, deployment, and production verification.
+## 1. Ownership Transfer
 
-## 1. Hosting Decision
+- [ ] Client owns or is invited to the GitHub repository.
+- [ ] Client owns or is invited to the Cloudflare account/project.
+- [ ] Client owns or is invited to the Cloudinary account.
+- [ ] Domain is purchased under the client's account/email.
+- [ ] Developer access is added separately instead of using only a personal owner account.
+- [ ] Confirm recovery email, billing email, and account security belong to the client.
 
-- [ ] Choose a production host that supports:
-  - Node.js runtime
-  - persistent disk/volume
-  - custom domain + HTTPS
-- [ ] Candidate platforms:
-  - VPS
-  - Railway with persistent volume
-  - Render with persistent disk
-  - Fly.io with attached volume
+## 2. Cloudflare Hosting
 
-## 2. Persistent Storage
+- [ ] Worker is deployed from branch `cloudflare-deployment-migration`.
+- [ ] Latest deployment opens successfully.
+- [ ] Worker URL is enabled and reachable.
+- [ ] Custom domain is connected if the client has purchased one.
+- [ ] HTTPS works on the final domain.
+- [ ] `NEXT_PUBLIC_SITE_URL` matches the final live site URL.
 
-- [ ] Persist the SQLite database file:
-  - `data/ephikorea.sqlite`
-- [ ] Persist uploaded product images:
-  - `public/uploads/products`
-- [ ] Confirm both survive:
-  - app restart
-  - redeploy
-  - server reboot
+## 3. Cloudflare D1 Database
 
-## 3. Production Boot Flow
+- [ ] D1 database exists.
+- [ ] D1 binding name is exactly `DB`.
+- [ ] D1 migration has been applied from `migrations/0001_initial.sql`.
+- [ ] `/api/health` returns `ok: true`.
+- [ ] Initial product/store data has been added or imported.
+- [ ] Confirm products, orders, customers, and settings persist after redeploy.
 
-- [ ] Install dependencies:
-  ```bash
-  npm install
-  ```
-- [ ] Initialize or migrate the database:
-  ```bash
-  npm run db:init
-  ```
-- [ ] Build the app:
-  ```bash
-  npm run build
-  ```
-- [ ] Start the app:
-  ```bash
-  npm run start
-  ```
-- [ ] Put the app behind a process manager or service:
-  - PM2
-  - systemd
-  - Docker
-  - host-native app runner
+## 4. Cloudinary Image Storage
 
-## 4. Reverse Proxy and Domain
-
-- [ ] Point the domain to the server.
-- [ ] Configure HTTPS.
-- [ ] Reverse proxy traffic to the Node app port.
-- [ ] Confirm locale redirects still work correctly at the real domain.
+- [ ] Cloudinary account belongs to the client.
+- [ ] Cloudinary variables are set in Cloudflare:
+  - `CLOUDINARY_CLOUD_NAME`
+  - `CLOUDINARY_API_KEY`
+  - `CLOUDINARY_API_SECRET`
+  - `CLOUDINARY_FOLDER`
+- [ ] `CLOUDINARY_API_SECRET` is saved as a secret, not committed to Git.
+- [ ] Product image upload works from admin.
+- [ ] Uploaded product images render on storefront and admin pages.
 
 ## 5. Admin Security
 
-- [ ] Set a strong `ADMIN_PASSWORD`.
-- [ ] Set a strong `ADMIN_SESSION_SECRET`.
-- [ ] Confirm admin login works on the production domain.
-- [ ] Confirm auth cookies behave correctly over HTTPS.
+- [ ] Admin variables are set in Cloudflare:
+  - `ADMIN_EMAIL`
+  - `ADMIN_PASSWORD`
+  - `ADMIN_SESSION_SECRET`
+  - `COOKIE_SECRET`
+- [ ] Password and secret values are saved as Cloudflare secrets.
+- [ ] Admin login works at `/en/admin/login` or `/ko/admin/login`.
+- [ ] Admin session remains logged in after refresh.
+- [ ] Admin logout/login flow is tested.
 
-## 6. External Services
+## 6. Product And Store Content
 
-- [ ] Verify Resend credentials and sender address.
-- [ ] Test a real order notification email.
-- [ ] Verify Telegram settings if used.
-- [ ] Confirm external integrations still work after deployment.
+- [ ] Replace demo/sample products with real products.
+- [ ] Add real prices and inventory.
+- [ ] Add real product descriptions/specs.
+- [ ] Add real product images.
+- [ ] Confirm product create/edit/delete works.
+- [ ] Confirm inventory increment works.
 
-## 7. Functional Verification
+## 7. Checkout Verification
 
 - [ ] Open storefront home page.
-- [ ] Browse product list.
-- [ ] Open product details page.
-- [ ] Add item to cart.
+- [ ] Browse products.
+- [ ] Open product details.
+- [ ] Add product to cart.
 - [ ] Submit checkout.
 - [ ] Confirm order appears in admin.
 - [ ] Confirm customer appears in admin.
-- [ ] Create product in admin.
-- [ ] Edit product in admin.
-- [ ] Remove product in admin.
-- [ ] Upload a product image and verify it renders.
+- [ ] Confirm inventory updates after checkout.
 
-## 8. Performance Verification
+## 8. Notifications And Integrations
 
-- [ ] Run the app in production mode, not `next dev`.
-- [ ] Re-run latency checks against the production server.
-- [ ] Compare startup latency and warm-route latency.
-- [ ] Confirm acceptable response times on the target host.
+- [ ] If Resend is used, set `RESEND_API_KEY`.
+- [ ] Set admin notification email variables if needed.
+- [ ] Submit a test order and confirm email notification arrives.
+- [ ] Verify Telegram notification variables only if Telegram is used.
 
-## 9. SEO Cleanup
+## 9. Domain Handoff
 
-- [ ] Replace placeholder/fallback thumbnails with real share images where needed.
+- [ ] Choose final domain.
+- [ ] Buy domain under the client's registrar account.
+- [ ] Connect domain to Cloudflare Worker.
+- [ ] Update `NEXT_PUBLIC_SITE_URL` to the final domain.
+- [ ] Redeploy after URL update.
+- [ ] Test redirects, sitemap, and admin login on the final domain.
 
-## Notes For Later Execution
+## 10. Cleanup Before Client Delivery
 
-- Backup command:
-  ```bash
-  npm run backup:data
-  ```
-- Restore command:
-  ```bash
-  npm run restore:data -- backups/<timestamp>
-  ```
-- The app is fast in local production mode. The earlier slow page loads were primarily from `next dev` route compilation, not SQLite itself.
-- The production measurement script already exists:
-  - [measure-latency.ps1](c:/Users/Amen/ephikorea/scripts/measure-latency.ps1)
-- Public SEO/page verification now exists:
-  - Run `npm run verify:public` against the local production server.
-  - This checks key public pages for successful responses, one `h1`, browser errors, and internal link reachability.
-- Existing local build and latency evidence:
-  - [REQUIREMENTS.md](c:/Users/Amen/ephikorea/REQUIREMENTS.md)
-  - [logs](c:/Users/Amen/ephikorea/logs)
+- [ ] Remove or protect diagnostic endpoint `/api/admin-config`.
+- [ ] Keep `/api/health` only if the client/developer needs it.
+- [ ] Remove unused failed Cloudflare Pages/Worker experiments.
+- [ ] Confirm `.env` is not committed.
+- [ ] Confirm secrets are not present in GitHub.
+- [ ] Confirm `.open-next/` build output is not committed.
 
-## Suggested Order When We Resume
+## 11. Client Handoff Package
 
-1. Choose host
-2. Configure persistent storage
-3. Deploy and boot app
-4. Verify admin/auth and external notifications
-5. Run end-to-end functional check
-6. Run performance checks on the target host
-7. Replace placeholder/fallback share thumbnails where needed
+- [ ] Website URL.
+- [ ] Admin login URL.
+- [ ] Admin email and temporary password.
+- [ ] Cloudflare account/project access.
+- [ ] Cloudinary account access.
+- [ ] GitHub repo access.
+- [ ] Domain registrar access.
+- [ ] Short guide for adding products, uploading images, checking orders, and updating inventory.
+
