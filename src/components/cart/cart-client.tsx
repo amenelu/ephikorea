@@ -5,6 +5,12 @@ import { useEffect, useTransition } from "react";
 import { AdminToast } from "@/components/admin/admin-toast";
 import { useLocalCart } from "@/lib/local-cart";
 import { getTranslator } from "@/lib/translations";
+import {
+  convertAmount,
+  formatAmount,
+  formatLocalizedAmount,
+  getLocaleCurrency,
+} from "@/lib/utils";
 
 type CartClientProps = {
   locale: string;
@@ -40,8 +46,15 @@ export default function CartClient({
       quantity: item.quantity,
     })),
   );
+  const displayCurrencyCode = getLocaleCurrency(locale);
   const subtotal = items.reduce(
-    (sum, item) => sum + item.quantity * item.unitPrice,
+    (sum, item) =>
+      sum +
+      convertAmount(
+        item.unitPrice * item.quantity,
+        item.currencyCode,
+        displayCurrencyCode,
+      ),
     0,
   );
 
@@ -84,7 +97,11 @@ export default function CartClient({
                     <div className="min-w-0">
                       <p className="font-bold text-gray-900">{item.title}</p>
                       <p className="text-xs text-gray-400">
-                        ${((item.unitPrice * item.quantity) / 100).toFixed(2)}
+                        {formatLocalizedAmount(
+                          item.unitPrice * item.quantity,
+                          item.currencyCode,
+                          locale,
+                        )}
                       </p>
                     </div>
                     <button
@@ -120,7 +137,11 @@ export default function CartClient({
                       </button>
                     </div>
                     <p className="font-black text-gray-900">
-                      ${((item.unitPrice * item.quantity) / 100).toFixed(2)}
+                      {formatLocalizedAmount(
+                        item.unitPrice * item.quantity,
+                        item.currencyCode,
+                        locale,
+                      )}
                     </p>
                   </div>
                 </div>
@@ -128,7 +149,7 @@ export default function CartClient({
 
               <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm font-black uppercase tracking-widest text-gray-900">
                 <span>{t("cart.subtotal")}</span>
-                <span>${(subtotal / 100).toFixed(2)}</span>
+                <span>{formatAmount(subtotal, displayCurrencyCode, locale)}</span>
               </div>
             </div>
           ) : (

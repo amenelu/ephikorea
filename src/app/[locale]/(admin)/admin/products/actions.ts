@@ -33,11 +33,29 @@ function buildRedirectPath(
   return `/${locale}/admin/products?${params.toString()}`;
 }
 
-function parsePriceToMinorUnits(rawValue: string) {
+function parseCurrencyCode(rawValue: FormDataEntryValue | null) {
+  const normalized = String(rawValue || "usd").trim().toLowerCase();
+
+  if (normalized === "usd" || normalized === "krw") {
+    return normalized;
+  }
+
+  throw new Error("Currency is invalid.");
+}
+
+function parsePriceToMinorUnits(rawValue: string, currencyCode: string) {
   const trimmed = rawValue.trim();
 
   if (!trimmed) {
     throw new Error("Price is required.");
+  }
+
+  if (currencyCode === "krw") {
+    if (!/^\d+$/.test(trimmed)) {
+      throw new Error("KRW price must be a whole number.");
+    }
+
+    return Number.parseInt(trimmed, 10);
   }
 
   if (!/^\d+(\.\d{1,2})?$/.test(trimmed)) {
@@ -236,7 +254,11 @@ export async function addProductAction(formData: FormData) {
       formData.get("productCondition"),
     );
     const inventory = Number.parseInt(String(formData.get("inventory") || "0"), 10);
-    const price = parsePriceToMinorUnits(String(formData.get("price") || ""));
+    const currencyCode = parseCurrencyCode(formData.get("currencyCode"));
+    const price = parsePriceToMinorUnits(
+      String(formData.get("price") || ""),
+      currencyCode,
+    );
     const status = parseStatus(formData.get("status"));
 
     await createAdminProduct({
@@ -255,6 +277,7 @@ export async function addProductAction(formData: FormData) {
       isCertifiedPreOwned,
       inventory,
       price,
+      currencyCode,
       status,
     });
 
@@ -305,7 +328,11 @@ export async function updateProductAction(formData: FormData) {
       formData.get("productCondition"),
     );
     const inventory = Number.parseInt(String(formData.get("inventory") || "0"), 10);
-    const price = parsePriceToMinorUnits(String(formData.get("price") || ""));
+    const currencyCode = parseCurrencyCode(formData.get("currencyCode"));
+    const price = parsePriceToMinorUnits(
+      String(formData.get("price") || ""),
+      currencyCode,
+    );
     const status = parseStatus(formData.get("status"));
 
     await updateAdminProduct({
@@ -325,6 +352,7 @@ export async function updateProductAction(formData: FormData) {
       isCertifiedPreOwned,
       inventory,
       price,
+      currencyCode,
       status,
     });
 

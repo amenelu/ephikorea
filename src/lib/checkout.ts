@@ -6,6 +6,7 @@ import {
   sendAdminOrderTelegramNotification,
 } from "@/lib/email";
 import { getDb, parseJsonObject, stringifyJson } from "@/lib/db";
+import { convertAmount, getLocaleCurrency } from "@/lib/utils";
 
 type CheckoutItem = {
   variantId: string;
@@ -23,15 +24,6 @@ function splitName(name: string) {
     firstName: parts[0] || null,
     lastName: parts.slice(1).join(" ") || null,
   };
-}
-
-async function getDefaultCurrencyCode() {
-  const db = await getDb();
-  const row = await db
-    .prepare("select value from settings where key = 'default_currency_code'")
-    .get<{ value: string }>();
-
-  return row?.value?.toLowerCase() || "usd";
 }
 
 export async function getCheckoutCountries() {
@@ -138,6 +130,7 @@ async function getOrCreateCustomer(
 }
 
 export async function submitGuestOrder(input: {
+  locale: string;
   name: string;
   email: string;
   phone?: string;
@@ -150,6 +143,7 @@ export async function submitGuestOrder(input: {
   items: CheckoutItem[];
 }) {
   const fullName = input.name.trim();
+  const currencyCode = getLocaleCurrency(input.locale);
   const email = input.email.trim().toLowerCase();
   const phone = input.phone?.trim() || null;
   const address1 = input.address1.trim();
@@ -176,7 +170,6 @@ export async function submitGuestOrder(input: {
 
   const db = await getDb();
   const { orderId, notificationPayload } = await db.transaction(async (transactionDb) => {
-    const currencyCode = await getDefaultCurrencyCode();
     const country = await transactionDb
       .prepare("select iso_2 from countries where iso_2 = ? limit 1")
       .get<{ iso_2: string }>([countryCode]);
@@ -195,6 +188,7 @@ export async function submitGuestOrder(input: {
             pv.title as variant_title,
             p.thumbnail,
             pv.price_amount as unit_price,
+            pv.currency_code,
             pv.inventory_quantity
           from product_variants pv
           join products p on p.id = pv.product_id and p.deleted_at is null
@@ -209,6 +203,7 @@ export async function submitGuestOrder(input: {
       variant_title: string;
       thumbnail: string | null;
       unit_price: number;
+      currency_code: string;
       inventory_quantity: number;
     }>(items.map((item) => item.variantId));
 
@@ -226,7 +221,9 @@ export async function submitGuestOrder(input: {
         throw new Error(`Not enough stock for ${variant.title}.`);
       }
 
-      total += variant.unit_price * item.quantity;
+      total +=
+        convertAmount(variant.unit_price, variant.currency_code, currencyCode) *
+        item.quantity;
     }
 
     const customerId = await getOrCreateCustomer(transactionDb, {
@@ -302,12 +299,17 @@ export async function submitGuestOrder(input: {
 
     for (const item of items) {
       const variant = variants.get(item.variantId)!;
+      const unitPrice = convertAmount(
+        variant.unit_price,
+        variant.currency_code,
+        currencyCode,
+      );
 
       notificationItems.push({
         title: variant.title,
         variantTitle: variant.variant_title || null,
         quantity: item.quantity,
-        unitPrice: variant.unit_price,
+        unitPrice,
       });
 
       await transactionDb.prepare(
@@ -326,7 +328,7 @@ export async function submitGuestOrder(input: {
         variant.title,
         variant.variant_title,
         variant.thumbnail,
-        variant.unit_price,
+        unitPrice,
         item.quantity,
       ]);
 

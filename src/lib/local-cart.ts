@@ -7,6 +7,7 @@ export type LocalCartItem = {
   title: string;
   thumbnail?: string;
   unitPrice: number;
+  currencyCode?: string;
   quantity: number;
 };
 

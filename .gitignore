@@ -5,6 +5,7 @@
 
 # Next.js build output
 /.next/
+/.open-next/
 /out/
 
 # Medusa build output

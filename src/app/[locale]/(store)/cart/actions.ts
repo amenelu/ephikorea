@@ -36,6 +36,7 @@ export async function submitCheckoutAction(formData: FormData) {
 
   try {
     await submitGuestOrder({
+      locale,
       name,
       email,
       phone,

@@ -189,3 +189,13 @@ export function getCatalogProductPrice(product: {
 }) {
   return product.variants?.[0]?.prices?.[0]?.amount ?? 0;
 }
+
+export function getCatalogProductCurrency(product: {
+  variants?: Array<{
+    prices?: Array<{
+      currency_code?: string;
+    }>;
+  }>;
+}) {
+  return product.variants?.[0]?.prices?.[0]?.currency_code || "usd";
+}

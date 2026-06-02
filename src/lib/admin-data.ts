@@ -11,7 +11,7 @@ import {
 } from "@/lib/product-specs";
 import { assertAdminAuthenticated } from "@/lib/admin-auth";
 import { getDb, parseJsonObject, stringifyJson } from "@/lib/db";
-import { formatAmount } from "@/lib/utils";
+import { convertAmount, formatAmount, normalizeCurrencyCode } from "@/lib/utils";
 
 function formatAdminDate(value: string | Date | null) {
   if (!value) {
@@ -156,6 +156,7 @@ export async function getAdminDashboardData() {
           o.display_id,
           o.created_at,
           o.total_amount as total,
+          o.currency_code,
           trim(coalesce(c.first_name, '') || ' ' || coalesce(c.last_name, '')) as customer_name,
           coalesce(c.email, o.email) as email,
           coalesce(group_concat(distinct oi.title), 'No items') as product_summary,
@@ -172,11 +173,21 @@ export async function getAdminDashboardData() {
     display_id: number | null;
     created_at: string;
     total: number;
+    currency_code: string;
     customer_name: string | null;
     email: string | null;
     status: string | null;
     product_summary: string | null;
   }>();
+
+  const revenueRows = await db
+    .prepare("select total_amount, currency_code from orders")
+    .all<{ total_amount: number; currency_code: string }>();
+  const revenueTotal = revenueRows.reduce(
+    (sum, order) =>
+      sum + convertAmount(order.total_amount, order.currency_code, "usd"),
+    0,
+  );
 
   const notifications = [];
   const pendingOrders = snapshot.pending_order_count ?? 0;
@@ -216,11 +227,9 @@ export async function getAdminDashboardData() {
     });
   }
 
-  const currencyCode = await getSetting("default_currency_code", "usd");
-
   return {
     stats: [
-      { label: "Revenue", value: formatAmount(snapshot.revenue_total ?? 0, currencyCode) },
+      { label: "Revenue", value: formatAmount(revenueTotal, "usd") },
       { label: "Orders", value: String(snapshot.order_count ?? 0) },
       { label: "Products", value: String(snapshot.product_count ?? 0) },
       { label: "Customers", value: String(snapshot.customer_count ?? 0) },
@@ -229,7 +238,7 @@ export async function getAdminDashboardData() {
       id: order.display_id ? `#${order.display_id}` : "Draft",
       customer: order.customer_name || order.email || "Guest",
       date: formatAdminDate(order.created_at),
-      total: formatAmount(order.total, currencyCode),
+      total: formatAmount(order.total, order.currency_code),
       status: order.status || "pending",
       statusTone: toStatusTone(order.status),
       productSummary: order.product_summary || "No items",
@@ -242,7 +251,6 @@ export async function getAdminOrders(query?: string) {
   await assertAdminAuthenticated();
 
   const searchTerm = query?.trim();
-  const currencyCode = await getSetting("default_currency_code", "usd");
   const db = await getDb();
   const rows = await db
     .prepare(
@@ -252,6 +260,7 @@ export async function getAdminOrders(query?: string) {
           o.display_id,
           o.created_at,
           o.total_amount as total,
+          o.currency_code,
           trim(coalesce(c.first_name, '') || ' ' || coalesce(c.last_name, '')) as customer_name,
           coalesce(c.email, o.email) as email,
           o.status,
@@ -276,6 +285,7 @@ export async function getAdminOrders(query?: string) {
     display_id: number | null;
     created_at: string;
     total: number;
+    currency_code: string;
     customer_name: string | null;
     email: string | null;
     status: string | null;
@@ -288,7 +298,7 @@ export async function getAdminOrders(query?: string) {
     id: order.display_id ? `#${order.display_id}` : "Draft",
     customer: order.customer_name || order.email || "Guest",
     date: formatAdminDate(order.created_at),
-    total: formatAmount(order.total, currencyCode),
+    total: formatAmount(order.total, order.currency_code),
     status: order.status || "pending",
     statusTone: toStatusTone(order.status),
     productSummary: order.product_summary || "No items",
@@ -613,7 +623,8 @@ export async function getAdminProducts() {
           p.storage,
           p.imei,
           coalesce(sum(pv.inventory_quantity), 0) as inventory,
-          coalesce(max(pv.price_amount), 0) as price
+          coalesce(max(pv.price_amount), 0) as price,
+          coalesce(max(pv.currency_code), 'usd') as currency_code
         from products p
         left join product_variants pv on pv.product_id = p.id and pv.deleted_at is null
         where p.deleted_at is null
@@ -639,6 +650,7 @@ export async function getAdminProducts() {
     imei: string | null;
     inventory: number;
     price: number;
+    currency_code: string;
   }>();
 
   return rows.map((row) => {
@@ -654,6 +666,7 @@ export async function getAdminProducts() {
       thumbnail: row.thumbnail,
       inventory: row.inventory,
       price: row.price,
+      currencyCode: row.currency_code || "usd",
       metadata,
       brandName:
         row.brand_name ||
@@ -686,6 +699,7 @@ type CreateAdminProductInput = {
   thumbnail?: string;
   inventory: number;
   price: number;
+  currencyCode: string;
   status?: "draft" | "published" | "proposed" | "rejected";
   color?: string;
   storage?: string;
@@ -713,6 +727,7 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
   if (!Number.isFinite(input.price) || input.price < 0) {
     throw new Error("Price must be zero or greater.");
   }
+  const currencyCode = normalizeCurrencyCode(input.currencyCode);
   if (
     batteryHealth !== null &&
     (!Number.isFinite(batteryHealth) || batteryHealth < 0 || batteryHealth > 100)
@@ -729,7 +744,6 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
   const db = await getDb();
   return db.transaction(async (transactionDb) => {
     const handle = await getUniqueProductHandle(transactionDb, input.handle || title);
-    const currencyCode = (await getSetting("default_currency_code", "usd")).toLowerCase();
     const status = input.status || "published";
     const metadata = buildProductMetadata(undefined, {
       title,
@@ -834,6 +848,7 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
   if (!Number.isFinite(input.price) || input.price < 0) {
     throw new Error("Price must be zero or greater.");
   }
+  const currencyCode = normalizeCurrencyCode(input.currencyCode);
   if (
     batteryHealth !== null &&
     (!Number.isFinite(batteryHealth) || batteryHealth < 0 || batteryHealth > 100)
@@ -913,8 +928,8 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
     ]);
 
     await transactionDb.prepare(
-      "update product_variants set inventory_quantity = ?, price_amount = ?, updated_at = datetime('now') where product_id = ? and deleted_at is null",
-    ).run([input.inventory, input.price, productId]);
+      "update product_variants set inventory_quantity = ?, price_amount = ?, currency_code = ?, updated_at = datetime('now') where product_id = ? and deleted_at is null",
+    ).run([input.inventory, input.price, currencyCode, productId]);
 
     return true;
   });

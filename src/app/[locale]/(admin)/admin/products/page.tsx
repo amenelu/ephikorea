@@ -4,6 +4,7 @@ import { AdminLiveSearch } from "@/components/admin/admin-live-search";
 import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { getAdminProducts } from "@/lib/admin-data";
+import { formatAdminPriceInput, formatAmount } from "@/lib/utils";
 import {
   addProductAction,
   addInventoryAction,
@@ -120,12 +121,32 @@ export default async function AdminProductsPage({
               step="0.01"
               defaultValue={
                 typeof editingProduct?.price === "number"
-                  ? (editingProduct.price / 100).toFixed(2)
+                  ? formatAdminPriceInput(
+                      editingProduct.price,
+                      editingProduct.currencyCode,
+                    )
                   : undefined
               }
               className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
               placeholder="199.99"
             />
+            <span className="mt-2 block text-xs text-gray-400">
+              Use decimals for USD, or whole won for KRW.
+            </span>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Currency
+            </span>
+            <select
+              name="currencyCode"
+              defaultValue={editingProduct?.currencyCode || "usd"}
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+            >
+              <option value="usd">US Dollars (USD)</option>
+              <option value="krw">Korean Won (KRW)</option>
+            </select>
           </label>
 
           <label className="block">
@@ -399,7 +420,7 @@ export default async function AdminProductsPage({
                           Price
                         </p>
                         <p className="mt-1 font-black text-gray-900">
-                          ${(product.price / 100).toFixed(2)}
+                          {formatAmount(product.price, product.currencyCode)}
                         </p>
                       </div>
                       <div className="rounded-2xl bg-gray-50 px-3 py-2.5">
@@ -555,7 +576,7 @@ export default async function AdminProductsPage({
                   <td className="px-4 py-4 font-medium text-gray-600 sm:px-6">
                     <div>{product.inventory} in stock</div>
                     <div className="text-xs text-gray-400">
-                      ${(product.price / 100).toFixed(2)}
+                      {formatAmount(product.price, product.currencyCode)}
                     </div>
                     {product.color || product.storage ? (
                       <div className="mt-1 text-xs text-gray-400">

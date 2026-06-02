@@ -7,6 +7,7 @@ import ProductDetailsPanels from "@/components/product/product-details-panels";
 import { ProductCard } from "@/components/product/product-card";
 import {
   getCatalogProductByIdOrHandle,
+  getCatalogProductCurrency,
   getCatalogProductPrice,
   getSimilarCatalogProducts,
 } from "@/lib/catalog-data";
@@ -22,7 +23,7 @@ import {
 } from "@/lib/product-specs";
 import { absoluteUrl, buildPageMetadata, jsonLd } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
-import { formatAmount } from "@/lib/utils";
+import { convertAmount, formatLocalizedAmount, getLocaleCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,9 @@ export default async function ProductDetailsPage({
 
   const similarProductsPromise = getSimilarCatalogProducts(product.id, 3);
   const price = getCatalogProductPrice(product);
+  const currencyCode = getCatalogProductCurrency(product);
+  const displayCurrencyCode = getLocaleCurrency(locale);
+  const displayPrice = convertAmount(price, currencyCode, displayCurrencyCode);
   const primaryVariant = product.variants?.[0];
   const similarProducts = await similarProductsPromise;
   const referenceUrl = getProductReferenceUrl(product.metadata);
@@ -137,9 +141,11 @@ export default async function ProductDetailsPage({
     offers: primaryVariant?.id
       ? {
           "@type": "Offer",
-          price: (price / 100).toFixed(2),
-          priceCurrency:
-            primaryVariant.prices?.[0]?.currency_code?.toUpperCase() || "USD",
+          price:
+            displayCurrencyCode === "usd"
+              ? (displayPrice / 100).toFixed(2)
+              : String(displayPrice),
+          priceCurrency: displayCurrencyCode.toUpperCase(),
           availability:
             inventoryQuantity > 0
               ? "https://schema.org/InStock"
@@ -223,7 +229,7 @@ export default async function ProductDetailsPage({
 
           <div className="mb-6 sm:mb-8">
             <p className="text-2xl font-black text-black sm:text-3xl lg:text-4xl">
-              {formatAmount(price)}
+              {formatLocalizedAmount(price, currencyCode, locale)}
             </p>
             <p className="mt-1 text-xs italic text-gray-400 lg:text-sm">
               {t("product.shippingNote")}
@@ -241,6 +247,7 @@ export default async function ProductDetailsPage({
                   : undefined
               }
               unitPrice={price}
+              currencyCode={currencyCode}
             />
           ) : (
             <button

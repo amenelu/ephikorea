@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
 import { CPOProduct } from "@/types/product";
-import { formatAmount } from "@/lib/utils";
+import { formatLocalizedAmount } from "@/lib/utils";
 
 export const ProductCard = ({
   product,
@@ -52,7 +52,11 @@ export const ProductCard = ({
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <span className="text-base font-bold sm:text-lg">
-            {formatAmount(product.variants[0]?.prices[0]?.amount || 0)}
+            {formatLocalizedAmount(
+              product.variants[0]?.prices[0]?.amount || 0,
+              product.variants[0]?.prices[0]?.currency_code,
+              locale,
+            )}
           </span>
           {product.is_certified_pre_owned && product.battery_health && (
             <div className="flex items-center gap-1.5 text-[10px] font-medium text-green-600 sm:text-[11px]">

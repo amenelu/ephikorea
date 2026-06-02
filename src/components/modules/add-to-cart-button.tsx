@@ -11,6 +11,7 @@ interface AddToCartButtonProps {
   title: string;
   thumbnail?: string;
   unitPrice: number;
+  currencyCode: string;
 }
 
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({
@@ -19,6 +20,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   title,
   thumbnail,
   unitPrice,
+  currencyCode,
 }) => {
   const t = getTranslator(locale);
   const { items, addItem, updateQuantity } = useLocalCart();
@@ -52,6 +54,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       title,
       thumbnail,
       unitPrice,
+      currencyCode,
     });
     setShowConfirmation(true);
     setIsAdding(false);
