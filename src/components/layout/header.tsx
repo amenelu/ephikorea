@@ -79,12 +79,14 @@ export const Header = ({ locale }: { locale: string }) => {
                 title={switchLanguageLabel}
               >
                 <span className="min-w-5 text-center text-yellow-600">KO</span>
-                <span className="relative h-5 w-9 rounded-full bg-gray-200 transition group-hover:bg-yellow-100">
+                <span
+                  className={`flex h-5 w-9 shrink-0 items-center rounded-full bg-gray-200 px-0.5 transition group-hover:bg-yellow-100 ${
+                    currentLocale === "en" ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <span
-                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm ring-1 ring-gray-300 transition-transform ${
-                      currentLocale === "en"
-                        ? "translate-x-[18px] ring-yellow-500"
-                        : "translate-x-0.5"
+                    className={`h-4 w-4 rounded-full bg-white shadow-sm ring-1 ring-gray-300 transition ${
+                      currentLocale === "en" ? "ring-yellow-500" : ""
                     }`}
                   />
                 </span>
