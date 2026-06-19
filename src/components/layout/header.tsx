@@ -78,7 +78,13 @@ export const Header = ({ locale }: { locale: string }) => {
                 aria-pressed={currentLocale === "en"}
                 title={switchLanguageLabel}
               >
-                <span className="min-w-5 text-center text-yellow-600">KO</span>
+                <span
+                  className={`min-w-5 text-center ${
+                    currentLocale === "ko" ? "text-yellow-600" : "text-gray-500"
+                  }`}
+                >
+                  KO
+                </span>
                 <span
                   className={`flex h-5 w-9 shrink-0 items-center rounded-full bg-gray-200 px-0.5 transition group-hover:bg-yellow-100 ${
                     currentLocale === "en" ? "justify-end" : "justify-start"
@@ -90,7 +96,13 @@ export const Header = ({ locale }: { locale: string }) => {
                     }`}
                   />
                 </span>
-                <span className="min-w-5 text-center text-gray-900">EN</span>
+                <span
+                  className={`min-w-5 text-center ${
+                    currentLocale === "en" ? "text-yellow-600" : "text-gray-500"
+                  }`}
+                >
+                  EN
+                </span>
               </button>
 
               <CartIconLink locale={locale} />
