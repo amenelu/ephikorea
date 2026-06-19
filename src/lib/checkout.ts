@@ -136,7 +136,7 @@ export async function submitGuestOrder(input: {
   phone?: string;
   address1: string;
   address2?: string;
-  city: string;
+  city?: string;
   province?: string;
   postalCode?: string;
   countryCode: string;
@@ -148,7 +148,7 @@ export async function submitGuestOrder(input: {
   const phone = input.phone?.trim() || null;
   const address1 = input.address1.trim();
   const address2 = input.address2?.trim() || null;
-  const city = input.city.trim();
+  const city = input.city?.trim() || "";
   const province = input.province?.trim() || null;
   const postalCode = input.postalCode?.trim() || null;
   const countryCode = input.countryCode.trim().toLowerCase();
@@ -161,7 +161,7 @@ export async function submitGuestOrder(input: {
 
   if (!fullName) throw new Error("Full name is required.");
   if (!email) throw new Error("Email address is required.");
-  if (!address1 || !city || !countryCode) {
+  if (!address1 || !countryCode) {
     throw new Error("Delivery address is incomplete.");
   }
   if (items.length === 0) {

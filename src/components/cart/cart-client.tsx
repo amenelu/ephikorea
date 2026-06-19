@@ -17,10 +17,6 @@ type CartClientProps = {
   status?: string;
   message?: string;
   checkoutAction: (formData: FormData) => void | Promise<void>;
-  countries: Array<{
-    iso_2: string;
-    display_name: string;
-  }>;
 };
 
 export default function CartClient({
@@ -28,7 +24,6 @@ export default function CartClient({
   status,
   message,
   checkoutAction,
-  countries,
 }: CartClientProps) {
   const t = getTranslator(locale);
   const { items, updateQuantity, removeItem, clearCart } = useLocalCart();
@@ -177,6 +172,7 @@ export default function CartClient({
           >
             <input type="hidden" name="locale" value={locale} />
             <input type="hidden" name="cartSnapshot" value={cartSnapshot} />
+            <input type="hidden" name="countryCode" value="kr" />
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
@@ -249,7 +245,6 @@ export default function CartClient({
                 <input
                   type="text"
                   name="city"
-                  required
                   className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
                   placeholder="Seoul"
                 />
@@ -268,37 +263,17 @@ export default function CartClient({
               </label>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  {t("cart.postalCode")}
-                </span>
-                <input
-                  type="text"
-                  name="postalCode"
-                  className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-                  placeholder="06236"
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  {t("cart.country")}
-                </span>
-                <select
-                  name="countryCode"
-                  defaultValue="kr"
-                  required
-                  className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-                >
-                  {countries.map((country) => (
-                    <option key={country.iso_2} value={country.iso_2}>
-                      {country.display_name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                {t("cart.postalCode")}
+              </span>
+              <input
+                type="text"
+                name="postalCode"
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                placeholder="06236"
+              />
+            </label>
 
             <button
               type="submit"
