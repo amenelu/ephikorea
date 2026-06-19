@@ -26,22 +26,6 @@ function splitName(name: string) {
   };
 }
 
-export async function getCheckoutCountries() {
-  const db = await getDb();
-
-  return db
-    .prepare(
-      `
-        select iso_2, display_name
-        from countries
-        order by
-          case when iso_2 in ('kr', 'us', 'gb', 'ae') then 0 else 1 end,
-          display_name asc
-      `,
-    )
-    .all<{ iso_2: string; display_name: string }>();
-}
-
 async function getOrCreateCustomer(
   db: Awaited<ReturnType<typeof getDb>>,
   input: {
@@ -170,14 +154,6 @@ export async function submitGuestOrder(input: {
 
   const db = await getDb();
   const { orderId, notificationPayload } = await db.transaction(async (transactionDb) => {
-    const country = await transactionDb
-      .prepare("select iso_2 from countries where iso_2 = ? limit 1")
-      .get<{ iso_2: string }>([countryCode]);
-
-    if (!country) {
-      throw new Error("Selected delivery country is not supported.");
-    }
-
     const variantRows = await transactionDb
       .prepare(
         `
