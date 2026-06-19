@@ -5,6 +5,8 @@ function formatImei(value: string) {
   return value.replace(/\D/g, "").slice(0, 16);
 }
 
+const IMEI_CHECK_URL = "https://swappa.com/imei";
+
 export default function ImeiVerifierPage({
   params: { locale },
   searchParams,
@@ -42,8 +44,8 @@ export default function ImeiVerifierPage({
 
         <div className="space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-6">
           <p className="text-sm leading-6 text-gray-500 sm:leading-relaxed">
-            Use the IMEI below to verify the device details with your preferred
-            IMEI checking service before purchase.
+            Use the IMEI below to check the device activation status on Swappa
+            before purchase.
           </p>
 
           <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4 sm:px-5">
@@ -57,12 +59,12 @@ export default function ImeiVerifierPage({
 
           {hasImei ? (
             <a
-              href={`https://www.imei.info/?imei=${imei}`}
+              href={IMEI_CHECK_URL}
               target="_blank"
               rel="noreferrer"
               className="inline-flex w-full items-center justify-center rounded-full bg-black px-5 py-3 text-center text-xs font-black uppercase tracking-[0.14em] text-white transition hover:bg-gray-800 sm:w-auto sm:px-6 sm:text-sm sm:tracking-[0.18em]"
             >
-              Open External IMEI Check
+              Open Swappa IMEI Check
             </a>
           ) : null}
         </div>
