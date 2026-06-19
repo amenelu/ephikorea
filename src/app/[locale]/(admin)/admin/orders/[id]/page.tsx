@@ -199,12 +199,10 @@ export default async function AdminOrderDetailsPage({
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Postal / Country
+                  Postal Code
                 </p>
                 <p className="mt-1 font-bold text-gray-900">
-                  {[order.delivery.postalCode, order.delivery.countryCode]
-                    .filter(Boolean)
-                    .join(" ")}
+                  {order.delivery.postalCode || "N/A"}
                 </p>
               </div>
               <div>

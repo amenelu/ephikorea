@@ -70,21 +70,6 @@ const transaction = db.transaction(() => {
     );
   }
 
-  const countries = [
-    ["kr", "South Korea"],
-    ["us", "United States"],
-    ["gb", "United Kingdom"],
-    ["ae", "United Arab Emirates"],
-    ["ke", "Kenya"],
-    ["et", "Ethiopia"],
-  ];
-  const insertCountry = db.prepare(
-    "insert or ignore into countries (iso_2, display_name) values (?, ?)",
-  );
-  for (const country of countries) {
-    insertCountry.run(country[0], country[1]);
-  }
-
   const existingProducts = db.prepare(
     "select count(*) as count from products where deleted_at is null",
   ).get().count;

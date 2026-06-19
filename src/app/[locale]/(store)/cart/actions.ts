@@ -30,7 +30,6 @@ export async function submitCheckoutAction(formData: FormData) {
   const city = String(formData.get("city") || "");
   const province = String(formData.get("province") || "");
   const postalCode = String(formData.get("postalCode") || "");
-  const countryCode = String(formData.get("countryCode") || "kr");
   const rawItems = String(formData.get("cartSnapshot") || "[]");
   const items = JSON.parse(rawItems) as CheckoutSnapshotItem[];
 
@@ -45,7 +44,6 @@ export async function submitCheckoutAction(formData: FormData) {
       city,
       province,
       postalCode,
-      countryCode,
       items,
     });
 

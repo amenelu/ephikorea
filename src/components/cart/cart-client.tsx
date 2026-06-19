@@ -172,7 +172,6 @@ export default function CartClient({
           >
             <input type="hidden" name="locale" value={locale} />
             <input type="hidden" name="cartSnapshot" value={cartSnapshot} />
-            <input type="hidden" name="countryCode" value="kr" />
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">

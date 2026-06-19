@@ -13,6 +13,8 @@ type CheckoutItem = {
   quantity: number;
 };
 
+const DEFAULT_DELIVERY_COUNTRY_CODE = "kr";
+
 function createEntityId(prefix: string) {
   return `${prefix}_${randomUUID().replace(/-/g, "").toUpperCase().slice(0, 26)}`;
 }
@@ -123,7 +125,6 @@ export async function submitGuestOrder(input: {
   city?: string;
   province?: string;
   postalCode?: string;
-  countryCode: string;
   items: CheckoutItem[];
 }) {
   const fullName = input.name.trim();
@@ -135,7 +136,7 @@ export async function submitGuestOrder(input: {
   const city = input.city?.trim() || "";
   const province = input.province?.trim() || null;
   const postalCode = input.postalCode?.trim() || null;
-  const countryCode = input.countryCode.trim().toLowerCase();
+  const countryCode = DEFAULT_DELIVERY_COUNTRY_CODE;
   const items = input.items
     .filter((item) => item.variantId && item.quantity > 0)
     .map((item) => ({
@@ -145,7 +146,7 @@ export async function submitGuestOrder(input: {
 
   if (!fullName) throw new Error("Full name is required.");
   if (!email) throw new Error("Email address is required.");
-  if (!address1 || !countryCode) {
+  if (!address1) {
     throw new Error("Delivery address is incomplete.");
   }
   if (items.length === 0) {
@@ -212,34 +213,62 @@ export async function submitGuestOrder(input: {
         city,
         province,
         postalCode,
-        countryCode,
       },
       total,
     });
     const { firstName, lastName } = splitName(fullName);
     const addressId = createEntityId("addr");
+    const addressColumns = await transactionDb
+      .prepare("pragma table_info(addresses)")
+      .all<{ name: string }>();
+    const hasLegacyCountryCodeColumn = addressColumns.some(
+      (column) => column.name === "country_code",
+    );
 
-    await transactionDb.prepare(
-      `
+    if (hasLegacyCountryCodeColumn) {
+      await transactionDb.prepare(
+        `
         insert into addresses (
           id, customer_id, first_name, last_name, address_1, address_2,
           city, province, postal_code, country_code, phone, created_at, updated_at
         )
         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `,
-    ).run([
-      addressId,
-      customerId,
-      firstName,
-      lastName,
-      address1,
-      address2,
-      city,
-      province,
-      postalCode,
-      countryCode,
-      phone,
-    ]);
+      ).run([
+        addressId,
+        customerId,
+        firstName,
+        lastName,
+        address1,
+        address2,
+        city,
+        province,
+        postalCode,
+        countryCode,
+        phone,
+      ]);
+    } else {
+      await transactionDb.prepare(
+        `
+          insert into addresses (
+            id, customer_id, first_name, last_name, address_1, address_2,
+            city, province, postal_code, phone, created_at, updated_at
+          )
+          values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+        `,
+      ).run([
+        addressId,
+        customerId,
+        firstName,
+        lastName,
+        address1,
+        address2,
+        city,
+        province,
+        postalCode,
+        phone,
+      ]);
+    }
 
     const orderId = createEntityId("order");
     const displayRow = await transactionDb
@@ -331,7 +360,6 @@ export async function submitGuestOrder(input: {
           city,
           province,
           postalCode,
-          countryCode,
         },
         currencyCode,
         total,

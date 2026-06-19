@@ -13,11 +13,6 @@ create table if not exists sales_channels (
   created_at text not null default (datetime('now'))
 );
 
-create table if not exists countries (
-  iso_2 text primary key,
-  display_name text not null
-);
-
 create table if not exists products (
   id text primary key,
   title text not null,
@@ -74,7 +69,6 @@ create table if not exists addresses (
   city text not null,
   province text,
   postal_code text,
-  country_code text not null,
   phone text,
   created_at text not null default (datetime('now')),
   updated_at text not null default (datetime('now'))

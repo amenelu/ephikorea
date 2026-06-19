@@ -334,7 +334,6 @@ export async function getAdminOrderDetails(orderId: string) {
           a.city,
           a.province,
           a.postal_code,
-          a.country_code,
           a.phone,
           oi.id as item_id,
           oi.title as item_title,
@@ -368,7 +367,6 @@ export async function getAdminOrderDetails(orderId: string) {
     city: string | null;
     province: string | null;
     postal_code: string | null;
-    country_code: string | null;
     phone: string | null;
     item_id: string | null;
     item_title: string | null;
@@ -429,7 +427,6 @@ export async function getAdminOrderDetails(orderId: string) {
       city: firstRow.city || "N/A",
       province: firstRow.province || "",
       postalCode: firstRow.postal_code || "",
-      countryCode: (firstRow.country_code || "N/A").toUpperCase(),
       phone: firstRow.phone || firstRow.customer_phone || "N/A",
     },
     items,

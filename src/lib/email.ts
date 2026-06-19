@@ -18,7 +18,6 @@ export type AdminOrderNotification = {
     city: string;
     province: string | null;
     postalCode: string | null;
-    countryCode: string;
   };
   currencyCode: string;
   total: number;
@@ -59,9 +58,7 @@ function formatAddress(order: AdminOrderNotification) {
     deliveryAddress.address1,
     deliveryAddress.address2,
     [deliveryAddress.city, deliveryAddress.province].filter(Boolean).join(", "),
-    [deliveryAddress.postalCode, deliveryAddress.countryCode.toUpperCase()]
-      .filter(Boolean)
-      .join(" "),
+    deliveryAddress.postalCode,
   ]
     .filter(Boolean)
     .join("\n");
@@ -76,7 +73,6 @@ function formatCompactAddress(order: AdminOrderNotification) {
     deliveryAddress.city,
     deliveryAddress.province,
     deliveryAddress.postalCode,
-    deliveryAddress.countryCode.toUpperCase(),
   ]
     .filter(Boolean)
     .join(", ");
