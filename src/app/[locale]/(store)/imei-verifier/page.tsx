@@ -5,7 +5,7 @@ function formatImei(value: string) {
   return value.replace(/\D/g, "").slice(0, 16);
 }
 
-const IMEI_CHECK_URL = "https://swappa.com/imei";
+const SWAPPA_IMEI_CHECK_BASE_URL = "https://swappa.com/imei/info";
 
 export default function ImeiVerifierPage({
   params: { locale },
@@ -59,7 +59,7 @@ export default function ImeiVerifierPage({
 
           {hasImei ? (
             <a
-              href={IMEI_CHECK_URL}
+              href={`${SWAPPA_IMEI_CHECK_BASE_URL}/${imei}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex w-full items-center justify-center rounded-full bg-black px-5 py-3 text-center text-xs font-black uppercase tracking-[0.14em] text-white transition hover:bg-gray-800 sm:w-auto sm:px-6 sm:text-sm sm:tracking-[0.18em]"
