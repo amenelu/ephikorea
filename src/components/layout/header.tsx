@@ -1,18 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Globe } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 import { CartIconLink } from "@/components/layout/cart-icon-link";
 import { GlobalSearch } from "@/components/layout/global-search";
-import { getLocaleOption } from "@/lib/locales";
+import {
+  LOCALE_COOKIE_NAME,
+  type SupportedLocale,
+  replacePathLocale,
+} from "@/lib/locales";
 import { getTranslator } from "@/lib/translations";
 
 export const Header = ({ locale }: { locale: string }) => {
-  const localeOption = getLocaleOption(locale);
   const t = getTranslator(locale);
   const pathname = usePathname();
+  const router = useRouter();
+  const currentLocale = locale === "en" ? "en" : "ko";
+  const nextLocale: SupportedLocale = currentLocale === "ko" ? "en" : "ko";
   const showFloatingSearch =
     !pathname?.includes(`/${locale}/products/`) || pathname === `/${locale}/products`;
   const headerOffsetClass = showFloatingSearch
@@ -22,6 +27,16 @@ export const Header = ({ locale }: { locale: string }) => {
     pathname && pathname.includes(`/${locale}/search`)
       ? t("header.searchPlaceholder")
       : t("header.mobileSearchPlaceholder");
+  const switchLanguageLabel =
+    currentLocale === "ko" ? t("language.en") : t("language.ko");
+
+  const handleLanguageToggle = () => {
+    const queryString = window.location.search;
+    const nextPath = replacePathLocale(pathname || `/${currentLocale}`, nextLocale);
+    document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
+    router.push(`${nextPath}${queryString}`);
+    router.refresh();
+  };
 
   return (
     <>
@@ -55,15 +70,26 @@ export const Header = ({ locale }: { locale: string }) => {
             ) : null}
 
             <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-3">
-              <Link
-                href={`/${locale}/settings/language`}
-                prefetch={false}
-                className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-gray-600 transition hover:border-yellow-500 hover:text-yellow-500 sm:px-3"
-                aria-label={t("header.languageSettings")}
+              <button
+                type="button"
+                onClick={handleLanguageToggle}
+                className="group inline-flex h-9 items-center gap-2 rounded-full border border-gray-200 bg-white px-2 py-1 text-[11px] font-black uppercase text-gray-600 transition hover:border-yellow-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500/30 sm:h-10 sm:px-2.5"
+                aria-label={`${t("header.languageSettings")}: ${switchLanguageLabel}`}
+                aria-pressed={currentLocale === "en"}
+                title={switchLanguageLabel}
               >
-                <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {localeOption.shortLabel}
-              </Link>
+                <span className="min-w-5 text-center text-yellow-600">KO</span>
+                <span className="relative h-5 w-9 rounded-full bg-gray-200 transition group-hover:bg-yellow-100">
+                  <span
+                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm ring-1 ring-gray-300 transition-transform ${
+                      currentLocale === "en"
+                        ? "translate-x-[18px] ring-yellow-500"
+                        : "translate-x-0.5"
+                    }`}
+                  />
+                </span>
+                <span className="min-w-5 text-center text-gray-900">EN</span>
+              </button>
 
               <CartIconLink locale={locale} />
             </div>
