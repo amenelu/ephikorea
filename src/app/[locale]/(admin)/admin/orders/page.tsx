@@ -2,23 +2,51 @@ import Link from "next/link";
 import { AdminToast } from "@/components/admin/admin-toast";
 import { AdminLiveSearch } from "@/components/admin/admin-live-search";
 import { requireAdminPageAccess } from "@/lib/admin-auth";
-import { getAdminOrders } from "@/lib/admin-data";
+import { getAdminOrders, type AdminOrderSort } from "@/lib/admin-data";
 import { toggleOrderPaymentStatusAction } from "./actions";
+
+const sortOptions: Array<{ label: string; value: AdminOrderSort }> = [
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+  { label: "Not completed", value: "incomplete" },
+  { label: "Completed", value: "completed" },
+];
+
+function getOrderSort(value?: string): AdminOrderSort {
+  return sortOptions.some((option) => option.value === value)
+    ? (value as AdminOrderSort)
+    : "newest";
+}
 
 export default async function AdminOrdersPage({
   params: { locale },
   searchParams,
 }: {
   params: { locale: string };
-  searchParams: { q?: string; status?: string; message?: string };
+  searchParams: { q?: string; sort?: string; status?: string; message?: string };
 }) {
   await requireAdminPageAccess(locale);
 
   const query = searchParams.q?.trim() || "";
-  const orders = await getAdminOrders(query);
+  const selectedSort = getOrderSort(searchParams.sort);
+  const orders = await getAdminOrders(query, selectedSort);
   const paidOrders = orders.filter(
     (order) => order.paymentStatus === "captured" || order.paymentStatus === "paid",
   ).length;
+  const buildSortHref = (sort: AdminOrderSort) => {
+    const params = new URLSearchParams();
+
+    if (query) {
+      params.set("q", query);
+    }
+
+    if (sort !== "newest") {
+      params.set("sort", sort);
+    }
+
+    const queryString = params.toString();
+    return `/${locale}/admin/orders${queryString ? `?${queryString}` : ""}`;
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -54,6 +82,33 @@ export default async function AdminOrdersPage({
         </div>
       </div>
       <AdminToast status={searchParams.status} message={searchParams.message} />
+
+      <div className="rounded-3xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">
+            Arrange orders
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+            {sortOptions.map((option) => {
+              const isActive = option.value === selectedSort;
+
+              return (
+                <Link
+                  key={option.value}
+                  href={buildSortHref(option.value)}
+                  className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-center text-[11px] font-black uppercase tracking-[0.12em] transition ${
+                    isActive
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  {option.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
       {orders.length > 0 ? (
         <>
@@ -184,7 +239,7 @@ export default async function AdminOrdersPage({
                       href={`/${locale}/admin/orders/${order.orderId}`}
                       className="block"
                     >
-                      {order.customer}
+                      {order.date}
                     </Link>
                   </td>
                   <td className="px-6 py-4 font-black text-gray-900">

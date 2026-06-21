@@ -45,6 +45,22 @@ function toStatusTone(status?: string | null) {
   }
 }
 
+export type AdminOrderSort = "newest" | "oldest" | "incomplete" | "completed";
+
+function getOrderSortClause(sort: AdminOrderSort) {
+  switch (sort) {
+    case "oldest":
+      return "o.created_at asc";
+    case "incomplete":
+      return "case when lower(coalesce(o.status, '')) = 'completed' then 1 else 0 end asc, o.created_at desc";
+    case "completed":
+      return "case when lower(coalesce(o.status, '')) = 'completed' then 0 else 1 end asc, o.created_at desc";
+    case "newest":
+    default:
+      return "o.created_at desc";
+  }
+}
+
 function createEntityId(prefix: string) {
   return `${prefix}_${randomUUID().replace(/-/g, "").toUpperCase().slice(0, 26)}`;
 }
@@ -247,11 +263,15 @@ export async function getAdminDashboardData() {
   };
 }
 
-export async function getAdminOrders(query?: string) {
+export async function getAdminOrders(
+  query?: string,
+  sort: AdminOrderSort = "newest",
+) {
   await assertAdminAuthenticated();
 
   const searchTerm = query?.trim();
   const db = await getDb();
+  const orderByClause = getOrderSortClause(sort);
   const rows = await db
     .prepare(
       `
@@ -277,7 +297,7 @@ export async function getAdminOrders(query?: string) {
           or coalesce(c.last_name, '') like @query
           or coalesce(oi.title, '') like @query
         group by o.id
-        order by o.created_at desc
+        order by ${orderByClause}
       `,
     )
     .all<{
