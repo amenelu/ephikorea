@@ -73,8 +73,8 @@ export default async function AdminDashboardPage({
     : notifications;
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <div>
+    <div className="min-w-0 space-y-6 overflow-x-hidden sm:space-y-8">
+      <div className="min-w-0">
         <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900 sm:text-3xl">
           Dashboard <span className="text-yellow-500">Overview</span>
         </h1>
@@ -83,7 +83,7 @@ export default async function AdminDashboardPage({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 lg:gap-5">
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
         {stats.map((stat, index) => {
           const Icon = statIcons[index];
           const [iconColor, bgColor] = statColors[index].split(" ");
@@ -91,17 +91,17 @@ export default async function AdminDashboardPage({
           return (
             <div
               key={stat.label}
-              className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:rounded-3xl sm:p-4"
+              className="min-w-0 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:rounded-3xl sm:p-4"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className={`rounded-xl ${bgColor} p-2.5 sm:rounded-2xl sm:p-3`}>
                   <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${iconColor}`} />
                 </div>
-                <div>
-                  <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-gray-500 sm:text-xs">
+                <div className="min-w-0">
+                  <p className="break-words text-[10px] font-medium uppercase tracking-[0.08em] text-gray-500 sm:text-xs sm:tracking-[0.12em]">
                     {stat.label}
                   </p>
-                  <p className="text-base font-black text-gray-900 sm:text-xl">
+                  <p className="break-words text-base font-black text-gray-900 sm:text-xl">
                     {stat.value}
                   </p>
                 </div>
@@ -111,8 +111,8 @@ export default async function AdminDashboardPage({
         })}
       </div>
 
-      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <aside className="order-1 rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 xl:order-2">
+      <div className="grid min-w-0 gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <aside className="order-1 min-w-0 rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 xl:order-2">
           <div className="mb-5 flex items-center justify-between">
             <h3 className="text-lg font-black uppercase tracking-tight text-gray-900">
               Notifications
@@ -133,24 +133,24 @@ export default async function AdminDashboardPage({
               return (
                 <div
                   key={notification.id}
-                  className={`rounded-2xl border ${style.borderClass} bg-gray-50/60 p-4`}
+                  className={`min-w-0 rounded-2xl border ${style.borderClass} bg-gray-50/60 p-4`}
                 >
-                  <div className="flex gap-3">
+                  <div className="flex min-w-0 gap-3">
                     <div className={`h-fit rounded-xl p-2 ${style.iconClass}`}>
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-gray-900">
+                      <p className="break-words font-bold text-gray-900">
                         {notification.title}
                       </p>
-                      <p className="mt-1 text-sm leading-6 text-gray-500">
+                      <p className="mt-1 break-words text-sm leading-6 text-gray-500">
                         {notification.body}
                       </p>
                       <Link
                         href={`/${locale}${notification.href}`}
-                        className="mt-3 inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-gray-700 transition hover:border-gray-300 hover:text-gray-900"
+                        className="mt-3 inline-flex max-w-full items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-gray-700 transition hover:border-gray-300 hover:text-gray-900"
                       >
-                        {notification.action}
+                        <span className="truncate">{notification.action}</span>
                       </Link>
                     </div>
                   </div>
@@ -165,12 +165,12 @@ export default async function AdminDashboardPage({
           </div>
         </aside>
 
-        <div className="order-2 rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8 xl:order-1">
+        <div className="order-2 min-w-0 rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8 xl:order-1">
           <div className="mb-5 sm:mb-6">
             <AdminLiveSearch
               defaultValue={searchParams.q || ""}
               placeholder="Search orders..."
-              className="w-full sm:max-w-sm"
+              className="min-w-0 w-full sm:max-w-sm"
             />
           </div>
           <h3 className="mb-5 text-lg font-black uppercase tracking-tight text-gray-900 sm:mb-6">
@@ -182,28 +182,28 @@ export default async function AdminDashboardPage({
               {filteredOrders.map((order) => (
                 <div
                   key={`${order.id}-${order.date}`}
-                  className="flex flex-col gap-3 border-b border-gray-50 pb-4 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex min-w-0 flex-col gap-3 border-b border-gray-50 pb-4 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex min-w-0 items-center gap-4">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 font-bold text-gray-400">
                       #
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate font-black text-gray-900">
+                      <p className="break-words font-black text-gray-900 sm:truncate">
                         {order.productSummary}
                       </p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-gray-400">
+                      <p className="mt-1 break-all text-xs uppercase tracking-[0.1em] text-gray-400 sm:tracking-[0.14em]">
                         {order.id}
                       </p>
-                      <p className="text-xs text-gray-400">
-                        {order.date} | {order.customer}
+                      <p className="break-words text-xs text-gray-400">
+                        {order.date} <span aria-hidden="true">|</span> {order.customer}
                       </p>
                     </div>
                   </div>
-                  <div className="sm:text-right">
+                  <div className="min-w-0 sm:text-right">
                     <p className="font-bold text-gray-900">{order.total}</p>
                     <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${order.statusTone}`}
+                      className={`inline-block max-w-full rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${order.statusTone}`}
                     >
                       {order.status}
                     </span>

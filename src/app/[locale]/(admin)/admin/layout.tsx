@@ -36,8 +36,8 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:flex">
-      <aside className="border-b border-gray-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r">
+    <div className="min-h-screen overflow-x-hidden bg-gray-50 lg:flex">
+      <aside className="min-w-0 border-b border-gray-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r">
         <div className="flex h-14 items-center justify-between border-b border-gray-100 px-4 sm:h-16 sm:px-6 lg:justify-start">
           <Link
             href={`/${locale}`}
@@ -55,7 +55,7 @@ export default async function AdminLayout({
             </button>
           </form>
         </div>
-        <nav className="flex gap-2 overflow-x-auto px-4 py-2.5 lg:block lg:space-y-1 lg:overflow-visible lg:p-4">
+        <nav className="flex max-w-full gap-2 overflow-x-auto overscroll-x-contain px-4 py-2.5 lg:block lg:space-y-1 lg:overflow-visible lg:p-4">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -69,7 +69,7 @@ export default async function AdminLayout({
         </nav>
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-y-auto">
+      <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <header className="hidden h-16 items-center justify-between border-b border-gray-200 bg-white px-8 lg:flex">
           <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">
             Management Console
@@ -84,7 +84,7 @@ export default async function AdminLayout({
             </button>
           </form>
         </header>
-        <div className="px-4 py-5 sm:px-6 sm:py-6 lg:p-8">{children}</div>
+        <div className="min-w-0 px-4 py-5 sm:px-6 sm:py-6 lg:p-8">{children}</div>
       </main>
     </div>
   );
