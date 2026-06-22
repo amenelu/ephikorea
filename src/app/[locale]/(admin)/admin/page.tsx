@@ -83,7 +83,7 @@ export default async function AdminDashboardPage({
         </p>
       </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+      <div className="grid min-w-0 grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
         {stats.map((stat, index) => {
           const Icon = statIcons[index];
           const [iconColor, bgColor] = statColors[index].split(" ");
@@ -91,17 +91,17 @@ export default async function AdminDashboardPage({
           return (
             <div
               key={stat.label}
-              className="min-w-0 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:rounded-3xl sm:p-4"
+              className="min-w-0 rounded-2xl border border-gray-200 bg-white p-2.5 shadow-sm sm:p-3"
             >
-              <div className="flex min-w-0 items-center gap-3">
-                <div className={`rounded-xl ${bgColor} p-2.5 sm:rounded-2xl sm:p-3`}>
+              <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+                <div className={`shrink-0 rounded-xl ${bgColor} p-2 sm:p-2.5`}>
                   <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${iconColor}`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="break-words text-[10px] font-medium uppercase tracking-[0.08em] text-gray-500 sm:text-xs sm:tracking-[0.12em]">
+                  <p className="break-words text-[9px] font-medium uppercase tracking-[0.06em] text-gray-500 sm:text-xs sm:tracking-[0.1em]">
                     {stat.label}
                   </p>
-                  <p className="break-words text-base font-black text-gray-900 sm:text-xl">
+                  <p className="break-words text-sm font-black text-gray-900 sm:text-lg">
                     {stat.value}
                   </p>
                 </div>
