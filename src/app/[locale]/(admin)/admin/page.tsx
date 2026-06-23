@@ -1,13 +1,12 @@
 import Link from "next/link";
 import {
-  AlertTriangle,
   Bell,
-  CheckCircle2,
   DollarSign,
   Package,
   ShoppingCart,
   Users,
 } from "lucide-react";
+import { AdminDashboardNotifications } from "@/components/admin/admin-dashboard-notifications";
 import { AdminLiveSearch } from "@/components/admin/admin-live-search";
 import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { getAdminDashboardData } from "@/lib/admin-data";
@@ -19,24 +18,6 @@ const statColors = [
   "text-yellow-600 bg-yellow-100",
   "text-purple-600 bg-purple-100",
 ];
-const notificationStyles = {
-  green: {
-    icon: CheckCircle2,
-    iconClass: "bg-green-100 text-green-600",
-    borderClass: "border-green-100",
-  },
-  red: {
-    icon: AlertTriangle,
-    iconClass: "bg-red-100 text-red-600",
-    borderClass: "border-red-100",
-  },
-  yellow: {
-    icon: Bell,
-    iconClass: "bg-yellow-100 text-yellow-700",
-    borderClass: "border-yellow-100",
-  },
-};
-
 export default async function AdminDashboardPage({
   params: { locale },
   searchParams,
@@ -63,14 +44,6 @@ export default async function AdminDashboardPage({
           .includes(query),
       )
     : recentOrders;
-  const filteredNotifications = query
-    ? notifications.filter((notification) =>
-        [notification.title, notification.body, notification.action]
-          .join(" ")
-          .toLowerCase()
-          .includes(query),
-      )
-    : notifications;
 
   return (
     <div className="min-w-0 space-y-6 overflow-x-hidden sm:space-y-8">
@@ -122,47 +95,11 @@ export default async function AdminDashboardPage({
             </div>
           </div>
 
-          <div className="space-y-3">
-            {filteredNotifications.map((notification) => {
-              const style =
-                notificationStyles[
-                  notification.tone as keyof typeof notificationStyles
-                ] || notificationStyles.yellow;
-              const Icon = style.icon;
-
-              return (
-                <div
-                  key={notification.id}
-                  className={`min-w-0 rounded-2xl border ${style.borderClass} bg-gray-50/60 p-4`}
-                >
-                  <div className="flex min-w-0 gap-3">
-                    <div className={`h-fit rounded-xl p-2 ${style.iconClass}`}>
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="break-words font-bold text-gray-900">
-                        {notification.title}
-                      </p>
-                      <p className="mt-1 break-words text-sm leading-6 text-gray-500">
-                        {notification.body}
-                      </p>
-                      <Link
-                        href={`/${locale}${notification.href}`}
-                        className="mt-3 inline-flex max-w-full items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-gray-700 transition hover:border-gray-300 hover:text-gray-900"
-                      >
-                        <span className="truncate">{notification.action}</span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {filteredNotifications.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-                No notifications matched your search.
-              </div>
-            ) : null}
-          </div>
+          <AdminDashboardNotifications
+            initialNotifications={notifications}
+            locale={locale}
+            query={query}
+          />
         </aside>
 
         <div className="order-2 min-w-0 rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8 xl:order-1">
