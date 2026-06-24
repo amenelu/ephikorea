@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 import { getCloudflareEnv } from "@/lib/cloudflare";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const env = await getCloudflareEnv();
 
@@ -17,6 +19,11 @@ export async function GET() {
       cloudinaryCloudName: Boolean(env?.CLOUDINARY_CLOUD_NAME),
       cloudinaryApiKey: Boolean(env?.CLOUDINARY_API_KEY),
       cloudinaryApiSecret: Boolean(env?.CLOUDINARY_API_SECRET),
+      resendApiKey: Boolean(env?.RESEND_API_KEY),
+      orderNotificationFromEmail: Boolean(env?.ORDER_NOTIFICATION_FROM_EMAIL),
+      adminOrderNotificationEmail: Boolean(env?.ADMIN_ORDER_NOTIFICATION_EMAIL),
+      telegramBotToken: Boolean(env?.TELEGRAM_BOT_TOKEN),
+      telegramChatId: Boolean(env?.TELEGRAM_CHAT_ID),
     },
     processEnv: {
       adminEmail: Boolean(process.env.ADMIN_EMAIL),
@@ -28,6 +35,11 @@ export async function GET() {
       cloudinaryCloudName: Boolean(process.env.CLOUDINARY_CLOUD_NAME),
       cloudinaryApiKey: Boolean(process.env.CLOUDINARY_API_KEY),
       cloudinaryApiSecret: Boolean(process.env.CLOUDINARY_API_SECRET),
+      resendApiKey: Boolean(process.env.RESEND_API_KEY),
+      orderNotificationFromEmail: Boolean(process.env.ORDER_NOTIFICATION_FROM_EMAIL),
+      adminOrderNotificationEmail: Boolean(process.env.ADMIN_ORDER_NOTIFICATION_EMAIL),
+      telegramBotToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
+      telegramChatId: Boolean(process.env.TELEGRAM_CHAT_ID),
     },
   });
 }

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { getCloudflareEnv, type CloudflareEnv } from "@/lib/cloudflare";
+
 type OrderNotificationItem = {
   title: string;
   variantTitle: string | null;
@@ -24,24 +26,22 @@ export type AdminOrderNotification = {
   items: OrderNotificationItem[];
 };
 
-function getAdminNotificationEmail() {
-  return (
-    process.env.ADMIN_ORDER_NOTIFICATION_EMAIL?.trim() ||
-    process.env.ADMIN_EMAIL?.trim() ||
-    ""
-  );
+function getConfigValue(env: CloudflareEnv | null, key: keyof CloudflareEnv) {
+  return String(env?.[key] || process.env[key] || "").trim();
 }
 
-function getSenderEmail() {
-  return process.env.ORDER_NOTIFICATION_FROM_EMAIL?.trim() || "";
-}
+async function getNotificationConfig() {
+  const env = await getCloudflareEnv();
 
-function getTelegramBotToken() {
-  return process.env.TELEGRAM_BOT_TOKEN?.trim() || "";
-}
-
-function getTelegramChatId() {
-  return process.env.TELEGRAM_CHAT_ID?.trim() || "";
+  return {
+    adminEmail:
+      getConfigValue(env, "ADMIN_ORDER_NOTIFICATION_EMAIL") ||
+      getConfigValue(env, "ADMIN_EMAIL"),
+    senderEmail: getConfigValue(env, "ORDER_NOTIFICATION_FROM_EMAIL"),
+    resendApiKey: getConfigValue(env, "RESEND_API_KEY"),
+    telegramBotToken: getConfigValue(env, "TELEGRAM_BOT_TOKEN"),
+    telegramChatId: getConfigValue(env, "TELEGRAM_CHAT_ID"),
+  };
 }
 
 function formatAmount(amount: number, currencyCode: string) {
@@ -218,8 +218,8 @@ async function sleep(milliseconds: number) {
 export async function sendAdminOrderTelegramNotification(
   order: AdminOrderNotification,
 ) {
-  const botToken = getTelegramBotToken();
-  const chatId = getTelegramChatId();
+  const { telegramBotToken: botToken, telegramChatId: chatId } =
+    await getNotificationConfig();
 
   if (!botToken || !chatId) {
     console.info(
@@ -286,9 +286,11 @@ export async function sendAdminOrderTelegramNotification(
 export async function sendAdminOrderNotification(
   order: AdminOrderNotification,
 ) {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = getSenderEmail();
-  const to = getAdminNotificationEmail();
+  const {
+    adminEmail: to,
+    senderEmail: from,
+    resendApiKey: apiKey,
+  } = await getNotificationConfig();
 
   if (!apiKey || !from || !to) {
     console.info(

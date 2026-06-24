@@ -40,6 +40,11 @@ export type CloudflareEnv = {
   CLOUDINARY_API_KEY?: string;
   CLOUDINARY_API_SECRET?: string;
   CLOUDINARY_FOLDER?: string;
+  RESEND_API_KEY?: string;
+  ORDER_NOTIFICATION_FROM_EMAIL?: string;
+  ADMIN_ORDER_NOTIFICATION_EMAIL?: string;
+  TELEGRAM_BOT_TOKEN?: string;
+  TELEGRAM_CHAT_ID?: string;
 };
 
 export async function getCloudflareEnv(): Promise<CloudflareEnv | null> {
