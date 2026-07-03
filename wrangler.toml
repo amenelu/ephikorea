@@ -19,7 +19,7 @@ CLOUDINARY_API_KEY = "715215768672587"
 CLOUDINARY_FOLDER = "ephikorea/products"
 
 [observability.logs]
-enabled = false
+enabled = true
 invocation_logs = true
 
 [[services]]
