@@ -99,7 +99,6 @@ async function getUniqueProductHandle(
           select id
           from products
           where handle = ?
-            and deleted_at is null
             and (? is null or id <> ?)
           limit 1
         `,
