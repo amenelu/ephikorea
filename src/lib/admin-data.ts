@@ -47,6 +47,17 @@ function toStatusTone(status?: string | null) {
 
 export type AdminOrderSort = "newest" | "oldest" | "incomplete" | "completed";
 
+export async function getAdminNavigationCounts() {
+  const db = await getDb();
+  const orders = await db
+    .prepare("select count(*) as count from orders")
+    .get<{ count: number }>();
+
+  return {
+    orders: orders?.count ?? 0,
+  };
+}
+
 function getOrderSortClause(sort: AdminOrderSort) {
   switch (sort) {
     case "oldest":

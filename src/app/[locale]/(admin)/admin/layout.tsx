@@ -10,6 +10,7 @@ import {
 
 import { requireAdminPageAccess } from "@/lib/admin-auth";
 import { logoutAdminAction } from "@/app/[locale]/admin/login/actions";
+import { getAdminNavigationCounts } from "@/lib/admin-data";
 
 export const metadata = {
   robots: {
@@ -26,11 +27,17 @@ export default async function AdminLayout({
   params: { locale: string };
 }) {
   await requireAdminPageAccess(locale);
+  const counts = await getAdminNavigationCounts();
 
   const navItems = [
     { label: "Dashboard", href: `/${locale}/admin`, icon: LayoutDashboard },
     { label: "Products", href: `/${locale}/admin/products`, icon: Package },
-    { label: "Orders", href: `/${locale}/admin/orders`, icon: ShoppingCart },
+    {
+      label: "Orders",
+      href: `/${locale}/admin/orders`,
+      icon: ShoppingCart,
+      count: counts.orders,
+    },
     { label: "Customers", href: `/${locale}/admin/customers`, icon: Users },
     { label: "Settings", href: `/${locale}/admin/settings`, icon: Settings },
   ];
@@ -63,7 +70,12 @@ export default async function AdminLayout({
               className="flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-gray-500 transition-colors hover:bg-gray-50 hover:text-black sm:text-sm sm:tracking-normal lg:gap-3 lg:px-4 lg:py-3 lg:normal-case"
             >
               <item.icon className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
-              {item.label}
+              <span className="min-w-0 truncate">{item.label}</span>
+              {typeof item.count === "number" && item.count > 0 ? (
+                <span className="ml-auto inline-flex min-w-5 shrink-0 items-center justify-center rounded-full bg-yellow-400 px-1.5 py-0.5 text-[10px] font-black leading-none text-gray-950">
+                  {item.count > 99 ? "99+" : item.count}
+                </span>
+              ) : null}
             </Link>
           ))}
         </nav>
