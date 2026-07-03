@@ -1,4 +1,5 @@
 name = "cloudflare-deployment-migration"
+account_id = "366d25e255055a4f4853f19b2be0ce28"
 main = ".open-next/worker.js"
 compatibility_date = "2026-05-27"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
@@ -26,4 +27,4 @@ service = "cloudflare-deployment-migration"
 [[d1_databases]]
 binding = "DB"
 database_name = "ephikorea"
-database_id = "4ceb11dd-cc0d-4d40-9c61-82c928700863"
+database_id = "d8263833-5c7b-4031-ba24-55d389b6f42f"
