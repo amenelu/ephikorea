@@ -226,7 +226,7 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                {t("cart.address2")}
+                {t("cart.address2")} <span className="font-bold text-gray-400">(Optional)</span>
               </span>
               <input
                 type="text"
@@ -239,7 +239,7 @@ export default function CartClient({
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  {t("cart.city")}
+                  {t("cart.city")} <span className="font-bold text-gray-400">(Optional)</span>
                 </span>
                 <input
                   type="text"
@@ -251,7 +251,7 @@ export default function CartClient({
 
               <label className="block">
                 <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  {t("cart.province")}
+                  {t("cart.province")} <span className="font-bold text-gray-400">(Optional)</span>
                 </span>
                 <input
                   type="text"
@@ -264,7 +264,7 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                {t("cart.postalCode")}
+                {t("cart.postalCode")} <span className="font-bold text-gray-400">(Optional)</span>
               </span>
               <input
                 type="text"
