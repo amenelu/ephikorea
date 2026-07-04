@@ -1,5 +1,5 @@
 export const SUPPORTED_LOCALES = ["ko", "en"] as const;
-export const DEFAULT_LOCALE = "ko";
+export const DEFAULT_LOCALE = "en";
 export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
