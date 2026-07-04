@@ -8,8 +8,23 @@ type AdminToastProps = {
   message?: string;
 };
 
+const AUTO_DISMISS_MS = 10_000;
+
 export function AdminToast({ status, message }: AdminToastProps) {
   const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (!message) {
+      return;
+    }
+
+    setIsVisible(true);
+    const timeout = window.setTimeout(() => {
+      setIsVisible(false);
+    }, AUTO_DISMISS_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, [message]);
 
   useEffect(() => {
     if (!message || typeof window === "undefined") {
