@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, isSupportedLocale } from "@/lib/locales";
 
-export const SITE_NAME = "Aman Mobile";
+export const SITE_NAME = "Aman Mobiles";
 export const SITE_DESCRIPTION =
-  "Shop premium electronics, certified pre-owned phones, new devices, and carefully managed inventory from Aman Mobile.";
+  "Shop new and certified pre-owned phones from Aman Mobiles with clear product details, trusted inventory, and fast support.";
 
 export function getSiteUrl() {
   const rawUrl =

@@ -12,11 +12,11 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME,
   icons: {
     icon: [
-      { url: "/favicon.png", type: "image/png" },
-      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.png", type: "image/png", sizes: "48x48" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
     ],
     shortcut: "/favicon.png",
-    apple: "/apple-icon.png",
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
   },
   openGraph: {
     type: "website",

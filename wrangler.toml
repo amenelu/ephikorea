@@ -13,7 +13,7 @@ binding = "ASSETS"
 [vars]
 CLOUDFLARE_BINDINGS = "1"
 ADMIN_EMAIL = "amanuelweldeamlak@gmail.com"
-NEXT_PUBLIC_SITE_URL = "https://cloudflare-deployment-migration.ephikorea.workers.dev"
+NEXT_PUBLIC_SITE_URL = "https://amanmobiles.com"
 CLOUDINARY_CLOUD_NAME = "yfvvwuje"
 CLOUDINARY_API_KEY = "715215768672587"
 CLOUDINARY_FOLDER = "ephikorea/products"
