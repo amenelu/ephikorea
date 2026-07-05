@@ -94,7 +94,21 @@ This checklist reflects the current production setup:
 - [ ] Redeploy after URL update.
 - [ ] Test redirects, sitemap, and admin login on the final domain.
 
-## 10. Cleanup Before Client Delivery
+## 10. SEO And Google Search
+
+- [ ] Verify the final domain in Google Search Console.
+- [ ] Request indexing for the homepage after the final domain is live.
+- [ ] Submit `https://yourdomain.com/sitemap.xml` in Google Search Console.
+- [ ] Confirm page source shows the correct site title, description, and favicon links.
+- [ ] Add or verify product page metadata with product-specific titles and descriptions.
+- [ ] Add Product structured data for product detail pages.
+- [ ] Add Organization or LocalBusiness structured data if the store has a public business profile.
+- [ ] Create or update the Google Business Profile if Aman Mobiles serves local customers.
+- [ ] Add helpful store content: about page, contact details, delivery/pickup info, warranty/returns info.
+- [ ] Add trusted external links from social profiles, Google Business Profile, and relevant business listings.
+- [ ] Recheck Google results after recrawl to confirm the old registrar/parking-page snippet is gone.
+
+## 11. Cleanup Before Client Delivery
 
 - [ ] Remove or protect diagnostic endpoint `/api/admin-config`.
 - [ ] Keep `/api/health` only if the client/developer needs it.
@@ -103,7 +117,7 @@ This checklist reflects the current production setup:
 - [ ] Confirm secrets are not present in GitHub.
 - [ ] Confirm `.open-next/` build output is not committed.
 
-## 11. Client Handoff Package
+## 12. Client Handoff Package
 
 - [ ] Website URL.
 - [ ] Admin login URL.
@@ -114,7 +128,7 @@ This checklist reflects the current production setup:
 - [ ] Domain registrar access.
 - [ ] Short guide for adding products, uploading images, checking orders, and updating inventory.
 
-## 12. New Cloudflare Account Deployment Runbook
+## 13. New Cloudflare Account Deployment Runbook
 
 Use this when moving the whole site into a new Cloudflare account.
 
