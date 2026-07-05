@@ -50,7 +50,13 @@ export type AdminOrderSort = "newest" | "oldest" | "incomplete" | "completed";
 export async function getAdminNavigationCounts() {
   const db = await getDb();
   const orders = await db
-    .prepare("select count(*) as count from orders")
+    .prepare(
+      `
+        select count(*) as count
+        from orders
+        where lower(coalesce(status, '')) <> 'completed'
+      `,
+    )
     .get<{ count: number }>();
 
   return {

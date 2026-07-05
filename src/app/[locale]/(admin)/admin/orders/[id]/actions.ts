@@ -25,7 +25,7 @@ export async function completeOrderAction(formData: FormData) {
   try {
     result = await completeAdminOrder(orderId);
 
-    revalidatePath(`/${locale}/admin`);
+    revalidatePath(`/${locale}/admin`, "layout");
     revalidatePath(`/${locale}/admin/orders`);
     revalidatePath(`/${locale}/admin/orders/${orderId}`);
   } catch (error) {
