@@ -11,7 +11,10 @@ import {
   removeProductAction,
   updateProductAction,
 } from "./actions";
-import CategorySpecificFields from "./category-specific-fields";
+import CategorySpecificFields, {
+  CategoryFieldsProvider,
+  ProductCategoryField,
+} from "./category-specific-fields";
 import ProductFormFields from "./product-form-fields";
 
 export default async function AdminProductsPage({
@@ -66,7 +69,9 @@ export default async function AdminProductsPage({
     (product) => product.id === searchParams.edit,
   );
   const formAction = editingProduct ? updateProductAction : addProductAction;
-  const publishedCount = products.filter((product) => product.status === "published").length;
+  const publishedCount = products.filter(
+    (product) => product.status === "published",
+  ).length;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -111,191 +116,197 @@ export default async function AdminProductsPage({
             />
           ))}
 
-          <ProductFormFields
-            initialBrandName={editingProduct?.brandName}
-            initialModelName={editingProduct?.modelName}
-            initialHandle={editingProduct?.handle}
-          />
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Price
-            </span>
-            <input
-              type="number"
-              name="price"
-              required
-              min="0"
-              step="0.01"
-              defaultValue={
-                typeof editingProduct?.price === "number"
-                  ? formatAdminPriceInput(
-                      editingProduct.price,
-                      editingProduct.currencyCode,
-                    )
-                  : undefined
-              }
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="199.99"
-            />
-            <span className="mt-2 block text-xs text-gray-400">
-              Use decimals for USD, or whole won for KRW.
-            </span>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Currency
-            </span>
-            <select
-              name="currencyCode"
-              defaultValue={editingProduct?.currencyCode || "usd"}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-            >
-              <option value="usd">US Dollars (USD)</option>
-              <option value="krw">Korean Won (KRW)</option>
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Inventory
-            </span>
-            <input
-              type="number"
-              name="inventory"
-              required
-              min="0"
-              step="1"
-              defaultValue={editingProduct?.inventory}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="25"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Thumbnail URL
-            </span>
-            <input
-              type="url"
-              name="thumbnail"
-              defaultValue={editingProduct?.thumbnail || ""}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="https://example.com/product.jpg"
-            />
-            <span className="mt-2 block text-xs text-gray-400">
-              Use a direct image URL here, not the manufacturer specs page.
-            </span>
-          </label>
-
-          <CategorySpecificFields
+          <CategoryFieldsProvider
             initialCategory={editingProduct?.collectionId}
-            initialCondition={
-              editingProduct?.isCertifiedPreOwned === false
-                ? "new"
-                : "certified_pre_owned"
-            }
-            initialColor={editingProduct?.color}
-            initialStorage={editingProduct?.storage}
-            initialBatteryHealth={
-              editingProduct?.batteryHealth !== ""
-                ? String(editingProduct?.batteryHealth)
-                : ""
-            }
-            initialImei={editingProduct?.imei}
-            initialGradingData={editingProduct?.gradingData}
-            initialCompatibility={editingProduct?.compatibility}
-            initialMaterial={editingProduct?.material}
-            initialRam={editingProduct?.ram}
-            initialProcessor={editingProduct?.processor}
-            initialSizeVolume={editingProduct?.sizeVolume}
-            initialSkinType={editingProduct?.skinType}
-            initialIngredients={editingProduct?.ingredients}
-            initialExpirationDate={editingProduct?.expirationDate}
-            initialShoeSize={editingProduct?.shoeSize}
-            initialGenderFit={editingProduct?.genderFit}
-          />
+          >
+            <ProductCategoryField />
 
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Upload Product Images
-            </span>
-            <input
-              type="file"
-              name="productImageFiles"
-              accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
-              multiple
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-yellow-50 file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-widest file:text-yellow-700 focus:border-yellow-400"
+            <ProductFormFields
+              initialBrandName={editingProduct?.brandName}
+              initialModelName={editingProduct?.modelName}
+              initialHandle={editingProduct?.handle}
             />
-            <span className="mt-2 block text-xs text-gray-400">
-              Upload one or more local images. The first image becomes the thumbnail. Max 5MB each.
-            </span>
-          </label>
 
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Spec Sheet URL
-            </span>
-            <input
-              type="url"
-              name="referenceUrl"
-              defaultValue={editingProduct?.referenceUrl || ""}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="https://www.samsung.com/.../specs/"
-            />
-            <span className="mt-2 block text-xs text-gray-400">
-              Leave this blank for supported iPhone and Galaxy models and we&apos;ll
-              auto-fill it. You can still paste a Samsung specs page or an Apple
-              Support tech specs page manually anytime.
-            </span>
-          </label>
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Price
+              </span>
+              <input
+                type="number"
+                name="price"
+                required
+                min="0"
+                step="0.01"
+                defaultValue={
+                  typeof editingProduct?.price === "number"
+                    ? formatAdminPriceInput(
+                        editingProduct.price,
+                        editingProduct.currencyCode,
+                      )
+                    : undefined
+                }
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                placeholder="199.99"
+              />
+              <span className="mt-2 block text-xs text-gray-400">
+                Use decimals for USD, or whole won for KRW.
+              </span>
+            </label>
 
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Status
-            </span>
-            <select
-              name="status"
-              defaultValue={editingProduct?.status || "published"}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-            >
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-              <option value="proposed">Proposed</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </label>
-
-          <label className="block md:col-span-2">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Description
-            </span>
-            <textarea
-              name="description"
-              rows={4}
-              defaultValue={editingProduct?.description || ""}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="Short description for the storefront product detail page."
-            />
-          </label>
-
-          <div className="sticky bottom-3 z-10 -mx-1 flex flex-col gap-3 rounded-3xl bg-white/95 p-1 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:flex-row md:col-span-2">
-            <button
-              type="submit"
-              className="rounded-full bg-yellow-500 px-6 py-3 text-sm font-black uppercase tracking-widest text-black transition hover:bg-yellow-400"
-            >
-              {editingProduct ? "Save Changes" : "Add Product"}
-            </button>
-            {editingProduct ? (
-              <a
-                href={`/${locale}/admin/products`}
-                className="rounded-full border border-gray-200 px-6 py-3 text-sm font-black uppercase tracking-widest text-gray-600 transition hover:bg-gray-50"
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Currency
+              </span>
+              <select
+                name="currencyCode"
+                defaultValue={editingProduct?.currencyCode || "usd"}
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
               >
-                Cancel
-              </a>
-            ) : null}
-          </div>
+                <option value="usd">US Dollars (USD)</option>
+                <option value="krw">Korean Won (KRW)</option>
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Inventory
+              </span>
+              <input
+                type="number"
+                name="inventory"
+                required
+                min="0"
+                step="1"
+                defaultValue={editingProduct?.inventory}
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                placeholder="25"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Thumbnail URL
+              </span>
+              <input
+                type="url"
+                name="thumbnail"
+                defaultValue={editingProduct?.thumbnail || ""}
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                placeholder="https://example.com/product.jpg"
+              />
+              <span className="mt-2 block text-xs text-gray-400">
+                Use a direct image URL here, not the manufacturer specs page.
+              </span>
+            </label>
+
+            <CategorySpecificFields
+              initialCondition={
+                editingProduct?.isCertifiedPreOwned === false
+                  ? "new"
+                  : "certified_pre_owned"
+              }
+              initialColor={editingProduct?.color}
+              initialStorage={editingProduct?.storage}
+              initialBatteryHealth={
+                editingProduct?.batteryHealth !== ""
+                  ? String(editingProduct?.batteryHealth)
+                  : ""
+              }
+              initialImei={editingProduct?.imei}
+              initialGradingData={editingProduct?.gradingData}
+              initialCompatibility={editingProduct?.compatibility}
+              initialMaterial={editingProduct?.material}
+              initialRam={editingProduct?.ram}
+              initialProcessor={editingProduct?.processor}
+              initialSizeVolume={editingProduct?.sizeVolume}
+              initialSkinType={editingProduct?.skinType}
+              initialIngredients={editingProduct?.ingredients}
+              initialExpirationDate={editingProduct?.expirationDate}
+              initialShoeSize={editingProduct?.shoeSize}
+              initialGenderFit={editingProduct?.genderFit}
+            />
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Upload Product Images
+              </span>
+              <input
+                type="file"
+                name="productImageFiles"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                multiple
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-yellow-50 file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-widest file:text-yellow-700 focus:border-yellow-400"
+              />
+              <span className="mt-2 block text-xs text-gray-400">
+                Upload one or more local images. The first image becomes the
+                thumbnail. Max 5MB each.
+              </span>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Spec Sheet URL
+              </span>
+              <input
+                type="url"
+                name="referenceUrl"
+                defaultValue={editingProduct?.referenceUrl || ""}
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                placeholder="https://www.samsung.com/.../specs/"
+              />
+              <span className="mt-2 block text-xs text-gray-400">
+                Leave this blank for supported iPhone and Galaxy models and
+                we&apos;ll auto-fill it. You can still paste a Samsung specs
+                page or an Apple Support tech specs page manually anytime.
+              </span>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Status
+              </span>
+              <select
+                name="status"
+                defaultValue={editingProduct?.status || "published"}
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+              >
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="proposed">Proposed</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </label>
+
+            <label className="block md:col-span-2">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Description
+              </span>
+              <textarea
+                name="description"
+                rows={4}
+                defaultValue={editingProduct?.description || ""}
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                placeholder="Short description for the storefront product detail page."
+              />
+            </label>
+
+            <div className="sticky bottom-3 z-10 -mx-1 flex flex-col gap-3 rounded-3xl bg-white/95 p-1 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:flex-row md:col-span-2">
+              <button
+                type="submit"
+                className="rounded-full bg-yellow-500 px-6 py-3 text-sm font-black uppercase tracking-widest text-black transition hover:bg-yellow-400"
+              >
+                {editingProduct ? "Save Changes" : "Add Product"}
+              </button>
+              {editingProduct ? (
+                <a
+                  href={`/${locale}/admin/products`}
+                  className="rounded-full border border-gray-200 px-6 py-3 text-sm font-black uppercase tracking-widest text-gray-600 transition hover:bg-gray-50"
+                >
+                  Cancel
+                </a>
+              ) : null}
+            </div>
+          </CategoryFieldsProvider>
         </form>
       </div>
 
@@ -316,7 +327,8 @@ export default async function AdminProductsPage({
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400 shadow-inner">
-                    {product.thumbnail && isLikelyImageUrl(product.thumbnail) ? (
+                    {product.thumbnail &&
+                    isLikelyImageUrl(product.thumbnail) ? (
                       canUseNextImage(product.thumbnail) ? (
                         <Image
                           src={product.thumbnail}
@@ -340,7 +352,9 @@ export default async function AdminProductsPage({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-black text-gray-900">{product.title}</p>
+                        <p className="font-black text-gray-900">
+                          {product.title}
+                        </p>
                         <p className="mt-1 break-all text-xs text-gray-400">
                           {product.handle}
                         </p>
@@ -462,145 +476,170 @@ export default async function AdminProductsPage({
           </div>
 
           <div className="hidden overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm md:block">
-          <table className="min-w-[760px] w-full text-left">
-            <thead className="border-b border-gray-100 bg-gray-50/50">
-              <tr>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Product
-                </th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Inventory
-                </th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {products.map((product) => (
-                <tr
-                  key={product.id}
-                  className="transition-colors hover:bg-gray-50/50"
-                >
-                  <td className="px-4 py-4 sm:px-6">
-                    <div className="flex items-center gap-3 sm:gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400 shadow-inner">
-                        {product.thumbnail && isLikelyImageUrl(product.thumbnail) ? (
-                          canUseNextImage(product.thumbnail) ? (
-                            <Image
-                              src={product.thumbnail}
-                              alt={product.title}
-                              width={48}
-                              height={48}
-                              className="rounded-xl object-cover"
-                            />
-                          ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={product.thumbnail}
-                              alt={product.title}
-                              className="h-12 w-12 rounded-xl object-cover"
-                            />
-                          )
-                        ) : (
-                          "PKG"
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-bold text-gray-900">{product.title}</p>
-                        <p className="break-all text-xs text-gray-400">{product.handle}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 sm:px-6">
-                    <span className="inline-block rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase text-green-700">
-                      {product.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 font-medium text-gray-600 sm:px-6">
-                    <div>{product.inventory} in stock</div>
-                    <div className="text-xs text-gray-400">
-                      {formatAmount(product.price, product.currencyCode)}
-                    </div>
-                    {product.color || product.storage ? (
-                      <div className="mt-1 text-xs text-gray-400">
-                        {[product.color, product.storage].filter(Boolean).join(" / ")}
-                      </div>
-                    ) : null}
-                    <div className="mt-1 text-xs text-gray-400">
-                      {product.isCertifiedPreOwned
-                        ? "Certified Pre-Owned"
-                        : "New"}
-                    </div>
-                    {product.collectionId ? (
-                      <div className="mt-1 text-xs text-gray-400">
-                        Category: {product.collectionId}
-                      </div>
-                    ) : null}
-                    {(product.images?.length ?? 0) > 1 ? (
-                      <div className="mt-1 text-xs text-gray-400">
-                        {product.images.length} images
-                      </div>
-                    ) : null}
-                    {product.gradingData || product.batteryHealth !== "" ? (
-                      <div className="mt-1 text-xs text-gray-400">
-                        {[product.gradingData, product.batteryHealth !== "" ? `${product.batteryHealth}% battery` : ""]
-                          .filter(Boolean)
-                          .join(" / ")}
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-4 sm:px-6">
-                    <div className="flex min-w-[220px] flex-wrap gap-2">
-                      <form action={addInventoryAction} className="flex flex-wrap items-center gap-2">
-                        <input type="hidden" name="locale" value={locale} />
-                        <input type="hidden" name="productId" value={product.id} />
-                        <input
-                          type="number"
-                          name="amount"
-                          min="1"
-                          step="1"
-                          defaultValue="1"
-                          aria-label={`Inventory amount for ${product.title}`}
-                          className="w-20 rounded-full border border-gray-200 px-3 py-1.5 text-[11px] font-bold text-gray-700 outline-none transition focus:border-yellow-400"
-                        />
-                        <button
-                          type="submit"
-                          className="rounded-full border border-yellow-300 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-yellow-700 transition hover:bg-yellow-50"
-                        >
-                          Add Stock
-                        </button>
-                      </form>
-                      <a
-                        href={`/${locale}/admin/products?edit=${product.id}`}
-                        className="rounded-full border border-gray-200 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"
-                      >
-                        Edit
-                      </a>
-                      <form action={removeProductAction}>
-                        <input type="hidden" name="locale" value={locale} />
-                        <input type="hidden" name="productId" value={product.id} />
-                        <button
-                          type="submit"
-                          className="rounded-full border border-red-200 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-red-600 transition hover:border-red-300 hover:bg-red-50"
-                        >
-                          Remove
-                        </button>
-                      </form>
-                    </div>
-                  </td>
+            <table className="min-w-[760px] w-full text-left">
+              <thead className="border-b border-gray-100 bg-gray-50/50">
+                <tr>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    Product
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    Inventory
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {products.map((product) => (
+                  <tr
+                    key={product.id}
+                    className="transition-colors hover:bg-gray-50/50"
+                  >
+                    <td className="px-4 py-4 sm:px-6">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-xs font-black uppercase tracking-[0.2em] text-gray-400 shadow-inner">
+                          {product.thumbnail &&
+                          isLikelyImageUrl(product.thumbnail) ? (
+                            canUseNextImage(product.thumbnail) ? (
+                              <Image
+                                src={product.thumbnail}
+                                alt={product.title}
+                                width={48}
+                                height={48}
+                                className="rounded-xl object-cover"
+                              />
+                            ) : (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={product.thumbnail}
+                                alt={product.title}
+                                className="h-12 w-12 rounded-xl object-cover"
+                              />
+                            )
+                          ) : (
+                            "PKG"
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-gray-900">
+                            {product.title}
+                          </p>
+                          <p className="break-all text-xs text-gray-400">
+                            {product.handle}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 sm:px-6">
+                      <span className="inline-block rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase text-green-700">
+                        {product.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 font-medium text-gray-600 sm:px-6">
+                      <div>{product.inventory} in stock</div>
+                      <div className="text-xs text-gray-400">
+                        {formatAmount(product.price, product.currencyCode)}
+                      </div>
+                      {product.color || product.storage ? (
+                        <div className="mt-1 text-xs text-gray-400">
+                          {[product.color, product.storage]
+                            .filter(Boolean)
+                            .join(" / ")}
+                        </div>
+                      ) : null}
+                      <div className="mt-1 text-xs text-gray-400">
+                        {product.isCertifiedPreOwned
+                          ? "Certified Pre-Owned"
+                          : "New"}
+                      </div>
+                      {product.collectionId ? (
+                        <div className="mt-1 text-xs text-gray-400">
+                          Category: {product.collectionId}
+                        </div>
+                      ) : null}
+                      {(product.images?.length ?? 0) > 1 ? (
+                        <div className="mt-1 text-xs text-gray-400">
+                          {product.images.length} images
+                        </div>
+                      ) : null}
+                      {product.gradingData || product.batteryHealth !== "" ? (
+                        <div className="mt-1 text-xs text-gray-400">
+                          {[
+                            product.gradingData,
+                            product.batteryHealth !== ""
+                              ? `${product.batteryHealth}% battery`
+                              : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" / ")}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-4 sm:px-6">
+                      <div className="flex min-w-[220px] flex-wrap gap-2">
+                        <form
+                          action={addInventoryAction}
+                          className="flex flex-wrap items-center gap-2"
+                        >
+                          <input type="hidden" name="locale" value={locale} />
+                          <input
+                            type="hidden"
+                            name="productId"
+                            value={product.id}
+                          />
+                          <input
+                            type="number"
+                            name="amount"
+                            min="1"
+                            step="1"
+                            defaultValue="1"
+                            aria-label={`Inventory amount for ${product.title}`}
+                            className="w-20 rounded-full border border-gray-200 px-3 py-1.5 text-[11px] font-bold text-gray-700 outline-none transition focus:border-yellow-400"
+                          />
+                          <button
+                            type="submit"
+                            className="rounded-full border border-yellow-300 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-yellow-700 transition hover:bg-yellow-50"
+                          >
+                            Add Stock
+                          </button>
+                        </form>
+                        <a
+                          href={`/${locale}/admin/products?edit=${product.id}`}
+                          className="rounded-full border border-gray-200 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-gray-700 transition hover:bg-gray-50"
+                        >
+                          Edit
+                        </a>
+                        <form action={removeProductAction}>
+                          <input type="hidden" name="locale" value={locale} />
+                          <input
+                            type="hidden"
+                            name="productId"
+                            value={product.id}
+                          />
+                          <button
+                            type="submit"
+                            className="rounded-full border border-red-200 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-red-600 transition hover:border-red-300 hover:bg-red-50"
+                          >
+                            Remove
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </>
       ) : (
         <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm leading-6 text-gray-500 sm:p-12 sm:text-base">
-          {query ? "No products matched your search." : "No products are in the database yet."}
+          {query
+            ? "No products matched your search."
+            : "No products are in the database yet."}
         </div>
       )}
     </div>

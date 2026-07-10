@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 type ProductCategory =
   | "phones"
@@ -12,7 +12,6 @@ type ProductCategory =
   | "shoes";
 
 type CategorySpecificFieldsProps = {
-  initialCategory?: string;
   initialCondition?: "certified_pre_owned" | "new";
   initialColor?: string;
   initialStorage?: string;
@@ -53,10 +52,81 @@ const storageOptions = [
 ];
 
 const gradeOptions = ["Grade A", "Grade B", "Grade C"];
-const batteryOptions = Array.from({ length: 11 }, (_, index) => 100 - index * 5);
+const batteryOptions = Array.from(
+  { length: 11 },
+  (_, index) => 100 - index * 5,
+);
 const inputClassName =
   "w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400";
-const labelClassName = "mb-2 block text-xs font-black uppercase tracking-widest text-gray-500";
+const labelClassName =
+  "mb-2 block text-xs font-black uppercase tracking-widest text-gray-500";
+
+type CategoryFieldsContextValue = {
+  category: ProductCategory;
+  setCategory: (category: ProductCategory) => void;
+};
+
+const CategoryFieldsContext = createContext<CategoryFieldsContextValue | null>(
+  null,
+);
+
+function normalizeCategory(category?: string): ProductCategory {
+  return categories.some((option) => option.value === category)
+    ? (category as ProductCategory)
+    : "phones";
+}
+
+function useCategoryFields() {
+  const context = useContext(CategoryFieldsContext);
+
+  if (!context) {
+    throw new Error(
+      "Category fields must be used inside CategoryFieldsProvider.",
+    );
+  }
+
+  return context;
+}
+
+export function CategoryFieldsProvider({
+  initialCategory,
+  children,
+}: {
+  initialCategory?: string;
+  children: ReactNode;
+}) {
+  const [category, setCategory] = useState<ProductCategory>(
+    normalizeCategory(initialCategory),
+  );
+
+  return (
+    <CategoryFieldsContext.Provider value={{ category, setCategory }}>
+      {children}
+    </CategoryFieldsContext.Provider>
+  );
+}
+
+export function ProductCategoryField() {
+  const { category, setCategory } = useCategoryFields();
+
+  return (
+    <label className="block">
+      <span className={labelClassName}>Product Category</span>
+      <select
+        name="collectionId"
+        value={category}
+        onChange={(event) => setCategory(event.target.value as ProductCategory)}
+        className={inputClassName}
+      >
+        {categories.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
 
 function TextField({
   label,
@@ -103,7 +173,11 @@ function Storage({ defaultValue }: { defaultValue?: string }) {
   return (
     <label className="block">
       <span className={labelClassName}>Storage</span>
-      <select name="storage" defaultValue={defaultValue || ""} className={inputClassName}>
+      <select
+        name="storage"
+        defaultValue={defaultValue || ""}
+        className={inputClassName}
+      >
         {storageOptions.map((option) => (
           <option key={option.value || "empty"} value={option.value}>
             {option.label}
@@ -118,7 +192,11 @@ function BatteryHealth({ defaultValue }: { defaultValue?: string }) {
   return (
     <label className="block">
       <span className={labelClassName}>Battery Health</span>
-      <select name="batteryHealth" defaultValue={defaultValue || ""} className={inputClassName}>
+      <select
+        name="batteryHealth"
+        defaultValue={defaultValue || ""}
+        className={inputClassName}
+      >
         <option value="">Select battery health</option>
         {batteryOptions.map((option) => (
           <option key={option} value={option}>
@@ -134,7 +212,11 @@ function Grading({ defaultValue }: { defaultValue?: string }) {
   return (
     <label className="block">
       <span className={labelClassName}>Grading</span>
-      <select name="gradingData" defaultValue={defaultValue || ""} className={inputClassName}>
+      <select
+        name="gradingData"
+        defaultValue={defaultValue || ""}
+        className={inputClassName}
+      >
         <option value="">Select grade</option>
         {gradeOptions.map((option) => (
           <option key={option} value={option}>
@@ -147,7 +229,6 @@ function Grading({ defaultValue }: { defaultValue?: string }) {
 }
 
 export default function CategorySpecificFields({
-  initialCategory = "phones",
   initialCondition = "new",
   initialColor = "",
   initialStorage = "",
@@ -165,11 +246,7 @@ export default function CategorySpecificFields({
   initialShoeSize = "",
   initialGenderFit = "",
 }: CategorySpecificFieldsProps) {
-  const [category, setCategory] = useState<ProductCategory>(
-    categories.some((option) => option.value === initialCategory)
-      ? (initialCategory as ProductCategory)
-      : "phones",
-  );
+  const { category } = useCategoryFields();
   const conditionField = <ProductCondition defaultValue={initialCondition} />;
   const colorField = (
     <TextField
@@ -183,22 +260,6 @@ export default function CategorySpecificFields({
 
   return (
     <>
-      <label className="block">
-        <span className={labelClassName}>Product Category</span>
-        <select
-          name="collectionId"
-          value={category}
-          onChange={(event) => setCategory(event.target.value as ProductCategory)}
-          className={inputClassName}
-        >
-          {categories.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
-
       {category === "phones" ? (
         <>
           {conditionField}
@@ -235,7 +296,12 @@ export default function CategorySpecificFields({
           {conditionField}
           {colorField}
           <Storage defaultValue={initialStorage} />
-          <TextField label="RAM" name="ram" defaultValue={initialRam} placeholder="16GB" />
+          <TextField
+            label="RAM"
+            name="ram"
+            defaultValue={initialRam}
+            placeholder="16GB"
+          />
           <TextField
             label="Processor"
             name="processor"
