@@ -66,7 +66,7 @@ export function LifestyleFlipLink({
 
     window.setTimeout(() => {
       router.push(href);
-    }, 600);
+    }, 650);
 
     window.setTimeout(() => {
       document.body.classList.remove("lifestyle-page-flip");
