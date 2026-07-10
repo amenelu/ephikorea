@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 
 type LifestyleFlipLinkProps = {
@@ -16,8 +17,32 @@ export function LifestyleFlipLink({
   children,
 }: LifestyleFlipLinkProps) {
   const router = useRouter();
+  const warmedRoute = useRef(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+  const warmLifestyleRoute = async () => {
+    if (warmedRoute.current) {
+      return;
+    }
+
+    router.prefetch(href);
+
+    try {
+      await fetch(href, {
+        credentials: "same-origin",
+        priority: "high",
+      });
+      warmedRoute.current = true;
+    } catch {
+      warmedRoute.current = true;
+    }
+  };
+
+  useEffect(() => {
+    router.prefetch(href);
+  }, [href, router]);
+
+  const handleClick = async (event: MouseEvent<HTMLAnchorElement>) => {
     if (
       event.defaultPrevented ||
       event.metaKey ||
@@ -30,19 +55,35 @@ export function LifestyleFlipLink({
     }
 
     event.preventDefault();
+    if (isNavigating) {
+      return;
+    }
+
+    setIsNavigating(true);
+    await warmLifestyleRoute();
+
     document.body.classList.add("lifestyle-page-flip");
 
     window.setTimeout(() => {
       router.push(href);
-    }, 460);
+    }, 600);
 
     window.setTimeout(() => {
       document.body.classList.remove("lifestyle-page-flip");
-    }, 900);
+      setIsNavigating(false);
+    }, 1170);
   };
 
   return (
-    <Link href={href} onClick={handleClick} className={className}>
+    <Link
+      href={href}
+      prefetch
+      onClick={handleClick}
+      onFocus={warmLifestyleRoute}
+      onPointerEnter={warmLifestyleRoute}
+      className={className}
+      aria-disabled={isNavigating}
+    >
       {children}
     </Link>
   );
