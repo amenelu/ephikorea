@@ -14,6 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/collections/computing",
     "/collections/wearables",
     "/collections/accessories",
+    "/collections/lifestyle",
     "/collections/skincare",
     "/collections/shoes",
     "/about",
@@ -32,14 +33,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.push({
         url: absoluteUrl(publicPath(locale, path)),
         lastModified: now,
-        changeFrequency: path === "" || path === "/products" ? "daily" : "weekly",
+        changeFrequency:
+          path === "" || path === "/products" ? "daily" : "weekly",
         priority: path === "" ? 1 : path === "/products" ? 0.9 : 0.7,
       });
     }
 
     for (const product of products) {
       entries.push({
-        url: absoluteUrl(publicPath(locale, `/products/${product.handle || product.id}`)),
+        url: absoluteUrl(
+          publicPath(locale, `/products/${product.handle || product.id}`),
+        ),
         lastModified: now,
         changeFrequency: "daily",
         priority: 0.8,
