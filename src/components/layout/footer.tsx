@@ -28,6 +28,15 @@ export const Footer = ({ locale }: { locale: string }) => {
             <ul className="mt-4 space-y-2">
               <li>
                 <Link
+                  href={`/${locale}/collections/phones`}
+                  prefetch={false}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
+                >
+                  {t("footer.phones")}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href={`/${locale}/collections/audio`}
                   prefetch={false}
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
@@ -51,6 +60,15 @@ export const Footer = ({ locale }: { locale: string }) => {
                   className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
                 >
                   {t("footer.wearables")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/collections/accessories`}
+                  prefetch={false}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
+                >
+                  {t("footer.accessories")}
                 </Link>
               </li>
               <li>

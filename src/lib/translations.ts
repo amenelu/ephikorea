@@ -18,9 +18,11 @@ const translations = {
     "footer.description":
       "Redefining the standard of premium electronics with South Korean engineering excellence.",
     "footer.collections": "Collections",
+    "footer.phones": "Phones",
     "footer.audio": "Audio",
     "footer.computing": "Computing",
     "footer.wearables": "Wearables",
+    "footer.accessories": "Accessories",
     "footer.skincare": "Skincare",
     "footer.shoes": "Shoes",
     "footer.support": "Support",
@@ -53,6 +55,10 @@ const translations = {
     "collections.organizeBrand": "By brand",
     "collections.categorySummary": "Curated category entry points for faster browsing.",
     "collections.brandSummary": "Browse the live catalog grouped by brand.",
+    "collections.phonesTitle": "Phones",
+    "collections.phonesDescription":
+      "New and certified pre-owned phones organized for faster browsing.",
+    "collections.phonesCta": "Explore phones",
     "collections.audioTitle": "Audio",
     "collections.audioDescription":
       "Headphones, earbuds, speakers, and listening gear for travel, work, and everyday setups.",
@@ -65,6 +71,10 @@ const translations = {
     "collections.wearablesDescription":
       "Smart watches, fitness-oriented devices, and accessories designed to stay with you all day.",
     "collections.wearablesCta": "Explore wearables",
+    "collections.accessoriesTitle": "Accessories",
+    "collections.accessoriesDescription":
+      "Cases, chargers, cables, and useful add-ons for daily devices and setups.",
+    "collections.accessoriesCta": "Explore accessories",
     "collections.skincareTitle": "Skincare",
     "collections.skincareDescription":
       "Routine essentials, beauty care, and skincare products for daily replenishment.",
@@ -158,9 +168,11 @@ const translations = {
     "footer.description":
       "엄선된 프리미엄 전자제품과 모바일 기기를 더 편하게 만날 수 있는 스토어입니다.",
     "footer.collections": "컬렉션",
+    "footer.phones": "Phones",
     "footer.audio": "오디오",
     "footer.computing": "컴퓨팅",
     "footer.wearables": "웨어러블",
+    "footer.accessories": "Accessories",
     "footer.skincare": "Skincare",
     "footer.shoes": "Shoes",
     "footer.support": "고객지원",
@@ -193,6 +205,10 @@ const translations = {
     "collections.organizeBrand": "브랜드별",
     "collections.categorySummary": "카테고리 중심으로 빠르게 둘러볼 수 있는 진입점입니다.",
     "collections.brandSummary": "실시간 카탈로그를 브랜드별로 묶어 탐색합니다.",
+    "collections.phonesTitle": "Phones",
+    "collections.phonesDescription":
+      "New and certified pre-owned phones organized for faster browsing.",
+    "collections.phonesCta": "Explore phones",
     "collections.audioTitle": "오디오",
     "collections.audioDescription":
       "헤드폰, 이어버드, 스피커 등 이동 중이든 책상 앞이든 잘 어울리는 청취 기기를 모았습니다.",
@@ -205,6 +221,10 @@ const translations = {
     "collections.wearablesDescription":
       "스마트워치, 피트니스 기기, 그리고 하루 종일 함께하는 액세서리를 확인해 보세요.",
     "collections.wearablesCta": "웨어러블 보기",
+    "collections.accessoriesTitle": "Accessories",
+    "collections.accessoriesDescription":
+      "Cases, chargers, cables, and useful add-ons for daily devices and setups.",
+    "collections.accessoriesCta": "Explore accessories",
     "collections.skincareTitle": "Skincare",
     "collections.skincareDescription":
       "Routine essentials, beauty care, and skincare products for daily replenishment.",

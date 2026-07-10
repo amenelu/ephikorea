@@ -261,9 +261,11 @@ function revalidateAdminProductPaths(locale: string) {
   revalidatePath(`/${locale}`);
   revalidatePath(`/${locale}/products`);
   revalidatePath(`/${locale}/collections`);
+  revalidatePath(`/${locale}/collections/phones`);
   revalidatePath(`/${locale}/collections/audio`);
   revalidatePath(`/${locale}/collections/computing`);
   revalidatePath(`/${locale}/collections/wearables`);
+  revalidatePath(`/${locale}/collections/accessories`);
   revalidatePath(`/${locale}/collections/skincare`);
   revalidatePath(`/${locale}/collections/shoes`);
   revalidatePath(`/${locale}/search`);

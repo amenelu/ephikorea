@@ -5,6 +5,7 @@ export type ProductProfile =
   | "laptop"
   | "watch"
   | "vr"
+  | "accessories"
   | "skincare"
   | "shoes"
   | "generic";
@@ -458,6 +459,10 @@ export function inferProductProfile(source: {
     return "vr" as const;
   }
 
+  if (/(accessory|accessories|case|charger|cable|adapter|keyboard|mouse|cover)/.test(haystack)) {
+    return "accessories" as const;
+  }
+
   if (/(skincare|skin care|serum|cleanser|cream|toner|sunscreen|moisturizer)/.test(haystack)) {
     return "skincare" as const;
   }
@@ -606,6 +611,13 @@ function getProfileSpecs(profile: ProductProfile) {
         { label: "Controls", value: "Gesture or controller-based input support" },
         { label: "Audio", value: "Immersive audio support" },
         { label: "Use Case", value: "Entertainment, productivity, and mixed reality" },
+      ];
+    case "accessories":
+      return [
+        { label: "Category", value: "Accessories" },
+        { label: "Compatibility", value: "Check listing details before ordering" },
+        { label: "Quality", value: "Curated accessory listing" },
+        { label: "Use Case", value: "Protection, charging, productivity, or setup upgrades" },
       ];
     case "skincare":
       return [

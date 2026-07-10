@@ -5,7 +5,9 @@ import {
   Headphones,
   Laptop,
   LayoutGrid,
+  Package,
   Sparkles,
+  Smartphone,
   Watch,
 } from "lucide-react";
 
@@ -72,6 +74,13 @@ export default async function CollectionsPage({
 
   const collections = [
     {
+      title: t("collections.phonesTitle"),
+      description: t("collections.phonesDescription"),
+      href: `/${locale}/collections/phones`,
+      cta: t("collections.phonesCta"),
+      icon: Smartphone,
+    },
+    {
       title: t("collections.audioTitle"),
       description: t("collections.audioDescription"),
       href: `/${locale}/collections/audio`,
@@ -91,6 +100,13 @@ export default async function CollectionsPage({
       href: `/${locale}/collections/wearables`,
       cta: t("collections.wearablesCta"),
       icon: Watch,
+    },
+    {
+      title: t("collections.accessoriesTitle"),
+      description: t("collections.accessoriesDescription"),
+      href: `/${locale}/collections/accessories`,
+      cta: t("collections.accessoriesCta"),
+      icon: Package,
     },
     {
       title: t("collections.skincareTitle"),
