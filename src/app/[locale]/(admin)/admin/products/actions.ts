@@ -198,7 +198,7 @@ function parseGrade(rawValue: FormDataEntryValue | null) {
 }
 
 function parseProductCondition(rawValue: FormDataEntryValue | null) {
-  const normalized = String(rawValue || "certified_pre_owned").trim();
+  const normalized = String(rawValue || "new").trim();
 
   if (normalized === "certified_pre_owned") {
     return true;
@@ -223,6 +223,10 @@ function parseImei(rawValue: FormDataEntryValue | null) {
   }
 
   return normalized;
+}
+
+function parseOptionalText(formData: FormData, key: string) {
+  return String(formData.get(key) || "").trim();
 }
 
 function buildProductTitle(brandName: string, modelName: string) {
@@ -303,9 +307,19 @@ export async function addProductAction(formData: FormData) {
       modelName,
       String(formData.get("referenceUrl") || ""),
     );
-    const color = String(formData.get("color") || "");
+    const color = parseOptionalText(formData, "color");
     const storage = parseStorage(formData.get("storage"));
     const imei = parseImei(formData.get("imei"));
+    const compatibility = parseOptionalText(formData, "compatibility");
+    const material = parseOptionalText(formData, "material");
+    const ram = parseOptionalText(formData, "ram");
+    const processor = parseOptionalText(formData, "processor");
+    const sizeVolume = parseOptionalText(formData, "sizeVolume");
+    const skinType = parseOptionalText(formData, "skinType");
+    const ingredients = parseOptionalText(formData, "ingredients");
+    const expirationDate = parseOptionalText(formData, "expirationDate");
+    const shoeSize = parseOptionalText(formData, "shoeSize");
+    const genderFit = parseOptionalText(formData, "genderFit");
     const gradingData = parseGrade(formData.get("gradingData"));
     const batteryHealth = parseBatteryHealth(formData.get("batteryHealth"));
     const isCertifiedPreOwned = parseProductCondition(
@@ -332,6 +346,16 @@ export async function addProductAction(formData: FormData) {
       color,
       storage,
       imei,
+      compatibility,
+      material,
+      ram,
+      processor,
+      sizeVolume,
+      skinType,
+      ingredients,
+      expirationDate,
+      shoeSize,
+      genderFit,
       gradingData,
       batteryHealth,
       isCertifiedPreOwned,
@@ -380,9 +404,19 @@ export async function updateProductAction(formData: FormData) {
       modelName,
       String(formData.get("referenceUrl") || ""),
     );
-    const color = String(formData.get("color") || "");
+    const color = parseOptionalText(formData, "color");
     const storage = parseStorage(formData.get("storage"));
     const imei = parseImei(formData.get("imei"));
+    const compatibility = parseOptionalText(formData, "compatibility");
+    const material = parseOptionalText(formData, "material");
+    const ram = parseOptionalText(formData, "ram");
+    const processor = parseOptionalText(formData, "processor");
+    const sizeVolume = parseOptionalText(formData, "sizeVolume");
+    const skinType = parseOptionalText(formData, "skinType");
+    const ingredients = parseOptionalText(formData, "ingredients");
+    const expirationDate = parseOptionalText(formData, "expirationDate");
+    const shoeSize = parseOptionalText(formData, "shoeSize");
+    const genderFit = parseOptionalText(formData, "genderFit");
     const gradingData = parseGrade(formData.get("gradingData"));
     const batteryHealth = parseBatteryHealth(formData.get("batteryHealth"));
     const isCertifiedPreOwned = parseProductCondition(
@@ -410,6 +444,16 @@ export async function updateProductAction(formData: FormData) {
       color,
       storage,
       imei,
+      compatibility,
+      material,
+      ram,
+      processor,
+      sizeVolume,
+      skinType,
+      ingredients,
+      expirationDate,
+      shoeSize,
+      genderFit,
       gradingData,
       batteryHealth,
       isCertifiedPreOwned,

@@ -121,6 +121,27 @@ export default async function ProductDetailsPage({
       ? { label: t("product.grading"), value: product.grading_data }
       : null,
     editableFacts.imei ? { label: "IMEI", value: editableFacts.imei } : null,
+    editableFacts.compatibility
+      ? { label: "Compatibility", value: editableFacts.compatibility }
+      : null,
+    editableFacts.material ? { label: "Material", value: editableFacts.material } : null,
+    editableFacts.ram ? { label: "RAM", value: editableFacts.ram } : null,
+    editableFacts.processor
+      ? { label: "Processor", value: editableFacts.processor }
+      : null,
+    editableFacts.sizeVolume
+      ? { label: "Size / Volume", value: editableFacts.sizeVolume }
+      : null,
+    editableFacts.skinType
+      ? { label: "Skin Type", value: editableFacts.skinType }
+      : null,
+    editableFacts.expirationDate
+      ? { label: "Expiration Date", value: editableFacts.expirationDate }
+      : null,
+    editableFacts.shoeSize
+      ? { label: "Shoe Size", value: editableFacts.shoeSize }
+      : null,
+    editableFacts.genderFit ? { label: "Fit", value: editableFacts.genderFit } : null,
   ].filter(Boolean) as Array<{ label: string; value: string }>;
   const primarySpecs = specs.slice(0, 5);
   const secondarySpecs = specs.slice(5);

@@ -14,6 +14,16 @@ export type EditableProductFacts = {
   color?: string;
   storage?: string;
   imei?: string;
+  compatibility?: string;
+  material?: string;
+  ram?: string;
+  processor?: string;
+  sizeVolume?: string;
+  skinType?: string;
+  ingredients?: string;
+  expirationDate?: string;
+  shoeSize?: string;
+  genderFit?: string;
 };
 
 function getStoredBrandName(metadata?: Record<string, unknown> | null) {
@@ -483,6 +493,16 @@ export function getEditableProductFacts(
     color: asString(specFacts?.color),
     storage: asString(specFacts?.storage),
     imei: asString(specFacts?.imei),
+    compatibility: asString(specFacts?.compatibility),
+    material: asString(specFacts?.material),
+    ram: asString(specFacts?.ram),
+    processor: asString(specFacts?.processor),
+    sizeVolume: asString(specFacts?.size_volume),
+    skinType: asString(specFacts?.skin_type),
+    ingredients: asString(specFacts?.ingredients),
+    expirationDate: asString(specFacts?.expiration_date),
+    shoeSize: asString(specFacts?.shoe_size),
+    genderFit: asString(specFacts?.gender_fit),
   } satisfies EditableProductFacts;
 }
 
@@ -490,6 +510,25 @@ export function getProductReferenceUrl(
   metadata?: Record<string, unknown> | null,
 ) {
   return sanitizeHttpUrl(asString(metadata?.reference_url));
+}
+
+function getAdditionalEditableFactSpecs(facts: EditableProductFacts) {
+  return [
+    facts.compatibility
+      ? { label: "Compatibility", value: facts.compatibility }
+      : null,
+    facts.material ? { label: "Material", value: facts.material } : null,
+    facts.ram ? { label: "RAM", value: facts.ram } : null,
+    facts.processor ? { label: "Processor", value: facts.processor } : null,
+    facts.sizeVolume ? { label: "Size / Volume", value: facts.sizeVolume } : null,
+    facts.skinType ? { label: "Skin Type", value: facts.skinType } : null,
+    facts.ingredients ? { label: "Ingredients", value: facts.ingredients } : null,
+    facts.expirationDate
+      ? { label: "Expiration Date", value: facts.expirationDate }
+      : null,
+    facts.shoeSize ? { label: "Shoe Size", value: facts.shoeSize } : null,
+    facts.genderFit ? { label: "Fit", value: facts.genderFit } : null,
+  ].filter(Boolean) as ProductSpec[];
 }
 
 export function getStoredReferenceSpecs(
@@ -535,6 +574,16 @@ export function buildProductMetadata(
     color?: string;
     storage?: string;
     imei?: string;
+    compatibility?: string;
+    material?: string;
+    ram?: string;
+    processor?: string;
+    sizeVolume?: string;
+    skinType?: string;
+    ingredients?: string;
+    expirationDate?: string;
+    shoeSize?: string;
+    genderFit?: string;
     brandName?: string;
     modelName?: string;
     referenceUrl?: string;
@@ -566,6 +615,16 @@ export function buildProductMetadata(
       color: source.color?.trim() || null,
       storage: source.storage?.trim() || null,
       imei: source.imei?.trim() || null,
+      compatibility: source.compatibility?.trim() || null,
+      material: source.material?.trim() || null,
+      ram: source.ram?.trim() || null,
+      processor: source.processor?.trim() || null,
+      size_volume: source.sizeVolume?.trim() || null,
+      skin_type: source.skinType?.trim() || null,
+      ingredients: source.ingredients?.trim() || null,
+      expiration_date: source.expirationDate?.trim() || null,
+      shoe_size: source.shoeSize?.trim() || null,
+      gender_fit: source.genderFit?.trim() || null,
     },
   };
 }
@@ -1427,6 +1486,8 @@ export function buildProductSpecSheet(
     specs.push({ label: "IMEI", value: facts.imei });
   }
 
+  specs.push(...getAdditionalEditableFactSpecs(facts));
+
   const supplementalSpecs = [...getProfileSpecs(profile)];
 
   specs.push({
@@ -1515,8 +1576,22 @@ export function buildProductSpecSections(
     });
   }
 
+  overviewSpecs.push(
+    ...getAdditionalEditableFactSpecs(facts).filter(
+      (spec) => spec.label !== "Ingredients" && spec.label !== "Expiration Date",
+    ),
+  );
+
   if (facts.imei) {
     conditionSpecs.push({ label: "IMEI", value: facts.imei });
+  }
+
+  if (facts.ingredients) {
+    conditionSpecs.push({ label: "Ingredients", value: facts.ingredients });
+  }
+
+  if (facts.expirationDate) {
+    conditionSpecs.push({ label: "Expiration Date", value: facts.expirationDate });
   }
 
   conditionSpecs.push({

@@ -726,6 +726,16 @@ export async function getAdminProducts() {
         sanitizeHttpUrl(
           typeof metadata?.reference_url === "string" ? metadata.reference_url : "",
         ) || "",
+      compatibility: facts.compatibility || "",
+      material: facts.material || "",
+      ram: facts.ram || "",
+      processor: facts.processor || "",
+      sizeVolume: facts.sizeVolume || "",
+      skinType: facts.skinType || "",
+      ingredients: facts.ingredients || "",
+      expirationDate: facts.expirationDate || "",
+      shoeSize: facts.shoeSize || "",
+      genderFit: facts.genderFit || "",
     };
   });
 }
@@ -746,6 +756,16 @@ type CreateAdminProductInput = {
   color?: string;
   storage?: string;
   imei?: string;
+  compatibility?: string;
+  material?: string;
+  ram?: string;
+  processor?: string;
+  sizeVolume?: string;
+  skinType?: string;
+  ingredients?: string;
+  expirationDate?: string;
+  shoeSize?: string;
+  genderFit?: string;
   gradingData?: string;
   batteryHealth?: number | null;
   isCertifiedPreOwned?: boolean;
@@ -798,6 +818,16 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       color: input.color,
       storage: input.storage,
       imei: input.imei,
+      compatibility: input.compatibility,
+      material: input.material,
+      ram: input.ram,
+      processor: input.processor,
+      sizeVolume: input.sizeVolume,
+      skinType: input.skinType,
+      ingredients: input.ingredients,
+      expirationDate: input.expirationDate,
+      shoeSize: input.shoeSize,
+      genderFit: input.genderFit,
       referenceUrl,
       referenceSpecs,
       referenceSpecSections,
@@ -931,6 +961,16 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
         color: input.color,
         storage: input.storage,
         imei: input.imei,
+        compatibility: input.compatibility,
+        material: input.material,
+        ram: input.ram,
+        processor: input.processor,
+        sizeVolume: input.sizeVolume,
+        skinType: input.skinType,
+        ingredients: input.ingredients,
+        expirationDate: input.expirationDate,
+        shoeSize: input.shoeSize,
+        genderFit: input.genderFit,
         referenceUrl,
         referenceSpecs,
         referenceSpecSections,

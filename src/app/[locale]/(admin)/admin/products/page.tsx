@@ -11,6 +11,7 @@ import {
   removeProductAction,
   updateProductAction,
 } from "./actions";
+import CategorySpecificFields from "./category-specific-fields";
 import ProductFormFields from "./product-form-fields";
 
 export default async function AdminProductsPage({
@@ -42,6 +43,16 @@ export default async function AdminProductsPage({
           product.color,
           product.storage,
           product.collectionId,
+          product.compatibility,
+          product.material,
+          product.ram,
+          product.processor,
+          product.sizeVolume,
+          product.skinType,
+          product.ingredients,
+          product.expirationDate,
+          product.shoeSize,
+          product.genderFit,
           product.gradingData,
           product.isCertifiedPreOwned ? "certified pre owned" : "new",
         ]
@@ -55,27 +66,6 @@ export default async function AdminProductsPage({
     (product) => product.id === searchParams.edit,
   );
   const formAction = editingProduct ? updateProductAction : addProductAction;
-  const batteryOptions = Array.from({ length: 11 }, (_, index) => 100 - index * 5);
-  const storageOptions = [
-    { value: "", label: "Select storage" },
-    { value: "32", label: "32GB" },
-    { value: "64", label: "64GB" },
-    { value: "128", label: "128GB" },
-    { value: "256", label: "256GB" },
-    { value: "512", label: "512GB" },
-    { value: "1024", label: "1TB" },
-    { value: "2048", label: "2TB" },
-  ];
-  const categoryOptions = [
-    { value: "phones", label: "Phones" },
-    { value: "audio", label: "Audio" },
-    { value: "computing", label: "Computing" },
-    { value: "wearables", label: "Wearables" },
-    { value: "accessories", label: "Accessories" },
-    { value: "skincare", label: "Skincare" },
-    { value: "shoes", label: "Shoes" },
-  ];
-  const gradeOptions = ["Grade A", "Grade B", "Grade C"];
   const publishedCount = products.filter((product) => product.status === "published").length;
 
   return (
@@ -199,22 +189,33 @@ export default async function AdminProductsPage({
             </span>
           </label>
 
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Product Category
-            </span>
-            <select
-              name="collectionId"
-              defaultValue={editingProduct?.collectionId || "phones"}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-            >
-              {categoryOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <CategorySpecificFields
+            initialCategory={editingProduct?.collectionId}
+            initialCondition={
+              editingProduct?.isCertifiedPreOwned === false
+                ? "new"
+                : "certified_pre_owned"
+            }
+            initialColor={editingProduct?.color}
+            initialStorage={editingProduct?.storage}
+            initialBatteryHealth={
+              editingProduct?.batteryHealth !== ""
+                ? String(editingProduct?.batteryHealth)
+                : ""
+            }
+            initialImei={editingProduct?.imei}
+            initialGradingData={editingProduct?.gradingData}
+            initialCompatibility={editingProduct?.compatibility}
+            initialMaterial={editingProduct?.material}
+            initialRam={editingProduct?.ram}
+            initialProcessor={editingProduct?.processor}
+            initialSizeVolume={editingProduct?.sizeVolume}
+            initialSkinType={editingProduct?.skinType}
+            initialIngredients={editingProduct?.ingredients}
+            initialExpirationDate={editingProduct?.expirationDate}
+            initialShoeSize={editingProduct?.shoeSize}
+            initialGenderFit={editingProduct?.genderFit}
+          />
 
           <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
@@ -263,108 +264,6 @@ export default async function AdminProductsPage({
               <option value="draft">Draft</option>
               <option value="proposed">Proposed</option>
               <option value="rejected">Rejected</option>
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Product Condition
-            </span>
-            <select
-              name="productCondition"
-              defaultValue={
-                editingProduct?.isCertifiedPreOwned === false
-                  ? "new"
-                  : "certified_pre_owned"
-              }
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-            >
-              <option value="certified_pre_owned">Certified Pre-Owned</option>
-              <option value="new">New</option>
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Color
-            </span>
-            <input
-              type="text"
-              name="color"
-              defaultValue={editingProduct?.color || ""}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="Midnight Black"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Storage
-            </span>
-            <select
-              name="storage"
-              defaultValue={editingProduct?.storage || ""}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-            >
-              {storageOptions.map((option) => (
-                <option key={option.value || "empty"} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Battery Health
-            </span>
-            <select
-              name="batteryHealth"
-              defaultValue={
-                editingProduct?.batteryHealth !== ""
-                  ? String(editingProduct?.batteryHealth)
-                  : ""
-              }
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-            >
-              <option value="">Select battery health</option>
-              {batteryOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}%
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              IMEI
-            </span>
-            <input
-              type="text"
-              name="imei"
-              inputMode="numeric"
-              defaultValue={editingProduct?.imei || ""}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-              placeholder="357123456789012"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Grading
-            </span>
-            <select
-              name="gradingData"
-              defaultValue={editingProduct?.gradingData || ""}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
-            >
-              <option value="">Select grade</option>
-              {gradeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
             </select>
           </label>
 
