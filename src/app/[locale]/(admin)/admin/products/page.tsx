@@ -72,6 +72,8 @@ export default async function AdminProductsPage({
     { value: "computing", label: "Computing" },
     { value: "wearables", label: "Wearables" },
     { value: "accessories", label: "Accessories" },
+    { value: "skincare", label: "Skincare" },
+    { value: "shoes", label: "Shoes" },
   ];
   const gradeOptions = ["Grade A", "Grade B", "Grade C"];
   const publishedCount = products.filter((product) => product.status === "published").length;

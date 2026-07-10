@@ -53,6 +53,24 @@ export const Footer = ({ locale }: { locale: string }) => {
                   {t("footer.wearables")}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href={`/${locale}/collections/skincare`}
+                  prefetch={false}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
+                >
+                  {t("footer.skincare")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/collections/shoes`}
+                  prefetch={false}
+                  className="text-sm text-gray-500 transition-colors hover:text-yellow-600"
+                >
+                  {t("footer.shoes")}
+                </Link>
+              </li>
             </ul>
           </div>
           <div className="min-w-0">

@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { Building2, Headphones, Laptop, LayoutGrid, Watch } from "lucide-react";
+import {
+  Building2,
+  Footprints,
+  Headphones,
+  Laptop,
+  LayoutGrid,
+  Sparkles,
+  Watch,
+} from "lucide-react";
 
 import { getCatalogProducts } from "@/lib/catalog-data";
 import { inferBrand, inferProductProfile } from "@/lib/product-specs";
@@ -83,6 +91,20 @@ export default async function CollectionsPage({
       href: `/${locale}/collections/wearables`,
       cta: t("collections.wearablesCta"),
       icon: Watch,
+    },
+    {
+      title: t("collections.skincareTitle"),
+      description: t("collections.skincareDescription"),
+      href: `/${locale}/collections/skincare`,
+      cta: t("collections.skincareCta"),
+      icon: Sparkles,
+    },
+    {
+      title: t("collections.shoesTitle"),
+      description: t("collections.shoesDescription"),
+      href: `/${locale}/collections/shoes`,
+      cta: t("collections.shoesCta"),
+      icon: Footprints,
     },
   ];
   const productsByBrand = Array.from(

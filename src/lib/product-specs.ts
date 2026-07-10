@@ -5,6 +5,8 @@ export type ProductProfile =
   | "laptop"
   | "watch"
   | "vr"
+  | "skincare"
+  | "shoes"
   | "generic";
 
 export type EditableProductFacts = {
@@ -456,6 +458,14 @@ export function inferProductProfile(source: {
     return "vr" as const;
   }
 
+  if (/(skincare|skin care|serum|cleanser|cream|toner|sunscreen|moisturizer)/.test(haystack)) {
+    return "skincare" as const;
+  }
+
+  if (/(shoe|shoes|sneaker|sneakers|boot|boots|footwear)/.test(haystack)) {
+    return "shoes" as const;
+  }
+
   return "generic" as const;
 }
 
@@ -596,6 +606,20 @@ function getProfileSpecs(profile: ProductProfile) {
         { label: "Controls", value: "Gesture or controller-based input support" },
         { label: "Audio", value: "Immersive audio support" },
         { label: "Use Case", value: "Entertainment, productivity, and mixed reality" },
+      ];
+    case "skincare":
+      return [
+        { label: "Category", value: "Skincare" },
+        { label: "Focus", value: "Daily personal care and beauty routine" },
+        { label: "Quality", value: "Curated product listing" },
+        { label: "Use Case", value: "Routine, gifting, or replenishment" },
+      ];
+    case "shoes":
+      return [
+        { label: "Category", value: "Shoes" },
+        { label: "Fit", value: "Check listing details before ordering" },
+        { label: "Quality", value: "Curated footwear listing" },
+        { label: "Use Case", value: "Everyday wear, style, or gifting" },
       ];
     default:
       return [

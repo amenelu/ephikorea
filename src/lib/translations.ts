@@ -21,6 +21,8 @@ const translations = {
     "footer.audio": "Audio",
     "footer.computing": "Computing",
     "footer.wearables": "Wearables",
+    "footer.skincare": "Skincare",
+    "footer.shoes": "Shoes",
     "footer.support": "Support",
     "footer.shipping": "Shipping Info",
     "footer.returns": "Returns",
@@ -63,6 +65,14 @@ const translations = {
     "collections.wearablesDescription":
       "Smart watches, fitness-oriented devices, and accessories designed to stay with you all day.",
     "collections.wearablesCta": "Explore wearables",
+    "collections.skincareTitle": "Skincare",
+    "collections.skincareDescription":
+      "Routine essentials, beauty care, and skincare products for daily replenishment.",
+    "collections.skincareCta": "Explore skincare",
+    "collections.shoesTitle": "Shoes",
+    "collections.shoesDescription":
+      "Shoes, sneakers, and footwear listings organized for faster browsing.",
+    "collections.shoesCta": "Explore shoes",
     "collections.brandCta": "Browse brand",
     "collections.brandCount": (count) => `${count} product${Number(count) === 1 ? "" : "s"}`,
     "collections.otherBrand": "Other Brands",
@@ -151,6 +161,8 @@ const translations = {
     "footer.audio": "오디오",
     "footer.computing": "컴퓨팅",
     "footer.wearables": "웨어러블",
+    "footer.skincare": "Skincare",
+    "footer.shoes": "Shoes",
     "footer.support": "고객지원",
     "footer.shipping": "배송 안내",
     "footer.returns": "반품",
@@ -193,6 +205,14 @@ const translations = {
     "collections.wearablesDescription":
       "스마트워치, 피트니스 기기, 그리고 하루 종일 함께하는 액세서리를 확인해 보세요.",
     "collections.wearablesCta": "웨어러블 보기",
+    "collections.skincareTitle": "Skincare",
+    "collections.skincareDescription":
+      "Routine essentials, beauty care, and skincare products for daily replenishment.",
+    "collections.skincareCta": "Explore skincare",
+    "collections.shoesTitle": "Shoes",
+    "collections.shoesDescription":
+      "Shoes, sneakers, and footwear listings organized for faster browsing.",
+    "collections.shoesCta": "Explore shoes",
     "collections.brandCta": "브랜드 보기",
     "collections.brandCount": (count) => `${count}개 상품`,
     "collections.otherBrand": "기타 브랜드",

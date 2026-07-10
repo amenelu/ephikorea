@@ -49,6 +49,8 @@ const PRODUCT_CATEGORIES = [
   "computing",
   "wearables",
   "accessories",
+  "skincare",
+  "shoes",
 ] as const;
 
 function parsePriceToMinorUnits(rawValue: string, currencyCode: string) {
@@ -262,6 +264,8 @@ function revalidateAdminProductPaths(locale: string) {
   revalidatePath(`/${locale}/collections/audio`);
   revalidatePath(`/${locale}/collections/computing`);
   revalidatePath(`/${locale}/collections/wearables`);
+  revalidatePath(`/${locale}/collections/skincare`);
+  revalidatePath(`/${locale}/collections/shoes`);
   revalidatePath(`/${locale}/search`);
   revalidatePath(`/${locale}/admin`);
   revalidatePath(`/${locale}/admin/products`);
