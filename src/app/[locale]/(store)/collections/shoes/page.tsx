@@ -7,8 +7,10 @@ export const dynamic = "force-dynamic";
 
 export default async function ShoesCollectionPage({
   params: { locale },
+  searchParams,
 }: {
   params: { locale: string };
+  searchParams?: { condition?: string };
 }) {
   const products = (await getCatalogProducts()).filter(
     (product) => product.collection_id === "shoes",
@@ -19,6 +21,8 @@ export default async function ShoesCollectionPage({
       locale={locale}
       title="Shoes Collection"
       products={products}
+      baseHref={`/${locale}/collections/shoes`}
+      activeCondition={searchParams?.condition}
     />
   );
 }

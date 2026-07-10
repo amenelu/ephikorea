@@ -128,6 +128,14 @@ This checklist reflects the current production setup:
 - [ ] Domain registrar access.
 - [ ] Short guide for adding products, uploading images, checking orders, and updating inventory.
 
+## 12A. Content Inputs Still Needed
+
+- [ ] Replace Contact page placeholders with the real support email.
+- [ ] Replace Contact page placeholders with the real support phone number.
+- [ ] Replace Contact page placeholders with real showroom/support hours.
+- [ ] Decide whether live chat is needed. If yes, choose a provider before implementation.
+- [ ] Confirm order email notifications are still working after the copy update.
+
 ## 13. New Cloudflare Account Deployment Runbook
 
 Use this when moving the whole site into a new Cloudflare account.

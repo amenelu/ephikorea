@@ -14,7 +14,7 @@ export function generateMetadata({
     locale,
     pathname: "/search",
     title: "Search",
-    description: "Search the Aman Mobile live product catalog.",
+    description: "Search the Aman Mobiles live product catalog.",
     noIndex: true,
   });
 }
@@ -33,12 +33,7 @@ export default async function SearchPage({
 
   const results = normalizedQuery
     ? products.filter((product) =>
-        [
-          product.title,
-          product.subtitle,
-          product.description,
-          product.handle,
-        ]
+        [product.title, product.subtitle, product.description, product.handle]
           .filter(Boolean)
           .some((value) => value!.toLowerCase().includes(normalizedQuery)),
       )
@@ -54,9 +49,7 @@ export default async function SearchPage({
           {query ? t("search.resultsTitle", query) : t("search.title")}
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">
-          {query
-            ? t("search.matchCount", results.length)
-            : t("search.helper")}
+          {query ? t("search.matchCount", results.length) : t("search.helper")}
         </p>
       </div>
 

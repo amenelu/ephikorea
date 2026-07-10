@@ -1,7 +1,21 @@
 import { InfoPage } from "@/components/layout/info-page";
 import { generateLocaleStaticParams } from "@/lib/locales";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const generateStaticParams = generateLocaleStaticParams;
+
+export function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return buildPageMetadata({
+    locale,
+    pathname: "/support/shipping",
+    title: "Shipping Info",
+    description: "See how fast we ship and where we deliver.",
+  });
+}
 
 export default function ShippingPage({
   params: { locale },
@@ -12,29 +26,28 @@ export default function ShippingPage({
     <InfoPage
       locale={locale}
       eyebrow="Support"
-      title="Shipping Information"
-      description="This demo shipping page outlines a premium fulfillment experience for local and international electronics orders. Use it as a placeholder until your final courier, dispatch timing, and regional pricing rules are ready."
+      title="Shipping Info"
+      description="Most in-stock orders ship within 1-2 business days. We'll email or text you as soon as your order is on its way, and every item is packed carefully so it arrives in one piece."
       highlights={[
-        "1-2 business days for in-stock dispatch",
-        "Tracking shared by email or phone",
-        "Premium packaging for sensitive devices",
+        "Ships in 1-2 business days",
+        "We'll let you know as soon as it ships",
+        "Careful packaging for every item",
       ]}
       sections={[
         {
           title: "Processing Times",
-          body: "Orders placed before midday are typically prepared the same day in this demo flow. Devices that require final inspection, grading confirmation, or accessory bundling may ship on the next business day.",
+          body: "Order before noon and we'll usually get it ready the same day. Items that need one last check or extra parts may ship the next business day instead.",
         },
         {
           title: "Delivery Coverage",
-          body: "Example coverage includes major Korean metro areas, regional delivery nationwide, and selected international destinations. Final availability should depend on your carrier integrations and customs requirements.",
-        },
-        {
-          title: "Tracking Updates",
-          body: "Customers receive shipment updates through the contact details provided during checkout. That gives guest checkout buyers the same visibility as account-based shoppers without forcing sign-in.",
+          body: "We deliver to major cities now, with regional and select international shipping available depending on the item.",
         },
       ]}
-      primaryLink={{ href: `/${locale}/cart`, label: "Start an order" }}
-      secondaryLink={{ href: `/${locale}/contact`, label: "Ask about delivery" }}
+      primaryLink={{ href: `/${locale}/cart`, label: "Start an Order" }}
+      secondaryLink={{
+        href: `/${locale}/contact`,
+        label: "Ask About Delivery",
+      }}
     />
   );
 }

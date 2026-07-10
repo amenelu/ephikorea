@@ -1,7 +1,22 @@
 import { InfoPage } from "@/components/layout/info-page";
 import { generateLocaleStaticParams } from "@/lib/locales";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const generateStaticParams = generateLocaleStaticParams;
+
+export function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return buildPageMetadata({
+    locale,
+    pathname: "/about",
+    title: "About Us",
+    description:
+      "Learn how Aman Mobiles checks and grades every product we sell, so you always know what you're buying.",
+  });
+}
 
 export default function AboutPage({
   params: { locale },
@@ -12,29 +27,25 @@ export default function AboutPage({
     <InfoPage
       locale={locale}
       eyebrow="Company"
-      title="About Aman Mobile"
-      description="Aman Mobile is a demo premium electronics storefront built to showcase polished merchandising, localized browsing, and admin-managed commerce operations. The brand story here is fictional, but the customer journey is designed to feel like a modern retail launch."
+      title="About Aman Mobiles"
+      description="Buying tech online shouldn't feel like a gamble. That's why everything we sell -- new or certified pre-owned -- gets checked and graded before it ever reaches you, so you know exactly what you're paying for."
       highlights={[
-        "Curated refurbished and premium electronics",
-        "Localized browsing for Korean and English shoppers",
-        "Admin-managed catalog, orders, and customer data",
+        "New and certified pre-owned, always clearly labeled",
+        "Shop in Korean or English, whichever's easier for you",
+        "Simple ordering, clear pricing, and real people to help",
       ]}
       sections={[
         {
-          title: "What We Sell",
-          body: "The demo catalog focuses on premium consumer tech including mobile devices, audio gear, and everyday productivity hardware. Each product page is meant to feel editorial instead of purely transactional.",
+          title: "What You'll Find Here",
+          body: "Phones, audio, computing, wearables, and everyday accessories -- we focus on tech that's actually worth trusting. Every listing tells you the real condition and grade, so there's no surprise when it arrives.",
         },
         {
-          title: "How It Runs",
-          body: "The storefront is powered by Next.js with a compact SQLite-backed commerce layer. That keeps hosting simple while leaving room for adding real payments, shipping rules, and customer accounts later.",
-        },
-        {
-          title: "Why It Exists",
-          body: "This project gives you a realistic base for testing catalog design, order flows, and admin tooling without waiting for final production copy. It is intentionally set up so placeholder content can evolve into a live brand site.",
+          title: "Why Buy From Us",
+          body: "We inspect and grade every item ourselves before it's listed, so the description matches what shows up at your door. If something's not right, our support team sorts it out -- no runaround.",
         },
       ]}
-      primaryLink={{ href: `/${locale}/products`, label: "Explore the catalog" }}
-      secondaryLink={{ href: `/${locale}/contact`, label: "Talk to the team" }}
+      primaryLink={{ href: `/${locale}/products`, label: "Shop Collection" }}
+      secondaryLink={{ href: `/${locale}/contact`, label: "Get in Touch" }}
     />
   );
 }

@@ -7,8 +7,10 @@ export const dynamic = "force-dynamic";
 
 export default async function ComputingCollectionPage({
   params: { locale },
+  searchParams,
 }: {
   params: { locale: string };
+  searchParams?: { condition?: string };
 }) {
   const products = (await getCatalogProducts()).filter(
     (product) => product.collection_id === "computing",
@@ -19,6 +21,8 @@ export default async function ComputingCollectionPage({
       locale={locale}
       title="Computing Collection"
       products={products}
+      baseHref={`/${locale}/collections/computing`}
+      activeCondition={searchParams?.condition}
     />
   );
 }

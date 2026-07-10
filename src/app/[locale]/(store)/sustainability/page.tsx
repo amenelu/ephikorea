@@ -1,7 +1,22 @@
 import { InfoPage } from "@/components/layout/info-page";
 import { generateLocaleStaticParams } from "@/lib/locales";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const generateStaticParams = generateLocaleStaticParams;
+
+export function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return buildPageMetadata({
+    locale,
+    pathname: "/sustainability",
+    title: "Sustainability",
+    description:
+      "Learn how refurbishing and grading products at Aman Mobiles helps them last longer.",
+  });
+}
 
 export default function SustainabilityPage({
   params: { locale },
@@ -12,29 +27,25 @@ export default function SustainabilityPage({
     <InfoPage
       locale={locale}
       eyebrow="Company"
-      title="Sustainability"
-      description="This demo sustainability page explains how a premium electronics storefront might talk about refurbishment, lifecycle extension, and more responsible packaging. It is sample brand content that you can replace with real metrics later."
+      title="Doing Right by Your Devices"
+      description="Buying refurbished means fewer working devices end up sitting in a drawer or a landfill. We carefully grade and refurbish every item so it gets a longer life instead of an early replacement."
       highlights={[
-        "Refurbishment extends product life",
-        "Packaging designed to reduce waste",
-        "Placeholder ESG copy for brand storytelling",
+        "Refurbishment extends a device's useful life",
+        "Packaging chosen to cut down on waste",
+        "Clear grading so you buy once, confidently",
       ]}
       sections={[
         {
           title: "Longer Device Lifecycles",
-          body: "Aman Mobile positions refurbishment and careful grading as part of a lower-waste retail model. Extending the useful life of high-quality electronics can reduce unnecessary replacement cycles and keep premium devices in active use longer.",
+          body: "By properly refurbishing and grading devices, we help good products stay in use longer instead of getting replaced too soon -- which means less electronic waste overall.",
         },
         {
-          title: "Operational Practices",
-          body: "Example sustainability practices include reusable packing materials where possible, right-sized shipping boxes, and clearer grading notes so customers can buy with confidence instead of over-ordering and returning multiple devices.",
-        },
-        {
-          title: "Important Note",
-          body: "This is demo content only and should not be treated as a verified sustainability claim. Before publishing live, replace it with evidence-backed information about sourcing, refurbishment standards, logistics, and measurable goals.",
+          title: "How We Try to Do Better",
+          body: "We reuse packaging where we can, choose right-sized boxes to cut down on waste, and give clear grading details upfront -- so you don't need to over-order or return something that wasn't what you expected.",
         },
       ]}
-      primaryLink={{ href: `/${locale}/products`, label: "Shop responsibly" }}
-      secondaryLink={{ href: `/${locale}/privacy`, label: "View company policy" }}
+      primaryLink={{ href: `/${locale}/products`, label: "Shop Collection" }}
+      secondaryLink={{ href: `/${locale}/privacy`, label: "View Our Policies" }}
     />
   );
 }

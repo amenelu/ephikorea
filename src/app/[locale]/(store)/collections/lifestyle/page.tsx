@@ -21,7 +21,7 @@ export function generateMetadata({
     pathname: "/collections/lifestyle",
     title: "Lifestyle Collection",
     description:
-      "Shop Aman Mobile lifestyle products, including skincare and shoes, in one dedicated collection.",
+      "Shop Aman Mobiles lifestyle products, including skincare and shoes, in one dedicated collection.",
   });
 }
 
@@ -54,7 +54,7 @@ export default async function LifestyleCollectionPage({
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
       <Link
-        href={`/${locale}/collections?organize=category`}
+        href={`/${locale}/collections`}
         className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-600 transition hover:border-yellow-300 hover:text-gray-900"
       >
         <ArrowLeft className="h-4 w-4" />

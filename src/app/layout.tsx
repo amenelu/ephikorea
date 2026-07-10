@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
   title: {
-    default: `${SITE_NAME} | Premium Electronics`,
+    default: `${SITE_NAME} | New & Certified Pre-Owned Phones`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -21,12 +21,12 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: `${SITE_NAME} | Premium Electronics`,
+    title: `${SITE_NAME} | New & Certified Pre-Owned Phones`,
     description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary",
-    title: `${SITE_NAME} | Premium Electronics`,
+    title: `${SITE_NAME} | New & Certified Pre-Owned Phones`,
     description: SITE_DESCRIPTION,
   },
 };

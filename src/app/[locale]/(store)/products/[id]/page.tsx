@@ -23,7 +23,11 @@ import {
 } from "@/lib/product-specs";
 import { absoluteUrl, buildPageMetadata, jsonLd } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
-import { convertAmount, formatLocalizedAmount, getLocaleCurrency } from "@/lib/utils";
+import {
+  convertAmount,
+  formatLocalizedAmount,
+  getLocaleCurrency,
+} from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +39,7 @@ function productDescription(product: {
   return (
     product.description ||
     product.subtitle ||
-    `Shop ${product.title} from Aman Mobile.`
+    `Shop ${product.title} from Aman Mobiles.`
   );
 }
 
@@ -51,7 +55,7 @@ export async function generateMetadata({
       locale,
       pathname: `/products/${id}`,
       title: "Product",
-      description: "Product details from Aman Mobile.",
+      description: "Product details from Aman Mobiles.",
     });
   }
 
@@ -90,7 +94,9 @@ export default async function ProductDetailsPage({
   const similarProducts = await similarProductsPromise;
   const referenceUrl = getProductReferenceUrl(product.metadata);
   const storedReferenceSpecs = getStoredReferenceSpecs(product.metadata);
-  const storedReferenceSections = getStoredReferenceSpecSections(product.metadata);
+  const storedReferenceSections = getStoredReferenceSpecSections(
+    product.metadata,
+  );
   const productImages = product.images?.filter(isLikelyImageUrl) || [];
   const displayImageUrl = productImages[0];
 
@@ -115,7 +121,10 @@ export default async function ProductDetailsPage({
         }
       : null,
     typeof product.battery_health === "number"
-      ? { label: t("product.batteryHealth"), value: `${product.battery_health}%` }
+      ? {
+          label: t("product.batteryHealth"),
+          value: `${product.battery_health}%`,
+        }
       : null,
     product.grading_data
       ? { label: t("product.grading"), value: product.grading_data }
@@ -124,7 +133,9 @@ export default async function ProductDetailsPage({
     editableFacts.compatibility
       ? { label: "Compatibility", value: editableFacts.compatibility }
       : null,
-    editableFacts.material ? { label: "Material", value: editableFacts.material } : null,
+    editableFacts.material
+      ? { label: "Material", value: editableFacts.material }
+      : null,
     editableFacts.ram ? { label: "RAM", value: editableFacts.ram } : null,
     editableFacts.processor
       ? { label: "Processor", value: editableFacts.processor }
@@ -141,7 +152,9 @@ export default async function ProductDetailsPage({
     editableFacts.shoeSize
       ? { label: "Shoe Size", value: editableFacts.shoeSize }
       : null,
-    editableFacts.genderFit ? { label: "Fit", value: editableFacts.genderFit } : null,
+    editableFacts.genderFit
+      ? { label: "Fit", value: editableFacts.genderFit }
+      : null,
   ].filter(Boolean) as Array<{ label: string; value: string }>;
   const primarySpecs = specs.slice(0, 5);
   const secondarySpecs = specs.slice(5);
@@ -171,7 +184,9 @@ export default async function ProductDetailsPage({
             inventoryQuantity > 0
               ? "https://schema.org/InStock"
               : "https://schema.org/OutOfStock",
-          url: absoluteUrl(`/${locale}/products/${product.handle || product.id}`),
+          url: absoluteUrl(
+            `/${locale}/products/${product.handle || product.id}`,
+          ),
         }
       : undefined,
   };
@@ -295,7 +310,6 @@ export default async function ProductDetailsPage({
               </div>
             </div>
           ) : null}
-
         </div>
       </div>
 
@@ -320,7 +334,9 @@ export default async function ProductDetailsPage({
           <div className="mb-8 flex items-end justify-between border-b border-gray-100 pb-6 sm:mb-12 sm:pb-8">
             <h2 className="text-xl font-black uppercase tracking-tight text-gray-900 sm:text-2xl lg:text-3xl">
               {t("product.similar")}{" "}
-              <span className="text-yellow-500">{t("product.similarAccent")}</span>
+              <span className="text-yellow-500">
+                {t("product.similarAccent")}
+              </span>
             </h2>
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-8 lg:gap-10">

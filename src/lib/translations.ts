@@ -1,4 +1,8 @@
-import { DEFAULT_LOCALE, isSupportedLocale, type SupportedLocale } from "@/lib/locales";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+  type SupportedLocale,
+} from "@/lib/locales";
 
 type TranslationValue = string | ((...args: Array<string | number>) => string);
 
@@ -16,7 +20,7 @@ const translations = {
     "header.languageSettings": "Language settings",
     "header.adminDashboard": "Admin Dashboard",
     "footer.description":
-      "Redefining the standard of premium electronics with South Korean engineering excellence.",
+      "Quality phones and tech, checked and graded so you can shop with confidence.",
     "footer.collections": "Collections",
     "footer.phones": "Phones",
     "footer.audio": "Audio",
@@ -33,17 +37,24 @@ const translations = {
     "footer.about": "About Us",
     "footer.sustainability": "Sustainability",
     "footer.privacy": "Privacy Policy",
-    "footer.copyright": (year) => `© ${year} Aman Mobile. Engineered for the future.`,
-    "home.eyebrow": "Next Generation Electronics",
-    "home.description": "Browse the latest products available in your live catalog.",
+    "footer.copyright": (year) =>
+      `(c) ${year} Aman Mobiles. All rights reserved.`,
+    "home.eyebrow": "New and Certified Pre-Owned Phones",
+    "home.description":
+      "From phones to audio, computing to everyday accessories -- every item is checked and graded, so you know exactly what you're getting.",
     "home.cta": "Explore Collection",
-    "home.featured": "Featured Products",
+    "home.categoryHeading": "Shop by Category",
+    "home.categoryDescription":
+      "Phones, audio, computing, wearables, and more -- all checked before they ship.",
+    "home.featured": "Popular Right Now",
     "home.viewAll": "View All",
     "home.empty": "No products are in the catalog yet.",
-    "products.title": "Aman mobile",
+    "products.title": "Our",
     "products.titleAccent": "Collection",
-    "products.description": "Discover our full range of innovative technology.",
-    "products.count": (count) => `${count} product${Number(count) === 1 ? "" : "s"}`,
+    "products.description":
+      "Browse new and certified pre-owned phones, audio, computing, and more -- every item graded and checked before it ships.",
+    "products.count": (count) =>
+      `${count} product${Number(count) === 1 ? "" : "s"}`,
     "products.empty": "No products are available yet.",
     "collections.eyebrow": "Collections",
     "collections.title": "Shop by",
@@ -53,7 +64,8 @@ const translations = {
     "collections.organizeLabel": "Organize collections",
     "collections.organizeCategory": "By category",
     "collections.organizeBrand": "By brand",
-    "collections.categorySummary": "Curated category entry points for faster browsing.",
+    "collections.categorySummary":
+      "Curated category entry points for faster browsing.",
     "collections.brandSummary": "Browse the live catalog grouped by brand.",
     "collections.phonesTitle": "Phones",
     "collections.phonesDescription":
@@ -84,12 +96,14 @@ const translations = {
       "Shoes, sneakers, and footwear listings organized for faster browsing.",
     "collections.shoesCta": "Explore shoes",
     "collections.brandCta": "Browse brand",
-    "collections.brandCount": (count) => `${count} product${Number(count) === 1 ? "" : "s"}`,
+    "collections.brandCount": (count) =>
+      `${count} product${Number(count) === 1 ? "" : "s"}`,
     "collections.otherBrand": "Other Brands",
     "search.eyebrow": "Search",
     "search.title": "Search the catalog",
     "search.resultsTitle": (query) => `Results for "${query}"`,
-    "search.matchCount": (count) => `${count} match${Number(count) === 1 ? "" : "es"} found`,
+    "search.matchCount": (count) =>
+      `${count} match${Number(count) === 1 ? "" : "es"} found`,
     "search.helper": "Use the search bar above to explore the storefront.",
     "search.empty": "No products matched your search.",
     "search.start": "Start typing a product name, subtitle, or handle.",
@@ -122,7 +136,8 @@ const translations = {
       "We have the original product spec page linked for this listing, but the structured specs have not been imported yet. Re-save the product in admin to cache the latest specs from the source page.",
     "product.similar": "Similar",
     "product.similarAccent": "Innovation",
-    "cart.aria": (count) => `Shopping cart${Number(count) ? ` with ${count} items` : ""}`,
+    "cart.aria": (count) =>
+      `Shopping cart${Number(count) ? ` with ${count} items` : ""}`,
     "cart.checkout": "Checkout",
     "cart.description":
       "No account required. Share your delivery details and we will process your order directly.",
@@ -183,10 +198,14 @@ const translations = {
     "footer.about": "소개",
     "footer.sustainability": "지속 가능성",
     "footer.privacy": "개인정보 처리방침",
-    "footer.copyright": (year) => `© ${year} 아만 모바일. 미래를 위해 설계되었습니다.`,
+    "footer.copyright": (year) =>
+      `© ${year} 아만 모바일. 미래를 위해 설계되었습니다.`,
     "home.eyebrow": "차세대 전자제품",
     "home.description": "실시간 카탈로그에 등록된 최신 상품을 둘러보세요.",
     "home.cta": "컬렉션 보기",
+    "home.categoryHeading": "카테고리별 쇼핑",
+    "home.categoryDescription":
+      "Phones, audio, computing, wearables, and more -- all checked before they ship.",
     "home.featured": "추천 상품",
     "home.viewAll": "전체 보기",
     "home.empty": "아직 카탈로그에 등록된 상품이 없습니다.",
@@ -203,7 +222,8 @@ const translations = {
     "collections.organizeLabel": "정렬 방식",
     "collections.organizeCategory": "카테고리별",
     "collections.organizeBrand": "브랜드별",
-    "collections.categorySummary": "카테고리 중심으로 빠르게 둘러볼 수 있는 진입점입니다.",
+    "collections.categorySummary":
+      "카테고리 중심으로 빠르게 둘러볼 수 있는 진입점입니다.",
     "collections.brandSummary": "실시간 카탈로그를 브랜드별로 묶어 탐색합니다.",
     "collections.phonesTitle": "Phones",
     "collections.phonesDescription":
@@ -245,7 +265,8 @@ const translations = {
     "search.start": "상품명, 부제목 또는 핸들을 입력해 보세요.",
     "language.eyebrow": "환경 설정",
     "language.title": "언어 설정",
-    "language.description": "탐색과 결제 페이지에서 사용할 스토어 언어를 선택하세요.",
+    "language.description":
+      "탐색과 결제 페이지에서 사용할 스토어 언어를 선택하세요.",
     "language.ko": "한국어",
     "language.en": "영어",
     "product.back": "컬렉션으로 돌아가기",
@@ -271,7 +292,8 @@ const translations = {
       "이 상품에는 원본 사양 페이지가 연결되어 있지만 구조화된 사양은 아직 가져오지 않았습니다. 관리자에서 상품을 다시 저장하면 출처 페이지의 최신 사양을 캐시합니다.",
     "product.similar": "비슷한",
     "product.similarAccent": "상품",
-    "cart.aria": (count) => `장바구니${Number(count) ? `, ${count}개 상품` : ""}`,
+    "cart.aria": (count) =>
+      `장바구니${Number(count) ? `, ${count}개 상품` : ""}`,
     "cart.checkout": "결제",
     "cart.description":
       "계정 없이 주문할 수 있습니다. 배송 정보를 입력하면 주문을 바로 처리합니다.",
@@ -319,7 +341,9 @@ export function getTranslator(locale: string) {
     const value = dictionary[key] ?? fallback[key] ?? key;
 
     if (typeof value === "function") {
-      const formatter = value as (...formatterArgs: Array<string | number>) => string;
+      const formatter = value as (
+        ...formatterArgs: Array<string | number>
+      ) => string;
       return formatter(...args);
     }
 

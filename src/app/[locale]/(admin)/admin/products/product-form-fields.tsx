@@ -100,7 +100,7 @@ export default function ProductFormFields({
           value={modelName}
           onChange={(event) => setModelName(event.target.value)}
           className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-base text-gray-900 outline-none transition focus:border-yellow-400 sm:text-sm"
-          placeholder="Galaxy S24 Ultra"
+          placeholder="Product name or model"
         />
       </label>
 

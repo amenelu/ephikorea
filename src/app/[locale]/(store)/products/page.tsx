@@ -13,9 +13,9 @@ export function generateMetadata({
   return buildPageMetadata({
     locale,
     pathname: "/products",
-    title: "Products",
+    title: "Shop All Products",
     description:
-      "Browse Aman Mobile products, including premium electronics, new devices, and certified pre-owned phones.",
+      "Browse new and certified pre-owned phones, audio, computing, and more -- every item graded and checked before it ships.",
   });
 }
 

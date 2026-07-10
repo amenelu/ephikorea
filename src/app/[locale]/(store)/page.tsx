@@ -2,7 +2,7 @@ import Link from "next/link";
 import { OrderSuccessHandler } from "@/components/cart/order-success-handler";
 import { ProductCard } from "@/components/product/product-card";
 import { getCatalogProducts } from "@/lib/catalog-data";
-import { absoluteUrl, buildPageMetadata, jsonLd, SITE_DESCRIPTION, SITE_NAME } from "@/lib/seo";
+import { absoluteUrl, buildPageMetadata, jsonLd, SITE_NAME } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
 
 export function generateMetadata({
@@ -12,8 +12,9 @@ export function generateMetadata({
 }) {
   return buildPageMetadata({
     locale,
-    title: "Premium Electronics",
-    description: SITE_DESCRIPTION,
+    title: "New & Certified Pre-Owned Phones",
+    description:
+      "Shop new and certified pre-owned phones, audio, computing, and more -- every item checked and graded before it ships.",
   });
 }
 
@@ -25,7 +26,14 @@ export default async function HomePage({
   searchParams: { order?: string };
 }) {
   const t = getTranslator(locale);
-  const featuredProducts = await getCatalogProducts(3);
+  const featuredProducts = await getCatalogProducts(6);
+  const categoryLinks = [
+    { href: `/${locale}/collections/phones`, label: "Phones" },
+    { href: `/${locale}/collections/audio`, label: "Audio" },
+    { href: `/${locale}/collections/computing`, label: "Computing" },
+    { href: `/${locale}/collections/wearables`, label: "Wearables" },
+    { href: `/${locale}/collections/accessories`, label: "Accessories" },
+  ];
   const websiteData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -77,6 +85,28 @@ export default async function HomePage({
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="border-b border-gray-100 pb-6">
+          <h2 className="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">
+            {t("home.categoryHeading")}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-gray-500 sm:text-base">
+            {t("home.categoryDescription")}
+          </p>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-3">
+          {categoryLinks.map((category) => (
+            <Link
+              key={category.href}
+              href={category.href}
+              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-bold text-gray-700 transition hover:border-yellow-500 hover:text-yellow-600"
+            >
+              {category.label}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="pb-0 sm:border-b sm:border-gray-100 sm:pb-6">
           <h2 className="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">
             {t("home.featured")}
@@ -87,7 +117,11 @@ export default async function HomePage({
           <>
             <div className="mt-0 grid grid-cols-1 gap-5 pt-0 sm:pt-4 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
               {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} locale={locale} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  locale={locale}
+                />
               ))}
             </div>
             <div className="mt-6 flex justify-start sm:mt-8 sm:justify-center">
