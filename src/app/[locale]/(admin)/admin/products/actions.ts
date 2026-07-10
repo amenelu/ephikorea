@@ -43,6 +43,14 @@ function parseCurrencyCode(rawValue: FormDataEntryValue | null) {
   throw new Error("Currency is invalid.");
 }
 
+const PRODUCT_CATEGORIES = [
+  "phones",
+  "audio",
+  "computing",
+  "wearables",
+  "accessories",
+] as const;
+
 function parsePriceToMinorUnits(rawValue: string, currencyCode: string) {
   const trimmed = rawValue.trim();
 
@@ -65,31 +73,70 @@ function parsePriceToMinorUnits(rawValue: string, currencyCode: string) {
   return Math.round(Number(trimmed) * 100);
 }
 
-async function resolveThumbnailValue(formData: FormData) {
-  const thumbnail = String(formData.get("thumbnail") || "").trim();
-  const thumbnailFile = formData.get("thumbnailFile");
-
-  if (!(thumbnailFile instanceof File) || thumbnailFile.size === 0) {
-    return thumbnail;
-  }
-
-  if (!thumbnailFile.type.startsWith("image/")) {
-    throw new Error("Uploaded thumbnail must be an image file.");
+function validateProductImageFile(file: File) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Uploaded product files must be images.");
   }
 
   const maxFileSize = 5 * 1024 * 1024;
 
-  if (thumbnailFile.size > maxFileSize) {
-    throw new Error("Uploaded thumbnail must be 5MB or smaller.");
+  if (file.size > maxFileSize) {
+    throw new Error("Each uploaded product image must be 5MB or smaller.");
   }
 
-  const extension = getUploadExtension(thumbnailFile);
+  const extension = getUploadExtension(file);
 
   if (!extension) {
     throw new Error("Unsupported image format. Use JPG, PNG, WebP, GIF, or AVIF.");
   }
+}
 
-  return saveProductMedia(thumbnailFile);
+function parseExistingImageUrls(formData: FormData) {
+  return formData
+    .getAll("existingImageUrls")
+    .map((value) => String(value || "").trim())
+    .filter(Boolean);
+}
+
+async function resolveProductImageValues(formData: FormData) {
+  const thumbnail = String(formData.get("thumbnail") || "").trim();
+  const imageFiles = formData
+    .getAll("productImageFiles")
+    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+  const existingImageUrls = parseExistingImageUrls(formData);
+
+  if (imageFiles.length > 0) {
+    const uploadedUrls = [];
+
+    for (const imageFile of imageFiles) {
+      validateProductImageFile(imageFile);
+      uploadedUrls.push(await saveProductMedia(imageFile));
+    }
+
+    return {
+      thumbnail: uploadedUrls[0] || thumbnail,
+      imageUrls: uploadedUrls,
+    };
+  }
+
+  const imageUrls = thumbnail
+    ? [thumbnail, ...existingImageUrls.filter((url) => url !== thumbnail)]
+    : existingImageUrls;
+
+  return {
+    thumbnail: thumbnail || imageUrls[0] || "",
+    imageUrls,
+  };
+}
+
+function parseProductCategory(rawValue: FormDataEntryValue | null) {
+  const normalized = String(rawValue || "phones").trim();
+
+  if (PRODUCT_CATEGORIES.includes(normalized as (typeof PRODUCT_CATEGORIES)[number])) {
+    return normalized;
+  }
+
+  throw new Error("Product category is invalid.");
 }
 
 function parseStatus(rawValue: FormDataEntryValue | null) {
@@ -211,6 +258,10 @@ function resolveBrandName(rawBrandName: string, modelName: string) {
 function revalidateAdminProductPaths(locale: string) {
   revalidatePath(`/${locale}`);
   revalidatePath(`/${locale}/products`);
+  revalidatePath(`/${locale}/collections`);
+  revalidatePath(`/${locale}/collections/audio`);
+  revalidatePath(`/${locale}/collections/computing`);
+  revalidatePath(`/${locale}/collections/wearables`);
   revalidatePath(`/${locale}/search`);
   revalidatePath(`/${locale}/admin`);
   revalidatePath(`/${locale}/admin/products`);
@@ -239,7 +290,8 @@ export async function addProductAction(formData: FormData) {
     const title = buildProductTitle(brandName, modelName);
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
-    const thumbnail = await resolveThumbnailValue(formData);
+    const { thumbnail, imageUrls } = await resolveProductImageValues(formData);
+    const collectionId = parseProductCategory(formData.get("collectionId"));
     const referenceUrl = resolveReferenceUrl(
       brandName,
       modelName,
@@ -268,6 +320,8 @@ export async function addProductAction(formData: FormData) {
       handle,
       description,
       thumbnail,
+      imageUrls,
+      collectionId,
       referenceUrl,
       color,
       storage,
@@ -313,7 +367,8 @@ export async function updateProductAction(formData: FormData) {
     const title = buildProductTitle(brandName, modelName);
     const handle = String(formData.get("handle") || "");
     const description = String(formData.get("description") || "");
-    const thumbnail = await resolveThumbnailValue(formData);
+    const { thumbnail, imageUrls } = await resolveProductImageValues(formData);
+    const collectionId = parseProductCategory(formData.get("collectionId"));
     const referenceUrl = resolveReferenceUrl(
       brandName,
       modelName,
@@ -343,6 +398,8 @@ export async function updateProductAction(formData: FormData) {
       handle,
       description,
       thumbnail,
+      imageUrls,
+      collectionId,
       referenceUrl,
       color,
       storage,

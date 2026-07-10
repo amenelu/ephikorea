@@ -1,40 +1,58 @@
 import { InfoPage } from "@/components/layout/info-page";
+import { ProductCard } from "@/components/product/product-card";
+import { getCatalogProducts } from "@/lib/catalog-data";
 import { generateLocaleStaticParams } from "@/lib/locales";
 
 export const generateStaticParams = generateLocaleStaticParams;
+export const dynamic = "force-dynamic";
 
-export default function ComputingCollectionPage({
+export default async function ComputingCollectionPage({
   params: { locale },
 }: {
   params: { locale: string };
 }) {
+  const products = (await getCatalogProducts()).filter(
+    (product) => product.collection_id === "computing",
+  );
+
   return (
-    <InfoPage
-      locale={locale}
-      eyebrow="Collections"
-      title="Computing Collection"
-      description="This demo computing collection is positioned around focused productivity, creative work, and premium everyday performance. It gives shoppers a clear landing page for laptops, tablets, accessories, and work-ready bundles."
-      highlights={[
-        "Portable productivity devices",
-        "Accessories for desks and hybrid work",
-        "Clean landing page for future filtering",
-      ]}
-      sections={[
-        {
-          title: "Product Focus",
-          body: "Example inventory for this collection includes lightweight laptops, keyboard accessories, productivity tablets, monitors, and charging solutions. The goal is to present a cohesive work-and-create category instead of a flat product list.",
-        },
-        {
-          title: "Shopping Context",
-          body: "Use a collection page like this when customers arrive from campaigns centered on study, remote work, or business buying. It keeps navigation intuitive and gives you room for category-specific copy and promotions.",
-        },
-        {
-          title: "Future Expansion",
-          body: "Later, this route could show dynamic filters for storage, display size, battery health, and grade. For now, it serves as a polished placeholder with enough content to feel intentional in the footer.",
-        },
-      ]}
-      primaryLink={{ href: `/${locale}/products`, label: "See the catalog" }}
-      secondaryLink={{ href: `/${locale}/cart`, label: "Build a setup" }}
-    />
+    <>
+      <InfoPage
+        locale={locale}
+        eyebrow="Collections"
+        title="Computing Collection"
+        description="Shop productivity devices, tablets, laptops, and work-ready accessories assigned from admin."
+        highlights={[
+          "Portable productivity devices",
+          "Accessories for desks and hybrid work",
+          "Computing products assigned from admin",
+        ]}
+        sections={[
+          {
+            title: "Product Focus",
+            body: "This collection groups laptops, tablets, monitors, keyboards, and charging accessories into one work-and-create category.",
+          },
+          {
+            title: "Shopping Context",
+            body: "Use it for campaign traffic centered on study, remote work, business buying, or creator setups.",
+          },
+          {
+            title: "Live Inventory",
+            body: "Products appear here when the admin product category is set to Computing.",
+          },
+        ]}
+        primaryLink={{ href: `/${locale}/products`, label: "See the catalog" }}
+        secondaryLink={{ href: `/${locale}/cart`, label: "Build a setup" }}
+      />
+      {products.length > 0 ? (
+        <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} locale={locale} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </>
   );
 }

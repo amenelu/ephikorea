@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/modules/add-to-cart-button";
 import ProductDetailsPanels from "@/components/product/product-details-panels";
+import ProductImageGallery from "@/components/product/product-image-gallery";
 import { ProductCard } from "@/components/product/product-card";
 import {
   getCatalogProductByIdOrHandle,
@@ -11,7 +11,7 @@ import {
   getCatalogProductPrice,
   getSimilarCatalogProducts,
 } from "@/lib/catalog-data";
-import { canUseNextImage, isLikelyImageUrl } from "@/lib/media";
+import { isLikelyImageUrl } from "@/lib/media";
 import {
   buildBuyerFacingSpecSections,
   buildProductSpecSheet,
@@ -91,10 +91,8 @@ export default async function ProductDetailsPage({
   const referenceUrl = getProductReferenceUrl(product.metadata);
   const storedReferenceSpecs = getStoredReferenceSpecs(product.metadata);
   const storedReferenceSections = getStoredReferenceSpecSections(product.metadata);
-  const displayImageUrl =
-    product.thumbnail && isLikelyImageUrl(product.thumbnail)
-      ? product.thumbnail
-      : undefined;
+  const productImages = product.images?.filter(isLikelyImageUrl) || [];
+  const displayImageUrl = productImages[0];
 
   const hasImportedSpecs =
     storedReferenceSpecs.length > 0 || storedReferenceSections.length > 0;
@@ -132,7 +130,9 @@ export default async function ProductDetailsPage({
     "@type": "Product",
     name: product.title,
     description: productDescription(product),
-    image: displayImageUrl ? absoluteUrl(displayImageUrl) : undefined,
+    image: productImages.length
+      ? productImages.map((imageUrl) => absoluteUrl(imageUrl))
+      : undefined,
     sku: product.id,
     brand: inferBrand(product) || undefined,
     itemCondition: product.is_certified_pre_owned
@@ -170,30 +170,11 @@ export default async function ProductDetailsPage({
       </Link>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12">
-        <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-gray-50 shadow-inner">
-          {displayImageUrl ? (
-            canUseNextImage(displayImageUrl) ? (
-              <Image
-                src={displayImageUrl}
-                alt={product.title}
-                fill
-                className="object-contain p-5 sm:p-10"
-                sizes="(min-width: 1024px) 50vw, 100vw"
-              />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={displayImageUrl}
-                alt={product.title}
-                className="h-full w-full object-contain p-5 sm:p-10"
-              />
-            )
-          ) : (
-            <div className="flex h-full items-center justify-center text-center text-sm font-semibold uppercase tracking-[0.3em] text-gray-300">
-              {t("product.noImage")}
-            </div>
-          )}
-        </div>
+        <ProductImageGallery
+          title={product.title}
+          images={productImages}
+          emptyLabel={t("product.noImage")}
+        />
 
         <div className="flex flex-col">
           <div className="mb-5 sm:mb-6">

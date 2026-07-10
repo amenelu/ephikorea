@@ -41,6 +41,7 @@ export default async function AdminProductsPage({
           product.modelName,
           product.color,
           product.storage,
+          product.collectionId,
           product.gradingData,
           product.isCertifiedPreOwned ? "certified pre owned" : "new",
         ]
@@ -64,6 +65,13 @@ export default async function AdminProductsPage({
     { value: "512", label: "512GB" },
     { value: "1024", label: "1TB" },
     { value: "2048", label: "2TB" },
+  ];
+  const categoryOptions = [
+    { value: "phones", label: "Phones" },
+    { value: "audio", label: "Audio" },
+    { value: "computing", label: "Computing" },
+    { value: "wearables", label: "Wearables" },
+    { value: "accessories", label: "Accessories" },
   ];
   const gradeOptions = ["Grade A", "Grade B", "Grade C"];
   const publishedCount = products.filter((product) => product.status === "published").length;
@@ -102,6 +110,14 @@ export default async function AdminProductsPage({
           {editingProduct ? (
             <input type="hidden" name="productId" value={editingProduct.id} />
           ) : null}
+          {editingProduct?.images?.map((imageUrl) => (
+            <input
+              key={imageUrl}
+              type="hidden"
+              name="existingImageUrls"
+              value={imageUrl}
+            />
+          ))}
 
           <ProductFormFields
             initialBrandName={editingProduct?.brandName}
@@ -183,16 +199,34 @@ export default async function AdminProductsPage({
 
           <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-              Upload Thumbnail
+              Product Category
+            </span>
+            <select
+              name="collectionId"
+              defaultValue={editingProduct?.collectionId || "phones"}
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+            >
+              {categoryOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+              Upload Product Images
             </span>
             <input
               type="file"
-              name="thumbnailFile"
+              name="productImageFiles"
               accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+              multiple
               className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-yellow-50 file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-widest file:text-yellow-700 focus:border-yellow-400"
             />
             <span className="mt-2 block text-xs text-gray-400">
-              Upload a local image instead of pasting a URL. Max size 5MB.
+              Upload one or more local images. The first image becomes the thumbnail. Max 5MB each.
             </span>
           </label>
 
@@ -434,7 +468,9 @@ export default async function AdminProductsPage({
                     </div>
                     {(product.color ||
                       product.storage ||
+                      product.collectionId ||
                       product.gradingData ||
+                      (product.images?.length ?? 0) > 1 ||
                       product.batteryHealth !== "") && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {product.color ? (
@@ -457,6 +493,16 @@ export default async function AdminProductsPage({
                             ? "Certified Pre-Owned"
                             : "New"}
                         </span>
+                        {product.collectionId ? (
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
+                            {product.collectionId}
+                          </span>
+                        ) : null}
+                        {(product.images?.length ?? 0) > 1 ? (
+                          <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
+                            {product.images.length} images
+                          </span>
+                        ) : null}
                         {product.batteryHealth !== "" ? (
                           <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-bold text-gray-700">
                             {product.batteryHealth}% battery
@@ -588,6 +634,16 @@ export default async function AdminProductsPage({
                         ? "Certified Pre-Owned"
                         : "New"}
                     </div>
+                    {product.collectionId ? (
+                      <div className="mt-1 text-xs text-gray-400">
+                        Category: {product.collectionId}
+                      </div>
+                    ) : null}
+                    {(product.images?.length ?? 0) > 1 ? (
+                      <div className="mt-1 text-xs text-gray-400">
+                        {product.images.length} images
+                      </div>
+                    ) : null}
                     {product.gradingData || product.batteryHealth !== "" ? (
                       <div className="mt-1 text-xs text-gray-400">
                         {[product.gradingData, product.batteryHealth !== "" ? `${product.batteryHealth}% battery` : ""]

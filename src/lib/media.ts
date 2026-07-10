@@ -38,3 +38,35 @@ export function canUseNextImage(url?: string | null) {
     return false;
   }
 }
+
+export function getProductImageUrls(product: {
+  thumbnail?: string | null;
+  metadata?: Record<string, unknown> | null;
+}) {
+  const rawImages = Array.isArray(product.metadata?.product_images)
+    ? product.metadata.product_images
+    : [];
+  const urls = [
+    product.thumbnail,
+    ...rawImages.filter((image): image is string => typeof image === "string"),
+  ];
+  const seen = new Set<string>();
+
+  return urls
+    .map((url) => url?.trim())
+    .filter((url): url is string => Boolean(url) && isLikelyImageUrl(url))
+    .filter((url) => {
+      if (seen.has(url)) {
+        return false;
+      }
+
+      seen.add(url);
+      return true;
+    });
+}
+
+export function getProductCollectionId(metadata?: Record<string, unknown> | null) {
+  const collectionId = metadata?.collection_id;
+
+  return typeof collectionId === "string" ? collectionId : undefined;
+}

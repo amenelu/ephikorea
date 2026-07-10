@@ -11,6 +11,7 @@ import {
 } from "@/lib/product-specs";
 import { assertAdminAuthenticated } from "@/lib/admin-auth";
 import { getDb, parseJsonObject, stringifyJson } from "@/lib/db";
+import { getProductCollectionId, getProductImageUrls } from "@/lib/media";
 import { convertAmount, formatAmount, normalizeCurrencyCode } from "@/lib/utils";
 
 function formatAdminDate(value: string | Date | null) {
@@ -689,6 +690,10 @@ export async function getAdminProducts() {
   return rows.map((row) => {
     const metadata = parseJsonObject(row.metadata_json);
     const facts = getEditableProductFacts(metadata);
+    const images = getProductImageUrls({
+      thumbnail: row.thumbnail,
+      metadata,
+    });
 
     return {
       id: row.id,
@@ -696,7 +701,9 @@ export async function getAdminProducts() {
       description: row.description,
       handle: row.handle,
       status: row.status,
-      thumbnail: row.thumbnail,
+      thumbnail: images[0] || row.thumbnail,
+      images,
+      collectionId: getProductCollectionId(metadata) || "",
       inventory: row.inventory,
       price: row.price,
       currencyCode: row.currency_code || "usd",
@@ -730,6 +737,8 @@ type CreateAdminProductInput = {
   handle?: string;
   description?: string;
   thumbnail?: string;
+  imageUrls?: string[];
+  collectionId?: string;
   inventory: number;
   price: number;
   currencyCode: string;
@@ -749,6 +758,7 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
   const title = input.title.trim();
   const description = input.description?.trim() || null;
   const thumbnail = input.thumbnail?.trim() || null;
+  const imageUrls = input.imageUrls?.map((url) => url.trim()).filter(Boolean) || [];
   const gradingData = input.gradingData?.trim() || null;
   const batteryHealth =
     typeof input.batteryHealth === "number" ? input.batteryHealth : null;
@@ -781,6 +791,8 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
     const metadata = buildProductMetadata(undefined, {
       title,
       handle,
+      collection_id: input.collectionId,
+      productImages: imageUrls,
       brandName: input.brandName,
       modelName: input.modelName,
       color: input.color,
@@ -869,6 +881,7 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
   const title = input.title.trim();
   const description = input.description?.trim() || null;
   const thumbnail = input.thumbnail?.trim() || null;
+  const imageUrls = input.imageUrls?.map((url) => url.trim()).filter(Boolean) || [];
   const gradingData = input.gradingData?.trim() || null;
   const batteryHealth =
     typeof input.batteryHealth === "number" ? input.batteryHealth : null;
@@ -911,6 +924,8 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
       {
         title,
         handle,
+        collection_id: input.collectionId,
+        productImages: imageUrls,
         brandName: input.brandName,
         modelName: input.modelName,
         color: input.color,

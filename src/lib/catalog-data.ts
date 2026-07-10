@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getDb, parseJsonObject } from "@/lib/db";
+import { getProductCollectionId, getProductImageUrls } from "@/lib/media";
 import type { CPOProduct } from "@/types/product";
 
 type CatalogProductRow = {
@@ -27,15 +28,23 @@ function mapRowsToProducts(rows: CatalogProductRow[]) {
 
   for (const row of rows) {
     if (!products.has(row.product_id)) {
+      const metadata = parseJsonObject(row.metadata_json);
+      const images = getProductImageUrls({
+        thumbnail: row.thumbnail,
+        metadata,
+      });
+
       products.set(row.product_id, {
         id: row.product_id,
         title: row.title,
         subtitle: row.subtitle || undefined,
         description: row.description || undefined,
         handle: row.handle,
-        thumbnail: row.thumbnail || undefined,
+        thumbnail: images[0] || row.thumbnail || undefined,
+        images,
+        collection_id: getProductCollectionId(metadata),
         status: row.status || undefined,
-        metadata: parseJsonObject(row.metadata_json),
+        metadata,
         is_certified_pre_owned: Boolean(row.is_certified_pre_owned),
         battery_health: row.battery_health ?? undefined,
         grading_data: row.grading_data || undefined,

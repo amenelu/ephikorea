@@ -516,6 +516,7 @@ export function buildProductMetadata(
     title?: string;
     handle?: string;
     collection_id?: string | null;
+    productImages?: string[];
     color?: string;
     storage?: string;
     imei?: string;
@@ -538,6 +539,8 @@ export function buildProductMetadata(
     ...(existingMetadata || {}),
     brand_name: source.brandName?.trim() || null,
     model_name: source.modelName?.trim() || null,
+    collection_id: source.collection_id?.trim() || null,
+    product_images: source.productImages?.length ? source.productImages : null,
     product_profile: profile,
     reference_url: sanitizedReferenceUrl || null,
     reference_specs: source.referenceSpecs?.length ? source.referenceSpecs : null,

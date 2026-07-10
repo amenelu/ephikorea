@@ -5,6 +5,7 @@ export interface CPOProduct {
   description?: string;
   handle: string;
   thumbnail?: string;
+  images?: string[];
   collection_id?: string;
   status?: string;
   is_certified_pre_owned?: boolean;
