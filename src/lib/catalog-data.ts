@@ -72,7 +72,9 @@ function mapRowsToProducts(rows: CatalogProductRow[]) {
   return Array.from(products.values());
 }
 
-async function getCatalogRows(options: { limit?: number; excludeProductId?: string } = {}) {
+async function getCatalogRows(
+  options: { limit?: number; excludeProductId?: string } = {},
+) {
   const db = await getDb();
   const params: Record<string, unknown> = {};
   const where = ["p.deleted_at is null"];
@@ -130,6 +132,26 @@ export async function getCatalogProducts(limit?: number) {
     return mapRowsToProducts(await getCatalogRows({ limit }));
   } catch (error) {
     console.error("Unable to load catalog products.", error);
+    return [];
+  }
+}
+
+function isHomepageFeatured(product: CPOProduct) {
+  return product.metadata?.featured_on_homepage === true;
+}
+
+export async function getHomepageProducts(limit = 6) {
+  try {
+    const products = mapRowsToProducts(await getCatalogRows());
+    const featuredProducts = products.filter(isHomepageFeatured);
+    const featuredIds = new Set(featuredProducts.map((product) => product.id));
+    const fallbackProducts = products.filter(
+      (product) => !featuredIds.has(product.id),
+    );
+
+    return [...featuredProducts, ...fallbackProducts].slice(0, limit);
+  } catch (error) {
+    console.error("Unable to load homepage products.", error);
     return [];
   }
 }

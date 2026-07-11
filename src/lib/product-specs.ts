@@ -240,20 +240,26 @@ function matchesReferencePattern(normalizedModel: string, pattern: string) {
   return (
     normalizedModel === normalizedPattern ||
     normalizedModel.includes(normalizedPattern) ||
-    normalizedModel.replace(/\s+/g, "").includes(normalizedPattern.replace(/\s+/g, ""))
+    normalizedModel
+      .replace(/\s+/g, "")
+      .includes(normalizedPattern.replace(/\s+/g, ""))
   );
 }
 
 function inferSamsungReferenceUrl(normalizedModel: string) {
   const matchedEntry = SAMSUNG_REFERENCE_URLS.find((entry) =>
-    entry.patterns.some((pattern) => matchesReferencePattern(normalizedModel, pattern)),
+    entry.patterns.some((pattern) =>
+      matchesReferencePattern(normalizedModel, pattern),
+    ),
   );
 
   if (matchedEntry) {
     return matchedEntry.url;
   }
 
-  const galaxySMatch = normalizedModel.match(/\b(?:galaxy\s*)?s\s*(2[4-9])\s*(ultra)?\b/);
+  const galaxySMatch = normalizedModel.match(
+    /\b(?:galaxy\s*)?s\s*(2[4-9])\s*(ultra)?\b/,
+  );
 
   if (galaxySMatch) {
     const generation = galaxySMatch[1];
@@ -287,15 +293,23 @@ export function inferReferenceUrlFromBrandAndModel(
     return undefined;
   }
 
-  if (normalizedBrand?.includes("apple") || normalizedModel.includes("iphone")) {
+  if (
+    normalizedBrand?.includes("apple") ||
+    normalizedModel.includes("iphone")
+  ) {
     const match = APPLE_REFERENCE_URLS.find((entry) =>
-      entry.patterns.some((pattern) => matchesReferencePattern(normalizedModel, pattern)),
+      entry.patterns.some((pattern) =>
+        matchesReferencePattern(normalizedModel, pattern),
+      ),
     );
 
     return match?.url;
   }
 
-  if (normalizedBrand?.includes("samsung") || normalizedModel.includes("galaxy")) {
+  if (
+    normalizedBrand?.includes("samsung") ||
+    normalizedModel.includes("galaxy")
+  ) {
     return inferSamsungReferenceUrl(normalizedModel);
   }
 
@@ -312,7 +326,10 @@ function getSamsungSpecsUrl(referenceUrl?: string | null) {
   try {
     const url = new URL(sanitizedUrl);
 
-    if (!/samsung\.com$/i.test(url.hostname) && !/\.samsung\.com$/i.test(url.hostname)) {
+    if (
+      !/samsung\.com$/i.test(url.hostname) &&
+      !/\.samsung\.com$/i.test(url.hostname)
+    ) {
       return sanitizedUrl;
     }
 
@@ -364,11 +381,19 @@ function decodeHtmlEntities(value: string) {
 }
 
 function stripHtml(value: string) {
-  return decodeHtmlEntities(value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+  return decodeHtmlEntities(
+    value
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim(),
+  );
 }
 
 function normalizeSpecKey(label: string) {
-  return label.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 function normalizeText(value: string | null | undefined) {
@@ -453,7 +478,11 @@ export function inferProductProfile(source: {
     normalizeText(source.collection_id || undefined),
   ].join(" ");
 
-  if (/(phone|mobile|iphone|galaxy|pixel|samsung|android|ultra|fold|flip)/.test(haystack)) {
+  if (
+    /(phone|mobile|iphone|galaxy|pixel|samsung|android|ultra|fold|flip)/.test(
+      haystack,
+    )
+  ) {
     return "phone" as const;
   }
 
@@ -469,11 +498,19 @@ export function inferProductProfile(source: {
     return "vr" as const;
   }
 
-  if (/(accessory|accessories|case|charger|cable|adapter|keyboard|mouse|cover)/.test(haystack)) {
+  if (
+    /(accessory|accessories|case|charger|cable|adapter|keyboard|mouse|cover)/.test(
+      haystack,
+    )
+  ) {
     return "accessories" as const;
   }
 
-  if (/(skincare|skin care|serum|cleanser|cream|toner|sunscreen|moisturizer)/.test(haystack)) {
+  if (
+    /(skincare|skin care|serum|cleanser|cream|toner|sunscreen|moisturizer)/.test(
+      haystack,
+    )
+  ) {
     return "skincare" as const;
   }
 
@@ -520,9 +557,13 @@ function getAdditionalEditableFactSpecs(facts: EditableProductFacts) {
     facts.material ? { label: "Material", value: facts.material } : null,
     facts.ram ? { label: "RAM", value: facts.ram } : null,
     facts.processor ? { label: "Processor", value: facts.processor } : null,
-    facts.sizeVolume ? { label: "Size / Volume", value: facts.sizeVolume } : null,
+    facts.sizeVolume
+      ? { label: "Size / Volume", value: facts.sizeVolume }
+      : null,
     facts.skinType ? { label: "Skin Type", value: facts.skinType } : null,
-    facts.ingredients ? { label: "Ingredients", value: facts.ingredients } : null,
+    facts.ingredients
+      ? { label: "Ingredients", value: facts.ingredients }
+      : null,
     facts.expirationDate
       ? { label: "Expiration Date", value: facts.expirationDate }
       : null,
@@ -589,6 +630,7 @@ export function buildProductMetadata(
     referenceUrl?: string;
     referenceSpecs?: ProductSpec[];
     referenceSpecSections?: ProductSpecSection[];
+    featuredOnHomepage?: boolean;
   },
 ) {
   const inferredProfile = inferProductProfile(source);
@@ -607,10 +649,13 @@ export function buildProductMetadata(
     product_images: source.productImages?.length ? source.productImages : null,
     product_profile: profile,
     reference_url: sanitizedReferenceUrl || null,
-    reference_specs: source.referenceSpecs?.length ? source.referenceSpecs : null,
+    reference_specs: source.referenceSpecs?.length
+      ? source.referenceSpecs
+      : null,
     reference_spec_sections: source.referenceSpecSections?.length
       ? source.referenceSpecSections
       : null,
+    featured_on_homepage: Boolean(source.featuredOnHomepage),
     spec_facts: {
       color: source.color?.trim() || null,
       storage: source.storage?.trim() || null,
@@ -640,13 +685,19 @@ function getProfileSpecs(profile: ProductProfile) {
         { label: "Camera System", value: "Multi-lens rear camera setup" },
         { label: "Security", value: "Biometric unlock support" },
         { label: "Build", value: "Premium lightweight frame" },
-        { label: "Charging", value: "Fast wired and wireless charging support" },
+        {
+          label: "Charging",
+          value: "Fast wired and wireless charging support",
+        },
       ];
     case "laptop":
       return [
         { label: "Category", value: "Laptop" },
         { label: "Display", value: "High-resolution productivity display" },
-        { label: "Chipset Class", value: "Productivity and creator performance tier" },
+        {
+          label: "Chipset Class",
+          value: "Productivity and creator performance tier",
+        },
         { label: "Performance", value: "Creator and multitasking focused" },
         { label: "Memory", value: "Modern multitasking memory configuration" },
         { label: "Storage Type", value: "Solid-state storage" },
@@ -667,16 +718,28 @@ function getProfileSpecs(profile: ProductProfile) {
         { label: "Category", value: "VR Headset" },
         { label: "Display", value: "Immersive dual-display system" },
         { label: "Tracking", value: "Spatial motion tracking" },
-        { label: "Controls", value: "Gesture or controller-based input support" },
+        {
+          label: "Controls",
+          value: "Gesture or controller-based input support",
+        },
         { label: "Audio", value: "Immersive audio support" },
-        { label: "Use Case", value: "Entertainment, productivity, and mixed reality" },
+        {
+          label: "Use Case",
+          value: "Entertainment, productivity, and mixed reality",
+        },
       ];
     case "accessories":
       return [
         { label: "Category", value: "Accessories" },
-        { label: "Compatibility", value: "Check listing details before ordering" },
+        {
+          label: "Compatibility",
+          value: "Check listing details before ordering",
+        },
         { label: "Quality", value: "Curated accessory listing" },
-        { label: "Use Case", value: "Protection, charging, productivity, or setup upgrades" },
+        {
+          label: "Use Case",
+          value: "Protection, charging, productivity, or setup upgrades",
+        },
       ];
     case "skincare":
       return [
@@ -745,7 +808,9 @@ function mergeSections(...groups: ProductSpecSection[][]) {
     }
   }
 
-  return Array.from(merged.values()).filter((section) => section.specs.length > 0);
+  return Array.from(merged.values()).filter(
+    (section) => section.specs.length > 0,
+  );
 }
 
 function collectJsonLdSpecs(html: string) {
@@ -811,7 +876,9 @@ function collectTableSpecs(html: string) {
 
 function collectDefinitionListSpecs(html: string) {
   const specs: ProductSpec[] = [];
-  const matches = html.matchAll(/<dt[^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/gi);
+  const matches = html.matchAll(
+    /<dt[^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/gi,
+  );
 
   for (const match of matches) {
     const label = stripHtml(match[1]);
@@ -911,10 +978,16 @@ function normalizeSamsungImageUrl(value?: string | null) {
 }
 
 function cleanSectionTitle(value: string) {
-  return stripHtml(value).replace(/\s+\d+$/, "").trim();
+  return stripHtml(value)
+    .replace(/\s+\d+$/, "")
+    .trim();
 }
 
-function inferAppleSpecLabel(sectionTitle: string, value: string, index: number) {
+function inferAppleSpecLabel(
+  sectionTitle: string,
+  value: string,
+  index: number,
+) {
   const normalizedSection = normalizeSpecKey(sectionTitle);
   const normalizedValue = normalizeSpecKey(value);
 
@@ -934,12 +1007,18 @@ function inferAppleSpecLabel(sectionTitle: string, value: string, index: number)
   }
 
   if (normalizedSection === "display") {
-    if (normalizedValue.includes("super retina") || normalizedValue.includes("oled")) {
+    if (
+      normalizedValue.includes("super retina") ||
+      normalizedValue.includes("oled")
+    ) {
       return "Display Type";
     }
     if (normalizedValue.includes("inch")) return "Size";
     if (normalizedValue.includes("resolution")) return "Resolution";
-    if (normalizedValue.includes("promotion") || normalizedValue.includes("refresh")) {
+    if (
+      normalizedValue.includes("promotion") ||
+      normalizedValue.includes("refresh")
+    ) {
       return "Refresh Rate";
     }
     if (normalizedValue.includes("brightness")) return "Brightness";
@@ -955,7 +1034,10 @@ function inferAppleSpecLabel(sectionTitle: string, value: string, index: number)
     if (normalizedValue.includes("neural")) return "Neural Engine";
   }
 
-  if (normalizedSection === "camera" || normalizedSection === "truedepth camera") {
+  if (
+    normalizedSection === "camera" ||
+    normalizedSection === "truedepth camera"
+  ) {
     if (normalizedValue.includes("digital zoom")) return "Digital Zoom";
     if (normalizedValue.includes("optical zoom")) return "Optical Zoom";
     if (normalizedValue.includes("camera control")) return "Camera Control";
@@ -980,7 +1062,8 @@ function inferAppleSpecLabel(sectionTitle: string, value: string, index: number)
     if (normalizedValue.includes("wi fi")) return "Wi-Fi";
     if (normalizedValue.includes("bluetooth")) return "Bluetooth";
     if (normalizedValue.includes("ultra wideband")) return "Ultra Wideband";
-    if (normalizedValue.includes("thread networking")) return "Thread Networking";
+    if (normalizedValue.includes("thread networking"))
+      return "Thread Networking";
     if (normalizedValue.includes("nfc")) return "NFC";
     if (normalizedValue.includes("express cards")) return "Express Cards";
     if (normalizedValue.includes("satellite")) return "Satellite";
@@ -1002,7 +1085,8 @@ function inferAppleSpecLabel(sectionTitle: string, value: string, index: number)
     if (normalizedValue.includes("gyro")) return "Gyroscope";
     if (normalizedValue.includes("accelerometer")) return "Accelerometer";
     if (normalizedValue.includes("proximity")) return "Proximity Sensor";
-    if (normalizedValue.includes("ambient light")) return "Ambient Light Sensor";
+    if (normalizedValue.includes("ambient light"))
+      return "Ambient Light Sensor";
   }
 
   return `${sectionTitle} Detail ${index + 1}`;
@@ -1030,9 +1114,9 @@ function parseAppleSupportSpecs(sectionTitle: string, sectionHtml: string) {
     }
   }
 
-  const listItems = Array.from(sectionHtml.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)).map(
-    (match) => match[1],
-  );
+  const listItems = Array.from(
+    sectionHtml.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi),
+  ).map((match) => match[1]);
 
   listItems.forEach((itemHtml, index) => {
     const boldLabelMatch = itemHtml.match(
@@ -1153,7 +1237,10 @@ function extractSamsungDesignColors(html: string) {
   );
 
   if (!designContainerMatch) {
-    return { colors: [] as string[], disclaimer: undefined as string | undefined };
+    return {
+      colors: [] as string[],
+      disclaimer: undefined as string | undefined,
+    };
   }
 
   const colors = Array.from(
@@ -1194,7 +1281,9 @@ type SamsungSpecResponse = {
   } | null;
 };
 
-function flattenSamsungSpecItems(items: SamsungSpecApiItem[] | null | undefined) {
+function flattenSamsungSpecItems(
+  items: SamsungSpecApiItem[] | null | undefined,
+) {
   const specs: ProductSpec[] = [];
 
   for (const item of items || []) {
@@ -1283,11 +1372,12 @@ const fetchSamsungReferenceData = cache(async (referenceUrl: string) => {
   const sections: ProductSpecSection[] = specItems
     .map((item) => {
       const title = item.attrName?.trim();
-      const specs = Array.isArray(item.attrs) || Array.isArray(item.subItems)
-        ? flattenSamsungSpecItems(item.attrs || item.subItems)
-        : item.attrValue?.trim() && title
-          ? [{ label: title, value: item.attrValue.trim() }]
-          : [];
+      const specs =
+        Array.isArray(item.attrs) || Array.isArray(item.subItems)
+          ? flattenSamsungSpecItems(item.attrs || item.subItems)
+          : item.attrValue?.trim() && title
+            ? [{ label: title, value: item.attrValue.trim() }]
+            : [];
 
       if (!title || specs.length === 0) {
         return null;
@@ -1345,7 +1435,8 @@ export async function fetchReferenceSpecs(referenceUrl?: string | null) {
     }
 
     if (/support\.apple\.com/i.test(referenceUrl)) {
-      const appleSupportData = await fetchAppleSupportReferenceData(referenceUrl);
+      const appleSupportData =
+        await fetchAppleSupportReferenceData(referenceUrl);
 
       if (appleSupportData?.specs.length) {
         return appleSupportData.specs;
@@ -1394,7 +1485,8 @@ export async function fetchReferenceSpecSections(referenceUrl?: string | null) {
     }
 
     if (/support\.apple\.com/i.test(referenceUrl)) {
-      const appleSupportData = await fetchAppleSupportReferenceData(referenceUrl);
+      const appleSupportData =
+        await fetchAppleSupportReferenceData(referenceUrl);
       return appleSupportData?.sections || [];
     }
   } catch {}
@@ -1414,7 +1506,8 @@ export async function fetchReferencePreviewImage(referenceUrl?: string | null) {
     }
 
     if (/support\.apple\.com/i.test(referenceUrl)) {
-      const appleSupportData = await fetchAppleSupportReferenceData(referenceUrl);
+      const appleSupportData =
+        await fetchAppleSupportReferenceData(referenceUrl);
       return appleSupportData?.previewImage;
     }
 
@@ -1447,8 +1540,7 @@ export function buildProductSpecSheet(
 ): ProductSpec[] {
   const metadata = source.metadata;
   const storedProfile = asString(metadata?.product_profile) as
-    | ProductProfile
-    | undefined;
+    ProductProfile | undefined;
   const inferredProfile = inferProductProfile({
     title: source.title,
     handle: source.handle,
@@ -1545,7 +1637,10 @@ export function buildProductSpecSections(
   const metadata = source.metadata;
   const facts = getEditableProductFacts(metadata);
   const storedSections = getStoredReferenceSpecSections(metadata);
-  const mergedReferenceSections = mergeSections(storedSections, referenceSections);
+  const mergedReferenceSections = mergeSections(
+    storedSections,
+    referenceSections,
+  );
   const groupsForDetection = [
     referenceSpecs,
     ...mergedReferenceSections.map((section) => section.specs),
@@ -1578,7 +1673,8 @@ export function buildProductSpecSections(
 
   overviewSpecs.push(
     ...getAdditionalEditableFactSpecs(facts).filter(
-      (spec) => spec.label !== "Ingredients" && spec.label !== "Expiration Date",
+      (spec) =>
+        spec.label !== "Ingredients" && spec.label !== "Expiration Date",
     ),
   );
 
@@ -1591,7 +1687,10 @@ export function buildProductSpecSections(
   }
 
   if (facts.expirationDate) {
-    conditionSpecs.push({ label: "Expiration Date", value: facts.expirationDate });
+    conditionSpecs.push({
+      label: "Expiration Date",
+      value: facts.expirationDate,
+    });
   }
 
   conditionSpecs.push({
@@ -1727,7 +1826,11 @@ export function buildBuyerFacingSpecSections(
     "Battery",
   ];
 
-  const sections = buildProductSpecSections(source, referenceSections, referenceSpecs)
+  const sections = buildProductSpecSections(
+    source,
+    referenceSections,
+    referenceSpecs,
+  )
     .filter((section) => !excludedSections.has(section.title))
     .map((section) => ({
       title: section.title,

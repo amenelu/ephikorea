@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { OrderSuccessHandler } from "@/components/cart/order-success-handler";
 import { ProductCard } from "@/components/product/product-card";
-import { getCatalogProducts } from "@/lib/catalog-data";
+import { getHomepageProducts } from "@/lib/catalog-data";
 import { absoluteUrl, buildPageMetadata, jsonLd, SITE_NAME } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
 
@@ -26,7 +26,7 @@ export default async function HomePage({
   searchParams: { order?: string };
 }) {
   const t = getTranslator(locale);
-  const featuredProducts = await getCatalogProducts(6);
+  const featuredProducts = await getHomepageProducts(6);
   const categoryLinks = [
     { href: `/${locale}/collections/phones`, label: "Phones" },
     { href: `/${locale}/collections/audio`, label: "Audio" },

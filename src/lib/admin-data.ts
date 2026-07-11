@@ -12,7 +12,11 @@ import {
 import { assertAdminAuthenticated } from "@/lib/admin-auth";
 import { getDb, parseJsonObject, stringifyJson } from "@/lib/db";
 import { getProductCollectionId, getProductImageUrls } from "@/lib/media";
-import { convertAmount, formatAmount, normalizeCurrencyCode } from "@/lib/utils";
+import {
+  convertAmount,
+  formatAmount,
+  normalizeCurrencyCode,
+} from "@/lib/utils";
 
 function formatAdminDate(value: string | Date | null) {
   if (!value) {
@@ -121,7 +125,11 @@ async function getUniqueProductHandle(
           limit 1
         `,
       )
-      .get<{ id: string }>([candidate, excludeProductId || null, excludeProductId || null]);
+      .get<{ id: string }>([
+        candidate,
+        excludeProductId || null,
+        excludeProductId || null,
+      ]);
 
     if (!existing) {
       return candidate;
@@ -165,14 +173,14 @@ export async function getAdminDashboardData() {
       `,
     )
     .get<{
-    product_count: number;
-    customer_count: number;
-    order_count: number;
-    revenue_total: number;
-    pending_order_count: number;
-    low_stock_count: number;
-    lowest_inventory: number | null;
-  }>()) || {
+      product_count: number;
+      customer_count: number;
+      order_count: number;
+      revenue_total: number;
+      pending_order_count: number;
+      low_stock_count: number;
+      lowest_inventory: number | null;
+    }>()) || {
     product_count: 0,
     customer_count: 0,
     order_count: 0,
@@ -203,15 +211,15 @@ export async function getAdminDashboardData() {
       `,
     )
     .all<{
-    display_id: number | null;
-    created_at: string;
-    total: number;
-    currency_code: string;
-    customer_name: string | null;
-    email: string | null;
-    status: string | null;
-    product_summary: string | null;
-  }>();
+      display_id: number | null;
+      created_at: string;
+      total: number;
+      currency_code: string;
+      customer_name: string | null;
+      email: string | null;
+      status: string | null;
+      product_summary: string | null;
+    }>();
 
   const revenueRows = await db
     .prepare("select total_amount, currency_code from orders")
@@ -318,17 +326,17 @@ export async function getAdminOrders(
       `,
     )
     .all<{
-    order_id: string;
-    display_id: number | null;
-    created_at: string;
-    total: number;
-    currency_code: string;
-    customer_name: string | null;
-    email: string | null;
-    status: string | null;
-    payment_status: string | null;
-    product_summary: string | null;
-  }>({ query: searchTerm ? `%${searchTerm}%` : null });
+      order_id: string;
+      display_id: number | null;
+      created_at: string;
+      total: number;
+      currency_code: string;
+      customer_name: string | null;
+      email: string | null;
+      status: string | null;
+      payment_status: string | null;
+      product_summary: string | null;
+    }>({ query: searchTerm ? `%${searchTerm}%` : null });
 
   return rows.map((order) => ({
     orderId: order.order_id,
@@ -388,31 +396,31 @@ export async function getAdminOrderDetails(orderId: string) {
       `,
     )
     .all<{
-    order_id: string;
-    display_id: number | null;
-    created_at: string;
-    email: string;
-    status: string | null;
-    payment_status: string | null;
-    currency_code: string;
-    customer_name: string | null;
-    customer_phone: string | null;
-    shipping_first_name: string | null;
-    shipping_last_name: string | null;
-    address_1: string | null;
-    address_2: string | null;
-    city: string | null;
-    province: string | null;
-    postal_code: string | null;
-    phone: string | null;
-    item_id: string | null;
-    item_title: string | null;
-    item_description: string | null;
-    quantity: number | null;
-    unit_price: number | null;
-    thumbnail: string | null;
-    variant_id: string | null;
-  }>([orderId]);
+      order_id: string;
+      display_id: number | null;
+      created_at: string;
+      email: string;
+      status: string | null;
+      payment_status: string | null;
+      currency_code: string;
+      customer_name: string | null;
+      customer_phone: string | null;
+      shipping_first_name: string | null;
+      shipping_last_name: string | null;
+      address_1: string | null;
+      address_2: string | null;
+      city: string | null;
+      province: string | null;
+      postal_code: string | null;
+      phone: string | null;
+      item_id: string | null;
+      item_title: string | null;
+      item_description: string | null;
+      quantity: number | null;
+      unit_price: number | null;
+      thumbnail: string | null;
+      variant_id: string | null;
+    }>([orderId]);
 
   const firstRow = rows[0];
   if (!firstRow) {
@@ -427,7 +435,10 @@ export async function getAdminOrderDetails(orderId: string) {
       description: row.item_description || "Default variant",
       quantity: row.quantity ?? 0,
       unitPrice: formatAmount(row.unit_price ?? 0, firstRow.currency_code),
-      lineTotal: formatAmount((row.unit_price ?? 0) * (row.quantity ?? 0), firstRow.currency_code),
+      lineTotal: formatAmount(
+        (row.unit_price ?? 0) * (row.quantity ?? 0),
+        firstRow.currency_code,
+      ),
       thumbnail: row.thumbnail,
       variantId: row.variant_id,
     }));
@@ -449,7 +460,8 @@ export async function getAdminOrderDetails(orderId: string) {
     statusTone: toStatusTone(firstRow.status),
     paymentStatus: firstRow.payment_status || "not_paid",
     paymentStatusTone:
-      firstRow.payment_status === "captured" || firstRow.payment_status === "paid"
+      firstRow.payment_status === "captured" ||
+      firstRow.payment_status === "paid"
         ? "bg-green-100 text-green-700"
         : "bg-gray-100 text-gray-600",
     customer: {
@@ -492,8 +504,9 @@ export async function completeAdminOrder(orderId: string) {
     return "already_completed" as const;
   }
 
-  await db.prepare(
-    `
+  await db
+    .prepare(
+      `
       update orders
       set status = 'completed',
           fulfillment_status = 'fulfilled',
@@ -501,7 +514,8 @@ export async function completeAdminOrder(orderId: string) {
           updated_at = datetime('now')
       where id = ?
     `,
-  ).run([normalizedId]);
+    )
+    .run([normalizedId]);
 
   return "updated" as const;
 }
@@ -524,12 +538,15 @@ export async function toggleAdminOrderPaymentStatus(orderId: string) {
   }
 
   const nextPaymentStatus =
-    existingOrder.payment_status === "captured" || existingOrder.payment_status === "paid"
+    existingOrder.payment_status === "captured" ||
+    existingOrder.payment_status === "paid"
       ? "awaiting"
       : "captured";
 
   await db
-    .prepare("update orders set payment_status = ?, updated_at = datetime('now') where id = ?")
+    .prepare(
+      "update orders set payment_status = ?, updated_at = datetime('now') where id = ?",
+    )
     .run([nextPaymentStatus, normalizedId]);
 
   return nextPaymentStatus;
@@ -561,16 +578,16 @@ export async function getAdminCustomers() {
       `,
     )
     .all<{
-    id: string;
-    email: string;
-    first_name: string | null;
-    last_name: string | null;
-    phone: string | null;
-    metadata_json: string | null;
-    created_at: string;
-    orders: number;
-    spent: number;
-  }>();
+      id: string;
+      email: string;
+      first_name: string | null;
+      last_name: string | null;
+      phone: string | null;
+      metadata_json: string | null;
+      created_at: string;
+      orders: number;
+      spent: number;
+    }>();
 
   const orderHistory = db.prepare(
     `
@@ -582,55 +599,58 @@ export async function getAdminCustomers() {
     `,
   );
 
-  return Promise.all(customers.map(async (customer) => {
-    const metadata = parseJsonObject(customer.metadata_json);
-    const name =
-      `${customer.first_name || ""} ${customer.last_name || ""}`.trim() ||
-      customer.email;
-    const initials = name
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() || "")
-      .join("");
-    const latestCheckout =
-      typeof metadata?.latest_checkout === "object" && metadata.latest_checkout
-        ? (metadata.latest_checkout as { submitted_at?: unknown })
-        : null;
+  return Promise.all(
+    customers.map(async (customer) => {
+      const metadata = parseJsonObject(customer.metadata_json);
+      const name =
+        `${customer.first_name || ""} ${customer.last_name || ""}`.trim() ||
+        customer.email;
+      const initials = name
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() || "")
+        .join("");
+      const latestCheckout =
+        typeof metadata?.latest_checkout === "object" &&
+        metadata.latest_checkout
+          ? (metadata.latest_checkout as { submitted_at?: unknown })
+          : null;
 
-    return {
-      id: customer.id,
-      name,
-      email: customer.email,
-      phone: customer.phone,
-      orders: customer.orders,
-      checkoutSubmissions:
-        typeof metadata?.checkout_submissions === "number"
-          ? metadata.checkout_submissions
-          : 0,
-      lastCheckout:
-        typeof latestCheckout?.submitted_at === "string"
-          ? formatAdminDate(latestCheckout.submitted_at)
-          : "N/A",
-      spent: formatAmount(customer.spent, currencyCode),
-      initials: initials || customer.email.slice(0, 2).toUpperCase(),
-      purchaseHistory: (
-        await orderHistory.all<{
-          order_id: string;
-          display_id: number | null;
-          created_at: string;
-          total: number;
-          status: string | null;
-        }>([customer.id])
-      ).map((order) => ({
-        orderId: order.order_id,
-        displayId: order.display_id ? `#${order.display_id}` : "Draft",
-        date: formatAdminDate(order.created_at),
-        total: formatAmount(order.total, currencyCode),
-        status: order.status || "pending",
-        statusTone: toStatusTone(order.status),
-      })),
-    };
-  }));
+      return {
+        id: customer.id,
+        name,
+        email: customer.email,
+        phone: customer.phone,
+        orders: customer.orders,
+        checkoutSubmissions:
+          typeof metadata?.checkout_submissions === "number"
+            ? metadata.checkout_submissions
+            : 0,
+        lastCheckout:
+          typeof latestCheckout?.submitted_at === "string"
+            ? formatAdminDate(latestCheckout.submitted_at)
+            : "N/A",
+        spent: formatAmount(customer.spent, currencyCode),
+        initials: initials || customer.email.slice(0, 2).toUpperCase(),
+        purchaseHistory: (
+          await orderHistory.all<{
+            order_id: string;
+            display_id: number | null;
+            created_at: string;
+            total: number;
+            status: string | null;
+          }>([customer.id])
+        ).map((order) => ({
+          orderId: order.order_id,
+          displayId: order.display_id ? `#${order.display_id}` : "Draft",
+          date: formatAdminDate(order.created_at),
+          total: formatAmount(order.total, currencyCode),
+          status: order.status || "pending",
+          statusTone: toStatusTone(order.status),
+        })),
+      };
+    }),
+  );
 }
 
 export async function getAdminProducts() {
@@ -667,25 +687,25 @@ export async function getAdminProducts() {
       `,
     )
     .all<{
-    id: string;
-    title: string;
-    description: string | null;
-    handle: string;
-    status: string;
-    thumbnail: string | null;
-    grading_data: string | null;
-    battery_health: number | null;
-    is_certified_pre_owned: number;
-    metadata_json: string | null;
-    brand_name: string | null;
-    model_name: string | null;
-    color: string | null;
-    storage: string | null;
-    imei: string | null;
-    inventory: number;
-    price: number;
-    currency_code: string;
-  }>();
+      id: string;
+      title: string;
+      description: string | null;
+      handle: string;
+      status: string;
+      thumbnail: string | null;
+      grading_data: string | null;
+      battery_health: number | null;
+      is_certified_pre_owned: number;
+      metadata_json: string | null;
+      brand_name: string | null;
+      model_name: string | null;
+      color: string | null;
+      storage: string | null;
+      imei: string | null;
+      inventory: number;
+      price: number;
+      currency_code: string;
+    }>();
 
   return rows.map((row) => {
     const metadata = parseJsonObject(row.metadata_json);
@@ -722,9 +742,12 @@ export async function getAdminProducts() {
       gradingData: row.grading_data || "",
       batteryHealth: row.battery_health ?? "",
       isCertifiedPreOwned: Boolean(row.is_certified_pre_owned),
+      featuredOnHomepage: metadata?.featured_on_homepage === true,
       referenceUrl:
         sanitizeHttpUrl(
-          typeof metadata?.reference_url === "string" ? metadata.reference_url : "",
+          typeof metadata?.reference_url === "string"
+            ? metadata.reference_url
+            : "",
         ) || "",
       compatibility: facts.compatibility || "",
       material: facts.material || "",
@@ -770,6 +793,7 @@ type CreateAdminProductInput = {
   batteryHealth?: number | null;
   isCertifiedPreOwned?: boolean;
   referenceUrl?: string;
+  featuredOnHomepage?: boolean;
 };
 
 export async function createAdminProduct(input: CreateAdminProductInput) {
@@ -778,7 +802,8 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
   const title = input.title.trim();
   const description = input.description?.trim() || null;
   const thumbnail = input.thumbnail?.trim() || null;
-  const imageUrls = input.imageUrls?.map((url) => url.trim()).filter(Boolean) || [];
+  const imageUrls =
+    input.imageUrls?.map((url) => url.trim()).filter(Boolean) || [];
   const gradingData = input.gradingData?.trim() || null;
   const batteryHealth =
     typeof input.batteryHealth === "number" ? input.batteryHealth : null;
@@ -793,7 +818,9 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
   const currencyCode = normalizeCurrencyCode(input.currencyCode);
   if (
     batteryHealth !== null &&
-    (!Number.isFinite(batteryHealth) || batteryHealth < 0 || batteryHealth > 100)
+    (!Number.isFinite(batteryHealth) ||
+      batteryHealth < 0 ||
+      batteryHealth > 100)
   ) {
     throw new Error("Battery health must be between 0 and 100.");
   }
@@ -806,7 +833,10 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
 
   const db = await getDb();
   return db.transaction(async (transactionDb) => {
-    const handle = await getUniqueProductHandle(transactionDb, input.handle || title);
+    const handle = await getUniqueProductHandle(
+      transactionDb,
+      input.handle || title,
+    );
     const status = input.status || "published";
     const metadata = buildProductMetadata(undefined, {
       title,
@@ -831,12 +861,14 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       referenceUrl,
       referenceSpecs,
       referenceSpecSections,
+      featuredOnHomepage: input.featuredOnHomepage,
     });
     const productId = createEntityId("prod");
     const variantId = createEntityId("variant");
 
-    await transactionDb.prepare(
-      `
+    await transactionDb
+      .prepare(
+        `
         insert into products (
           id, title, description, handle, thumbnail, battery_health, grading_data,
           metadata_json, status, brand_name, model_name, color, storage, imei,
@@ -844,33 +876,36 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
         )
         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `,
-    ).run([
-      productId,
-      title,
-      description,
-      handle,
-      thumbnail,
-      batteryHealth,
-      gradingData,
-      stringifyJson(metadata),
-      status,
-      input.brandName?.trim() || null,
-      input.modelName?.trim() || null,
-      input.color?.trim() || null,
-      input.storage?.trim() || null,
-      input.imei?.trim() || null,
-      input.isCertifiedPreOwned === false ? 0 : 1,
-    ]);
+      )
+      .run([
+        productId,
+        title,
+        description,
+        handle,
+        thumbnail,
+        batteryHealth,
+        gradingData,
+        stringifyJson(metadata),
+        status,
+        input.brandName?.trim() || null,
+        input.modelName?.trim() || null,
+        input.color?.trim() || null,
+        input.storage?.trim() || null,
+        input.imei?.trim() || null,
+        input.isCertifiedPreOwned === false ? 0 : 1,
+      ]);
 
-    await transactionDb.prepare(
-      `
+    await transactionDb
+      .prepare(
+        `
         insert into product_variants (
           id, product_id, title, inventory_quantity, price_amount,
           currency_code, created_at, updated_at
         )
         values (?, ?, 'Default', ?, ?, ?, datetime('now'), datetime('now'))
       `,
-    ).run([variantId, productId, input.inventory, input.price, currencyCode]);
+      )
+      .run([variantId, productId, input.inventory, input.price, currencyCode]);
 
     return productId;
   });
@@ -886,13 +921,17 @@ export async function removeAdminProduct(productId: string) {
 
   const db = await getDb();
   return db.transaction(async (transactionDb) => {
-    await transactionDb.prepare(
-      "update product_variants set deleted_at = datetime('now'), updated_at = datetime('now') where product_id = ? and deleted_at is null",
-    ).run([normalizedId]);
+    await transactionDb
+      .prepare(
+        "update product_variants set deleted_at = datetime('now'), updated_at = datetime('now') where product_id = ? and deleted_at is null",
+      )
+      .run([normalizedId]);
 
-    const result = await transactionDb.prepare(
-      "update products set deleted_at = datetime('now'), updated_at = datetime('now') where id = ? and deleted_at is null",
-    ).run([normalizedId]);
+    const result = await transactionDb
+      .prepare(
+        "update products set deleted_at = datetime('now'), updated_at = datetime('now') where id = ? and deleted_at is null",
+      )
+      .run([normalizedId]);
 
     return result.changes > 0;
   });
@@ -911,7 +950,8 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
   const title = input.title.trim();
   const description = input.description?.trim() || null;
   const thumbnail = input.thumbnail?.trim() || null;
-  const imageUrls = input.imageUrls?.map((url) => url.trim()).filter(Boolean) || [];
+  const imageUrls =
+    input.imageUrls?.map((url) => url.trim()).filter(Boolean) || [];
   const gradingData = input.gradingData?.trim() || null;
   const batteryHealth =
     typeof input.batteryHealth === "number" ? input.batteryHealth : null;
@@ -927,7 +967,9 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
   const currencyCode = normalizeCurrencyCode(input.currencyCode);
   if (
     batteryHealth !== null &&
-    (!Number.isFinite(batteryHealth) || batteryHealth < 0 || batteryHealth > 100)
+    (!Number.isFinite(batteryHealth) ||
+      batteryHealth < 0 ||
+      batteryHealth > 100)
   ) {
     throw new Error("Battery health must be between 0 and 100.");
   }
@@ -941,14 +983,20 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
   const db = await getDb();
   return db.transaction(async (transactionDb) => {
     const existingProduct = await transactionDb
-      .prepare("select id, metadata_json from products where id = ? and deleted_at is null limit 1")
+      .prepare(
+        "select id, metadata_json from products where id = ? and deleted_at is null limit 1",
+      )
       .get<{ id: string; metadata_json: string | null }>([productId]);
 
     if (!existingProduct) {
       throw new Error("Product was not found.");
     }
 
-    const handle = await getUniqueProductHandle(transactionDb, input.handle, productId);
+    const handle = await getUniqueProductHandle(
+      transactionDb,
+      input.handle,
+      productId,
+    );
     const metadata = buildProductMetadata(
       parseJsonObject(existingProduct.metadata_json) || undefined,
       {
@@ -974,11 +1022,13 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
         referenceUrl,
         referenceSpecs,
         referenceSpecSections,
+        featuredOnHomepage: input.featuredOnHomepage,
       },
     );
 
-    await transactionDb.prepare(
-      `
+    await transactionDb
+      .prepare(
+        `
         update products
         set title = ?,
             description = ?,
@@ -997,33 +1047,39 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
             updated_at = datetime('now')
         where id = ?
       `,
-    ).run([
-      title,
-      description,
-      handle,
-      thumbnail,
-      batteryHealth,
-      gradingData,
-      stringifyJson(metadata),
-      input.status,
-      input.brandName?.trim() || null,
-      input.modelName?.trim() || null,
-      input.color?.trim() || null,
-      input.storage?.trim() || null,
-      input.imei?.trim() || null,
-      input.isCertifiedPreOwned === false ? 0 : 1,
-      productId,
-    ]);
+      )
+      .run([
+        title,
+        description,
+        handle,
+        thumbnail,
+        batteryHealth,
+        gradingData,
+        stringifyJson(metadata),
+        input.status,
+        input.brandName?.trim() || null,
+        input.modelName?.trim() || null,
+        input.color?.trim() || null,
+        input.storage?.trim() || null,
+        input.imei?.trim() || null,
+        input.isCertifiedPreOwned === false ? 0 : 1,
+        productId,
+      ]);
 
-    await transactionDb.prepare(
-      "update product_variants set inventory_quantity = ?, price_amount = ?, currency_code = ?, updated_at = datetime('now') where product_id = ? and deleted_at is null",
-    ).run([input.inventory, input.price, currencyCode, productId]);
+    await transactionDb
+      .prepare(
+        "update product_variants set inventory_quantity = ?, price_amount = ?, currency_code = ?, updated_at = datetime('now') where product_id = ? and deleted_at is null",
+      )
+      .run([input.inventory, input.price, currencyCode, productId]);
 
     return true;
   });
 }
 
-export async function incrementAdminProductInventory(productId: string, amount: number) {
+export async function incrementAdminProductInventory(
+  productId: string,
+  amount: number,
+) {
   await assertAdminAuthenticated();
 
   const normalizedId = productId.trim();
@@ -1059,11 +1115,11 @@ export async function getAdminSettingsData() {
       "select id, name, description, is_disabled from sales_channels order by created_at asc",
     )
     .all<{
-    id: string;
-    name: string;
-    description: string | null;
-    is_disabled: number;
-  }>();
+      id: string;
+      name: string;
+      description: string | null;
+      is_disabled: number;
+    }>();
   const productCountRow = await db
     .prepare("select count(*) as count from products where deleted_at is null")
     .get<{ count: number }>();

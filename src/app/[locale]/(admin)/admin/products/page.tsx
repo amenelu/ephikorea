@@ -277,6 +277,24 @@ export default async function AdminProductsPage({
               </select>
             </label>
 
+            <label className="flex items-start gap-3 rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-700 transition focus-within:border-yellow-400">
+              <input
+                type="checkbox"
+                name="featuredOnHomepage"
+                defaultChecked={Boolean(editingProduct?.featuredOnHomepage)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400"
+              />
+              <span>
+                <span className="block text-xs font-black uppercase tracking-widest text-gray-500">
+                  Feature on homepage
+                </span>
+                <span className="mt-1 block text-xs leading-5 text-gray-400">
+                  Show this product in Popular Right Now before the newest
+                  fallback products.
+                </span>
+              </span>
+            </label>
+
             <label className="block md:col-span-2">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
                 Description

@@ -350,6 +350,7 @@ export async function addProductAction(formData: FormData) {
       currencyCode,
     );
     const status = parseStatus(formData.get("status"));
+    const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
 
     await createAdminProduct({
       brandName,
@@ -381,6 +382,7 @@ export async function addProductAction(formData: FormData) {
       price,
       currencyCode,
       status,
+      featuredOnHomepage,
     });
 
     revalidateAdminProductPaths(locale);
@@ -450,6 +452,7 @@ export async function updateProductAction(formData: FormData) {
       currencyCode,
     );
     const status = parseStatus(formData.get("status"));
+    const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
 
     await updateAdminProduct({
       productId,
@@ -482,6 +485,7 @@ export async function updateProductAction(formData: FormData) {
       price,
       currencyCode,
       status,
+      featuredOnHomepage,
     });
 
     revalidateAdminProductPaths(locale);
