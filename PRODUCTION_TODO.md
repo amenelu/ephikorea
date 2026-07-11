@@ -84,6 +84,7 @@ This checklist reflects the current production setup:
 - [ ] Set admin notification email variables if needed.
 - [ ] Submit a test order and confirm email notification arrives.
 - [ ] Verify Telegram notification variables only if Telegram is used.
+- [ ] If product questions should open WhatsApp, set `NEXT_PUBLIC_WHATSAPP_NUMBER` with the international phone number digits only, then redeploy.
 
 ## 9. Domain Handoff
 

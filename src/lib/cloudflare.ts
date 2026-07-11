@@ -43,6 +43,8 @@ export type CloudflareEnv = {
   RESEND_API_KEY?: string;
   ORDER_NOTIFICATION_FROM_EMAIL?: string;
   ADMIN_ORDER_NOTIFICATION_EMAIL?: string;
+  NEXT_PUBLIC_WHATSAPP_NUMBER?: string;
+  WHATSAPP_NUMBER?: string;
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
 };

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Mail, MessageCircle, ShieldCheck } from "lucide-react";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/modules/add-to-cart-button";
 import ProductDetailsPanels from "@/components/product/product-details-panels";
@@ -109,6 +109,27 @@ export default async function ProductDetailsPage({
       )
     : [];
   const productPath = `/${locale}/products/${product.handle || product.id}`;
+  const productUrl = absoluteUrl(productPath);
+  const supportEmail =
+    process.env.ADMIN_ORDER_NOTIFICATION_EMAIL ||
+    process.env.ADMIN_EMAIL ||
+    "amanuelweldeamlak@gmail.com";
+  const whatsappNumber = (
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ||
+    process.env.WHATSAPP_NUMBER ||
+    ""
+  ).replace(/\D/g, "");
+  const whatsappMessage = `Hi Aman Mobiles,\n\nI have a question about this product:\n${product.title}\n${productUrl}\n\nMy question:`;
+  const whatsappHref = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`
+    : "";
+  const askAboutProductHref = `mailto:${supportEmail}?subject=${encodeURIComponent(
+    `Question about ${product.title}`,
+  )}&body=${encodeURIComponent(
+    `Hi Aman Mobiles,\n\nI have a question about this product:\n${product.title}\n${productUrl}\n\nMy question:\n`,
+  )}`;
+  const primaryAskHref = whatsappHref || askAboutProductHref;
+  const PrimaryAskIcon = whatsappHref ? MessageCircle : Mail;
   const editableFacts = getEditableProductFacts(product.metadata);
   const overviewDetails = [
     editableFacts.color ? { label: "Color", value: editableFacts.color } : null,
@@ -254,25 +275,69 @@ export default async function ProductDetailsPage({
           </div>
 
           {primaryVariant?.id ? (
-            <AddToCartButton
-              locale={locale}
-              variantId={primaryVariant.id}
-              title={product.title}
-              thumbnail={
-                product.thumbnail && isLikelyImageUrl(product.thumbnail)
-                  ? product.thumbnail || undefined
-                  : undefined
-              }
-              unitPrice={price}
-              currencyCode={currencyCode}
-            />
+            <div className="space-y-3">
+              <AddToCartButton
+                locale={locale}
+                variantId={primaryVariant.id}
+                title={product.title}
+                thumbnail={
+                  product.thumbnail && isLikelyImageUrl(product.thumbnail)
+                    ? product.thumbnail || undefined
+                    : undefined
+                }
+                unitPrice={price}
+                currencyCode={currencyCode}
+              />
+              <a
+                href={primaryAskHref}
+                target={whatsappHref ? "_blank" : undefined}
+                rel={whatsappHref ? "noreferrer" : undefined}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white py-4 text-sm font-black uppercase tracking-widest text-gray-700 transition hover:border-yellow-400 hover:text-gray-900"
+              >
+                <PrimaryAskIcon className="h-4 w-4" />
+                {whatsappHref
+                  ? t("product.askWhatsapp")
+                  : t("product.askAdmin")}
+              </a>
+              {whatsappHref ? (
+                <a
+                  href={askAboutProductHref}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white py-4 text-sm font-black uppercase tracking-widest text-gray-700 transition hover:border-yellow-400 hover:text-gray-900"
+                >
+                  <Mail className="h-4 w-4" />
+                  {t("product.askEmail")}
+                </a>
+              ) : null}
+            </div>
           ) : (
-            <button
-              disabled
-              className="flex w-full cursor-not-allowed items-center justify-center rounded-2xl bg-gray-200 py-5 text-base font-bold text-gray-500"
-            >
-              {t("product.variantUnavailable")}
-            </button>
+            <div className="space-y-3">
+              <button
+                disabled
+                className="flex w-full cursor-not-allowed items-center justify-center rounded-2xl bg-gray-200 py-5 text-base font-bold text-gray-500"
+              >
+                {t("product.variantUnavailable")}
+              </button>
+              <a
+                href={primaryAskHref}
+                target={whatsappHref ? "_blank" : undefined}
+                rel={whatsappHref ? "noreferrer" : undefined}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white py-4 text-sm font-black uppercase tracking-widest text-gray-700 transition hover:border-yellow-400 hover:text-gray-900"
+              >
+                <PrimaryAskIcon className="h-4 w-4" />
+                {whatsappHref
+                  ? t("product.askWhatsapp")
+                  : t("product.askAdmin")}
+              </a>
+              {whatsappHref ? (
+                <a
+                  href={askAboutProductHref}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white py-4 text-sm font-black uppercase tracking-widest text-gray-700 transition hover:border-yellow-400 hover:text-gray-900"
+                >
+                  <Mail className="h-4 w-4" />
+                  {t("product.askEmail")}
+                </a>
+              ) : null}
+            </div>
           )}
 
           {overviewDetails.length > 0 ? (
