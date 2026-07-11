@@ -10,7 +10,7 @@ export default async function PhonesCollectionPage({
   searchParams,
 }: {
   params: { locale: string };
-  searchParams?: { condition?: string };
+  searchParams?: { brand?: string; condition?: string };
 }) {
   const products = (await getCatalogProducts()).filter(
     (product) => product.collection_id === "phones",
@@ -23,6 +23,8 @@ export default async function PhonesCollectionPage({
       products={products}
       baseHref={`/${locale}/collections/phones`}
       activeCondition={searchParams?.condition}
+      activeBrand={searchParams?.brand}
+      enableBrandFilter
     />
   );
 }

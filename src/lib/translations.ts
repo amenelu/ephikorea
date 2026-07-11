@@ -41,11 +41,11 @@ const translations = {
       `(c) ${year} Aman Mobiles. All rights reserved.`,
     "home.eyebrow": "New and Certified Pre-Owned Phones",
     "home.description":
-      "From phones to audio, computing to everyday accessories -- every item is checked and graded, so you know exactly what you're getting.",
+      "From phones to audio, computing to everyday accessories - every item is checked and graded, so you know exactly what you're getting.",
     "home.cta": "Explore Collection",
     "home.categoryHeading": "Shop by Category",
     "home.categoryDescription":
-      "Phones, audio, computing, wearables, and more -- all checked before they ship.",
+      "Phones, audio, computing, wearables, and more - all checked before they ship.",
     "home.featured": "Popular Right Now",
     "home.viewAll": "View All",
     "home.empty": "No products are in the catalog yet.",
@@ -208,7 +208,7 @@ const translations = {
     "home.cta": "컬렉션 보기",
     "home.categoryHeading": "카테고리별 쇼핑",
     "home.categoryDescription":
-      "Phones, audio, computing, wearables, and more -- all checked before they ship.",
+      "Phones, audio, computing, wearables, and more - all checked before they ship.",
     "home.featured": "추천 상품",
     "home.viewAll": "전체 보기",
     "home.empty": "아직 카탈로그에 등록된 상품이 없습니다.",

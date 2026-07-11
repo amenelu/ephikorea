@@ -14,7 +14,7 @@ export function generateMetadata({
     locale,
     title: "New & Certified Pre-Owned Phones",
     description:
-      "Shop new and certified pre-owned phones, audio, computing, and more -- every item checked and graded before it ships.",
+      "Shop new and certified pre-owned phones, audio, computing, and more - every item checked and graded before it ships.",
   });
 }
 
@@ -33,6 +33,8 @@ export default async function HomePage({
     { href: `/${locale}/collections/computing`, label: "Computing" },
     { href: `/${locale}/collections/wearables`, label: "Wearables" },
     { href: `/${locale}/collections/accessories`, label: "Accessories" },
+    { href: `/${locale}/collections/lifestyle`, label: "Skincare" },
+    { href: `/${locale}/collections/lifestyle`, label: "Shoes" },
   ];
   const websiteData = {
     "@context": "https://schema.org",
@@ -53,7 +55,7 @@ export default async function HomePage({
   };
 
   return (
-    <div className="flex flex-col gap-10 pb-16 sm:gap-12 sm:pb-20">
+    <div className="flex flex-col gap-7 pb-16 sm:gap-9 sm:pb-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(organizationData) }}
@@ -85,7 +87,7 @@ export default async function HomePage({
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="border-b border-gray-100 pb-6">
+        <div className="border-b border-gray-100 pb-4">
           <h2 className="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">
             {t("home.categoryHeading")}
           </h2>
@@ -93,7 +95,7 @@ export default async function HomePage({
             {t("home.categoryDescription")}
           </p>
         </div>
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-4 flex flex-wrap gap-2.5">
           {categoryLinks.map((category) => (
             <Link
               key={category.href}
