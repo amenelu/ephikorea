@@ -52,7 +52,7 @@ const translations = {
     "products.title": "Our",
     "products.titleAccent": "Collection",
     "products.description":
-      "Browse new and certified pre-owned phones, audio, computing, and more -- every item graded and checked before it ships.",
+      "Browse new and certified pre-owned phones, audio, computing, and more - every item graded and checked before it ships.",
     "products.count": (count) =>
       `${count} product${Number(count) === 1 ? "" : "s"}`,
     "products.empty": "No products are available yet.",

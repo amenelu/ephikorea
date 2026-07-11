@@ -28,7 +28,7 @@ export default function AboutPage({
       locale={locale}
       eyebrow="Company"
       title="About Aman Mobiles"
-      description="Buying tech online shouldn't feel like a gamble. That's why everything we sell -- new or certified pre-owned -- gets checked and graded before it ever reaches you, so you know exactly what you're paying for."
+      description="Buying tech online shouldn't feel like a gamble. That's why everything we sell - new or certified pre-owned - gets checked and graded before it ever reaches you, so you know exactly what you're paying for."
       highlights={[
         "New and certified pre-owned, always clearly labeled",
         "Shop in Korean or English, whichever's easier for you",
@@ -37,11 +37,11 @@ export default function AboutPage({
       sections={[
         {
           title: "What You'll Find Here",
-          body: "Phones, audio, computing, wearables, and everyday accessories -- we focus on tech that's actually worth trusting. Every listing tells you the real condition and grade, so there's no surprise when it arrives.",
+          body: "Phones, audio, computing, wearables, and everyday accessories - we focus on tech that's actually worth trusting. Every listing tells you the real condition and grade, so there's no surprise when it arrives.",
         },
         {
           title: "Why Buy From Us",
-          body: "We inspect and grade every item ourselves before it's listed, so the description matches what shows up at your door. If something's not right, our support team sorts it out -- no runaround.",
+          body: "We inspect and grade every item ourselves before it's listed, so the description matches what shows up at your door. If something's not right, our support team sorts it out - no runaround.",
         },
       ]}
       primaryLink={{ href: `/${locale}/products`, label: "Shop Collection" }}

@@ -37,11 +37,11 @@ export default function SustainabilityPage({
       sections={[
         {
           title: "Longer Device Lifecycles",
-          body: "By properly refurbishing and grading devices, we help good products stay in use longer instead of getting replaced too soon -- which means less electronic waste overall.",
+          body: "By properly refurbishing and grading devices, we help good products stay in use longer instead of getting replaced too soon - which means less electronic waste overall.",
         },
         {
           title: "How We Try to Do Better",
-          body: "We reuse packaging where we can, choose right-sized boxes to cut down on waste, and give clear grading details upfront -- so you don't need to over-order or return something that wasn't what you expected.",
+          body: "We reuse packaging where we can, choose right-sized boxes to cut down on waste, and give clear grading details upfront - so you don't need to over-order or return something that wasn't what you expected.",
         },
       ]}
       primaryLink={{ href: `/${locale}/products`, label: "Shop Collection" }}

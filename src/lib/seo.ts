@@ -8,7 +8,7 @@ import {
 
 export const SITE_NAME = "Aman Mobiles";
 export const SITE_DESCRIPTION =
-  "Shop new and certified pre-owned phones, audio, computing, and more -- every item checked and graded before it ships.";
+  "Shop new and certified pre-owned phones, audio, computing, and more - every item checked and graded before it ships.";
 
 export function getSiteUrl() {
   const rawUrl =

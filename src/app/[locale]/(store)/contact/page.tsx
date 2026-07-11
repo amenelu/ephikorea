@@ -14,7 +14,7 @@ export function generateMetadata({
     pathname: "/contact",
     title: "Contact Us",
     description:
-      "Questions about an order or a product? Contact Aman Mobiles support -- most replies within 1 business day.",
+      "Questions about an order or a product? Contact Aman Mobiles support - most replies within 1 business day.",
   });
 }
 
@@ -28,11 +28,11 @@ export default function ContactPage({
       locale={locale}
       eyebrow="Support"
       title="Get in Touch"
-      description="Got a question about an order, a product you're considering, or anything else? Reach out -- we usually reply within 1 business day."
+      description="Got a question about an order, a product you're considering, or anything else? Reach out - we usually reply within 1 business day."
       sections={[
         {
           title: "Before You Buy",
-          body: "Ask us about condition, battery health, color options, bundles, or bulk orders -- happy to help before you check out.",
+          body: "Ask us about condition, battery health, color options, bundles, or bulk orders - happy to help before you check out.",
         },
         {
           title: "After You Order",

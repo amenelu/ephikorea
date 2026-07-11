@@ -37,7 +37,7 @@ export default function ReturnsPage({
       sections={[
         {
           title: "Eligibility",
-          body: "Send the item back in the same condition it arrived -- with all original accessories and packaging where possible. Items that are damaged, missing parts, or show signs of misuse may not qualify.",
+          body: "Send the item back in the same condition it arrived - with all original accessories and packaging where possible. Items that are damaged, missing parts, or show signs of misuse may not qualify.",
         },
         {
           title: "How to Request a Return",
