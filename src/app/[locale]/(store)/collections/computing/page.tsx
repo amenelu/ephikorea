@@ -10,7 +10,7 @@ export default async function ComputingCollectionPage({
   searchParams,
 }: {
   params: { locale: string };
-  searchParams?: { condition?: string };
+  searchParams?: { brand?: string; condition?: string };
 }) {
   const products = (await getCatalogProducts()).filter(
     (product) => product.collection_id === "computing",
@@ -23,6 +23,8 @@ export default async function ComputingCollectionPage({
       products={products}
       baseHref={`/${locale}/collections/computing`}
       activeCondition={searchParams?.condition}
+      activeBrand={searchParams?.brand}
+      enableBrandFilter
     />
   );
 }

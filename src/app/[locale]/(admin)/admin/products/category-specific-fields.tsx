@@ -54,7 +54,7 @@ const storageOptions = [
 const gradeOptions = ["Grade A", "Grade B", "Grade C"];
 const batteryOptions = Array.from(
   { length: 11 },
-  (_, index) => 100 - index * 5,
+  (_, index) => `${100 - index * 5}`,
 );
 const inputClassName =
   "w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400";
@@ -189,22 +189,52 @@ function Storage({ defaultValue }: { defaultValue?: string }) {
 }
 
 function BatteryHealth({ defaultValue }: { defaultValue?: string }) {
+  const initialValue = defaultValue || "";
+  const hasPresetValue = !initialValue || batteryOptions.includes(initialValue);
+  const [selectedValue, setSelectedValue] = useState(
+    hasPresetValue ? initialValue : "custom",
+  );
+  const [customValue, setCustomValue] = useState(
+    hasPresetValue ? "" : initialValue,
+  );
+  const submittedValue =
+    selectedValue === "custom" ? customValue : selectedValue;
+
   return (
-    <label className="block">
-      <span className={labelClassName}>Battery Health</span>
-      <select
-        name="batteryHealth"
-        defaultValue={defaultValue || ""}
-        className={inputClassName}
-      >
-        <option value="">Select battery health</option>
-        {batteryOptions.map((option) => (
-          <option key={option} value={option}>
-            {option}%
-          </option>
-        ))}
-      </select>
-    </label>
+    <div className="block">
+      <input type="hidden" name="batteryHealth" value={submittedValue} />
+      <label className="block">
+        <span className={labelClassName}>Battery Health</span>
+        <select
+          value={selectedValue}
+          onChange={(event) => setSelectedValue(event.target.value)}
+          className={inputClassName}
+        >
+          <option value="">Select battery health</option>
+          {batteryOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}%
+            </option>
+          ))}
+          <option value="custom">Custom percentage</option>
+        </select>
+      </label>
+      {selectedValue === "custom" ? (
+        <label className="mt-3 block">
+          <span className={labelClassName}>Custom Battery Health</span>
+          <input
+            type="number"
+            value={customValue}
+            onChange={(event) => setCustomValue(event.target.value)}
+            min="0"
+            max="100"
+            step="1"
+            className={inputClassName}
+            placeholder="Enter 0-100"
+          />
+        </label>
+      ) : null}
+    </div>
   );
 }
 

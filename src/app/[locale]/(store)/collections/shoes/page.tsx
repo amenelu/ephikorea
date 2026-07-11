@@ -10,7 +10,7 @@ export default async function ShoesCollectionPage({
   searchParams,
 }: {
   params: { locale: string };
-  searchParams?: { condition?: string };
+  searchParams?: { brand?: string; condition?: string };
 }) {
   const products = (await getCatalogProducts()).filter(
     (product) => product.collection_id === "shoes",
@@ -23,6 +23,8 @@ export default async function ShoesCollectionPage({
       products={products}
       baseHref={`/${locale}/collections/shoes`}
       activeCondition={searchParams?.condition}
+      activeBrand={searchParams?.brand}
+      enableBrandFilter
     />
   );
 }

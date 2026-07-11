@@ -11,6 +11,10 @@ type CollectionProductsSectionProps = {
   title: string;
   products: CatalogProducts;
   baseHref: string;
+  eyebrow?: string;
+  description?: string;
+  countLabel?: string;
+  emptyLabel?: string;
   activeCondition?: string;
   activeBrand?: string;
   enableBrandFilter?: boolean;
@@ -21,6 +25,10 @@ export function CollectionProductsSection({
   title,
   products,
   baseHref,
+  eyebrow = "Collections",
+  description,
+  countLabel,
+  emptyLabel,
   activeCondition,
   activeBrand,
   enableBrandFilter = false,
@@ -101,11 +109,23 @@ export function CollectionProductsSection({
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
       <header className="border-b border-gray-100 pb-6 sm:pb-8">
         <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-600">
-          Collections
+          {eyebrow}
         </p>
-        <h1 className="mt-3 text-2xl font-black tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
-          {title}
-        </h1>
+        <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+              {title}
+            </h1>
+            {description ? (
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-500 sm:text-base">
+                {description}
+              </p>
+            ) : null}
+          </div>
+          {countLabel ? (
+            <p className="text-sm font-medium text-gray-500">{countLabel}</p>
+          ) : null}
+        </div>
         <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <div className="flex flex-wrap gap-2">
             {filters.map((filter) => (
@@ -139,6 +159,10 @@ export function CollectionProductsSection({
             <ProductCard key={product.id} product={product} locale={locale} />
           ))}
         </section>
+      ) : emptyLabel ? (
+        <div className="mt-10 rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-10 text-center text-gray-500 sm:mt-12 sm:p-12">
+          {emptyLabel}
+        </div>
       ) : null}
     </main>
   );

@@ -10,7 +10,10 @@ import {
   removeAdminProduct,
   updateAdminProduct,
 } from "@/lib/admin-data";
-import { getUploadExtension, saveProductMedia } from "@/lib/product-media-storage";
+import {
+  getUploadExtension,
+  saveProductMedia,
+} from "@/lib/product-media-storage";
 import { inferReferenceUrlFromBrandAndModel } from "@/lib/product-specs";
 
 function buildRedirectPath(
@@ -34,7 +37,9 @@ function buildRedirectPath(
 }
 
 function parseCurrencyCode(rawValue: FormDataEntryValue | null) {
-  const normalized = String(rawValue || "usd").trim().toLowerCase();
+  const normalized = String(rawValue || "usd")
+    .trim()
+    .toLowerCase();
 
   if (normalized === "usd" || normalized === "krw") {
     return normalized;
@@ -89,7 +94,9 @@ function validateProductImageFile(file: File) {
   const extension = getUploadExtension(file);
 
   if (!extension) {
-    throw new Error("Unsupported image format. Use JPG, PNG, WebP, GIF, or AVIF.");
+    throw new Error(
+      "Unsupported image format. Use JPG, PNG, WebP, GIF, or AVIF.",
+    );
   }
 }
 
@@ -134,7 +141,11 @@ async function resolveProductImageValues(formData: FormData) {
 function parseProductCategory(rawValue: FormDataEntryValue | null) {
   const normalized = String(rawValue || "phones").trim();
 
-  if (PRODUCT_CATEGORIES.includes(normalized as (typeof PRODUCT_CATEGORIES)[number])) {
+  if (
+    PRODUCT_CATEGORIES.includes(
+      normalized as (typeof PRODUCT_CATEGORIES)[number],
+    )
+  ) {
     return normalized;
   }
 
@@ -165,7 +176,7 @@ function parseBatteryHealth(rawValue: FormDataEntryValue | null) {
 
   const parsed = Number.parseInt(normalized, 10);
 
-  if (!Number.isFinite(parsed) || parsed < 50 || parsed > 100) {
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 100) {
     throw new Error("Battery health is invalid.");
   }
 
@@ -277,7 +288,11 @@ function revalidateAdminProductPaths(locale: string) {
   revalidatePath(`/${locale}/admin/products`);
 }
 
-function resolveReferenceUrl(brandName: string, modelName: string, rawReferenceUrl: string) {
+function resolveReferenceUrl(
+  brandName: string,
+  modelName: string,
+  rawReferenceUrl: string,
+) {
   const referenceUrl = rawReferenceUrl.trim();
 
   if (referenceUrl) {
@@ -325,7 +340,10 @@ export async function addProductAction(formData: FormData) {
     const isCertifiedPreOwned = parseProductCondition(
       formData.get("productCondition"),
     );
-    const inventory = Number.parseInt(String(formData.get("inventory") || "0"), 10);
+    const inventory = Number.parseInt(
+      String(formData.get("inventory") || "0"),
+      10,
+    );
     const currencyCode = parseCurrencyCode(formData.get("currencyCode"));
     const price = parsePriceToMinorUnits(
       String(formData.get("price") || ""),
@@ -422,7 +440,10 @@ export async function updateProductAction(formData: FormData) {
     const isCertifiedPreOwned = parseProductCondition(
       formData.get("productCondition"),
     );
-    const inventory = Number.parseInt(String(formData.get("inventory") || "0"), 10);
+    const inventory = Number.parseInt(
+      String(formData.get("inventory") || "0"),
+      10,
+    );
     const currencyCode = parseCurrencyCode(formData.get("currencyCode"));
     const price = parsePriceToMinorUnits(
       String(formData.get("price") || ""),
@@ -470,7 +491,9 @@ export async function updateProductAction(formData: FormData) {
     redirect(buildRedirectPath(locale, "error", message, productId));
   }
 
-  redirect(buildRedirectPath(locale, "success", "Product updated successfully."));
+  redirect(
+    buildRedirectPath(locale, "success", "Product updated successfully."),
+  );
 }
 
 export async function removeProductAction(formData: FormData) {
@@ -493,7 +516,9 @@ export async function removeProductAction(formData: FormData) {
     redirect(buildRedirectPath(locale, "error", "Product was not found."));
   }
 
-  redirect(buildRedirectPath(locale, "success", "Product removed successfully."));
+  redirect(
+    buildRedirectPath(locale, "success", "Product removed successfully."),
+  );
 }
 
 export async function addInventoryAction(formData: FormData) {
@@ -518,10 +543,6 @@ export async function addInventoryAction(formData: FormData) {
   }
 
   redirect(
-    buildRedirectPath(
-      locale,
-      "success",
-      `Inventory increased by ${amount}.`,
-    ),
+    buildRedirectPath(locale, "success", `Inventory increased by ${amount}.`),
   );
 }

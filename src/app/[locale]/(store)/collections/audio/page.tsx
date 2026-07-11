@@ -10,7 +10,7 @@ export default async function AudioCollectionPage({
   searchParams,
 }: {
   params: { locale: string };
-  searchParams?: { condition?: string };
+  searchParams?: { brand?: string; condition?: string };
 }) {
   const products = (await getCatalogProducts()).filter(
     (product) => product.collection_id === "audio",
@@ -23,6 +23,8 @@ export default async function AudioCollectionPage({
       products={products}
       baseHref={`/${locale}/collections/audio`}
       activeCondition={searchParams?.condition}
+      activeBrand={searchParams?.brand}
+      enableBrandFilter
     />
   );
 }

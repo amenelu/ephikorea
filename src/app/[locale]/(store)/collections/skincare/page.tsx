@@ -10,7 +10,7 @@ export default async function SkincareCollectionPage({
   searchParams,
 }: {
   params: { locale: string };
-  searchParams?: { condition?: string };
+  searchParams?: { brand?: string; condition?: string };
 }) {
   const products = (await getCatalogProducts()).filter(
     (product) => product.collection_id === "skincare",
@@ -23,6 +23,8 @@ export default async function SkincareCollectionPage({
       products={products}
       baseHref={`/${locale}/collections/skincare`}
       activeCondition={searchParams?.condition}
+      activeBrand={searchParams?.brand}
+      enableBrandFilter
     />
   );
 }
