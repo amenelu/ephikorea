@@ -210,7 +210,7 @@ function BatteryHealth({ defaultValue }: { defaultValue?: string }) {
           onChange={(event) => setSelectedValue(event.target.value)}
           className={inputClassName}
         >
-          <option value="">Select battery health</option>
+          <option value="">Leave empty (optional)</option>
           {batteryOptions.map((option) => (
             <option key={option} value={option}>
               {option}%

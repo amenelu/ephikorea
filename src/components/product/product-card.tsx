@@ -12,6 +12,12 @@ export const ProductCard = ({
   product: CPOProduct;
   locale: string;
 }) => {
+  const inventoryQuantity = product.variants.reduce(
+    (total, variant) => total + (variant.inventory_quantity ?? 0),
+    0,
+  );
+  const isOutOfStock = inventoryQuantity <= 0;
+
   return (
     <Link
       href={`/${locale}/products/${product.handle}`}
@@ -49,6 +55,10 @@ export const ProductCard = ({
           {product.title}
         </h3>
         <p className="text-xs text-gray-500 line-clamp-1">{product.subtitle}</p>
+
+        {isOutOfStock ? (
+          <p className="text-xs font-bold text-red-500">Out of stock</p>
+        ) : null}
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <span className="text-base font-bold sm:text-lg">

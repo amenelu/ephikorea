@@ -287,6 +287,7 @@ export default async function ProductDetailsPage({
                 }
                 unitPrice={price}
                 currencyCode={currencyCode}
+                inventoryQuantity={inventoryQuantity}
               />
               <a
                 href={primaryAskHref}

@@ -208,7 +208,7 @@ export default async function AdminProductsPage({
               initialColor={editingProduct?.color}
               initialStorage={editingProduct?.storage}
               initialBatteryHealth={
-                editingProduct?.batteryHealth !== ""
+                typeof editingProduct?.batteryHealth === "number"
                   ? String(editingProduct?.batteryHealth)
                   : ""
               }

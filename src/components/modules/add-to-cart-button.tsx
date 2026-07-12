@@ -12,6 +12,7 @@ interface AddToCartButtonProps {
   thumbnail?: string;
   unitPrice: number;
   currencyCode: string;
+  inventoryQuantity: number;
 }
 
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({
@@ -21,11 +22,13 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   thumbnail,
   unitPrice,
   currencyCode,
+  inventoryQuantity,
 }) => {
   const t = getTranslator(locale);
   const { items, addItem, updateQuantity } = useLocalCart();
   const [isAdding, setIsAdding] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [stockMessage, setStockMessage] = useState("");
   const checkoutHref = `/${locale || "ko"}/cart`;
 
   const cartItem = useMemo(
@@ -33,6 +36,17 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     [items, variantId],
   );
   const quantity = cartItem?.quantity ?? 0;
+  const isOutOfStock = inventoryQuantity <= 0;
+  const hasReachedStockLimit = quantity >= inventoryQuantity;
+
+  const getStockLimitMessage = () =>
+    inventoryQuantity === 1
+      ? "Only 1 left in inventory."
+      : `Only ${inventoryQuantity} left in inventory.`;
+
+  const showStockLimitMessage = () => {
+    setStockMessage(isOutOfStock ? "Out of stock." : getStockLimitMessage());
+  };
 
   useEffect(() => {
     if (!showConfirmation) {
@@ -46,8 +60,28 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     return () => window.clearTimeout(timeout);
   }, [showConfirmation]);
 
+  useEffect(() => {
+    if (!stockMessage) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setStockMessage("");
+    }, 3600);
+
+    return () => window.clearTimeout(timeout);
+  }, [stockMessage]);
+
   const handleAddToCart = () => {
     if (!variantId) return;
+    if (isOutOfStock) {
+      setStockMessage("Out of stock.");
+      return;
+    }
+    if (quantity >= inventoryQuantity) {
+      showStockLimitMessage();
+      return;
+    }
     setIsAdding(true);
     addItem({
       variantId,
@@ -55,6 +89,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       thumbnail,
       unitPrice,
       currencyCode,
+      maxInventory: inventoryQuantity,
     });
     setShowConfirmation(true);
     setIsAdding(false);
@@ -62,6 +97,11 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 
   const increaseQuantity = () => {
     if (!variantId) return;
+
+    if (isOutOfStock || hasReachedStockLimit) {
+      showStockLimitMessage();
+      return;
+    }
 
     if (quantity === 0) {
       handleAddToCart();
@@ -115,7 +155,11 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           <button
             type="button"
             onClick={increaseQuantity}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white transition hover:bg-gray-800"
+            className={`flex h-11 w-11 items-center justify-center rounded-full transition ${
+              hasReachedStockLimit
+                ? "bg-gray-200 text-gray-500"
+                : "bg-black text-white hover:bg-gray-800"
+            }`}
             aria-label={t("addToCart.increase")}
           >
             <Plus className="h-4 w-4" />
@@ -125,11 +169,21 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         <button
           type="button"
           onClick={increaseQuantity}
-          className="flex w-full items-center justify-center gap-3 rounded-2xl bg-black py-4 text-sm font-bold text-white transition-all hover:bg-gray-800 active:scale-[0.98]"
+          className={`flex w-full items-center justify-center gap-3 rounded-2xl py-4 text-sm font-bold transition-all active:scale-[0.98] ${
+            hasReachedStockLimit
+              ? "bg-gray-200 text-gray-500"
+              : "bg-black text-white hover:bg-gray-800"
+          }`}
         >
           <ShoppingBag className="h-4 w-4 text-yellow-500" />
           {t("addToCart.addMore")}
         </button>
+
+        {stockMessage ? (
+          <p className="rounded-2xl bg-yellow-50 px-4 py-3 text-sm font-bold text-yellow-800">
+            {stockMessage}
+          </p>
+        ) : null}
 
         <a
           href={checkoutHref}
@@ -142,26 +196,37 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   }
 
   return (
-    <button
-      onClick={handleAddToCart}
-      disabled={isAdding}
-      className={`flex w-full items-center justify-center gap-3 rounded-2xl py-5 text-base font-bold text-white transition-all active:scale-[0.98] shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed ${
-        showConfirmation
-          ? "bg-green-600 hover:bg-green-600"
-          : "bg-black hover:bg-gray-800"
-      }`}
-    >
-      {showConfirmation ? (
-        <Check className="h-5 w-5 text-white" />
-      ) : (
-        <ShoppingBag className="h-5 w-5 text-yellow-500" />
-      )}
-      {isAdding
-        ? t("addToCart.adding")
-        : showConfirmation
-          ? t("addToCart.added")
-          : t("addToCart.add")}
-    </button>
+    <div className="space-y-3">
+      <button
+        onClick={handleAddToCart}
+        disabled={isAdding || isOutOfStock}
+        className={`flex w-full items-center justify-center gap-3 rounded-2xl py-5 text-base font-bold text-white shadow-2xl transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
+          isOutOfStock
+            ? "bg-gray-300 text-gray-600"
+            : showConfirmation
+              ? "bg-green-600 hover:bg-green-600"
+              : "bg-black hover:bg-gray-800"
+        }`}
+      >
+        {showConfirmation ? (
+          <Check className="h-5 w-5 text-white" />
+        ) : (
+          <ShoppingBag className="h-5 w-5 text-yellow-500" />
+        )}
+        {isOutOfStock
+          ? "Out of Stock"
+          : isAdding
+            ? t("addToCart.adding")
+            : showConfirmation
+              ? t("addToCart.added")
+              : t("addToCart.add")}
+      </button>
+      {stockMessage ? (
+        <p className="rounded-2xl bg-yellow-50 px-4 py-3 text-sm font-bold text-yellow-800">
+          {stockMessage}
+        </p>
+      ) : null}
+    </div>
   );
 };
 

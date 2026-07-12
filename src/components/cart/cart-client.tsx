@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { AdminToast } from "@/components/admin/admin-toast";
 import { useLocalCart } from "@/lib/local-cart";
@@ -28,12 +28,42 @@ export default function CartClient({
   const t = getTranslator(locale);
   const { items, updateQuantity, removeItem, clearCart } = useLocalCart();
   const [isSubmitting, startTransition] = useTransition();
+  const [stockMessage, setStockMessage] = useState("");
 
   useEffect(() => {
     if (status === "success") {
       clearCart();
     }
   }, [clearCart, status]);
+
+  useEffect(() => {
+    if (!stockMessage) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setStockMessage("");
+    }, 3600);
+
+    return () => window.clearTimeout(timeout);
+  }, [stockMessage]);
+
+  const increaseCartQuantity = (
+    variantId: string,
+    quantity: number,
+    maxInventory?: number,
+  ) => {
+    if (typeof maxInventory === "number" && quantity >= maxInventory) {
+      setStockMessage(
+        maxInventory === 1
+          ? "Only 1 left in inventory."
+          : `Only ${maxInventory} left in inventory.`,
+      );
+      return;
+    }
+
+    updateQuantity(variantId, quantity + 1);
+  };
 
   const cartSnapshot = JSON.stringify(
     items.map((item) => ({
@@ -56,9 +86,16 @@ export default function CartClient({
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
       <AdminToast status={status} message={message} />
+      {stockMessage ? (
+        <div className="mb-4 rounded-2xl bg-yellow-50 px-4 py-3 text-sm font-bold text-yellow-800">
+          {stockMessage}
+        </div>
+      ) : null}
 
       <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("cart.checkout")}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+          {t("cart.checkout")}
+        </h1>
         <p className="mt-3 text-sm leading-7 text-gray-500">
           {t("cart.description")}
         </p>
@@ -124,9 +161,18 @@ export default function CartClient({
                       <button
                         type="button"
                         onClick={() =>
-                          updateQuantity(item.variantId, item.quantity + 1)
+                          increaseCartQuantity(
+                            item.variantId,
+                            item.quantity,
+                            item.maxInventory,
+                          )
                         }
-                        className="px-3 py-2 text-sm font-black text-gray-700 sm:px-4"
+                        className={`px-3 py-2 text-sm font-black sm:px-4 ${
+                          typeof item.maxInventory === "number" &&
+                          item.quantity >= item.maxInventory
+                            ? "text-gray-300"
+                            : "text-gray-700"
+                        }`}
                       >
                         +
                       </button>
@@ -144,7 +190,9 @@ export default function CartClient({
 
               <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm font-black uppercase tracking-widest text-gray-900">
                 <span>{t("cart.subtotal")}</span>
-                <span>{formatAmount(subtotal, displayCurrencyCode, locale)}</span>
+                <span>
+                  {formatAmount(subtotal, displayCurrencyCode, locale)}
+                </span>
               </div>
             </div>
           ) : (
@@ -226,7 +274,8 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                {t("cart.address2")} <span className="font-bold text-gray-400">(Optional)</span>
+                {t("cart.address2")}{" "}
+                <span className="font-bold text-gray-400">(Optional)</span>
               </span>
               <input
                 type="text"
@@ -239,7 +288,8 @@ export default function CartClient({
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  {t("cart.city")} <span className="font-bold text-gray-400">(Optional)</span>
+                  {t("cart.city")}{" "}
+                  <span className="font-bold text-gray-400">(Optional)</span>
                 </span>
                 <input
                   type="text"
@@ -251,7 +301,8 @@ export default function CartClient({
 
               <label className="block">
                 <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                  {t("cart.province")} <span className="font-bold text-gray-400">(Optional)</span>
+                  {t("cart.province")}{" "}
+                  <span className="font-bold text-gray-400">(Optional)</span>
                 </span>
                 <input
                   type="text"
@@ -264,7 +315,8 @@ export default function CartClient({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
-                {t("cart.postalCode")} <span className="font-bold text-gray-400">(Optional)</span>
+                {t("cart.postalCode")}{" "}
+                <span className="font-bold text-gray-400">(Optional)</span>
               </span>
               <input
                 type="text"

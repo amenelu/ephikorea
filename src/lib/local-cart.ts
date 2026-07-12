@@ -8,6 +8,7 @@ export type LocalCartItem = {
   thumbnail?: string;
   unitPrice: number;
   currencyCode?: string;
+  maxInventory?: number;
   quantity: number;
 };
 
@@ -72,13 +73,19 @@ export function useLocalCart() {
   const addItem = useCallback(
     (item: Omit<LocalCartItem, "quantity">) => {
       const current = readCart();
-      const existing = current.find((entry) => entry.variantId === item.variantId);
+      const existing = current.find(
+        (entry) => entry.variantId === item.variantId,
+      );
 
       if (existing) {
         commit(
           current.map((entry) =>
             entry.variantId === item.variantId
-              ? { ...entry, quantity: entry.quantity + 1 }
+              ? {
+                  ...entry,
+                  ...item,
+                  quantity: entry.quantity + 1,
+                }
               : entry,
           ),
         );
