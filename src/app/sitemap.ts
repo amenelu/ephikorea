@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getCatalogProducts } from "@/lib/catalog-data";
-import { SUPPORTED_LOCALES } from "@/lib/locales";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/locales";
 import { absoluteUrl, publicPath } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -27,8 +27,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await getCatalogProducts();
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
+  const sitemapLocales = [
+    DEFAULT_LOCALE,
+    ...SUPPORTED_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE),
+  ];
 
-  for (const locale of SUPPORTED_LOCALES) {
+  for (const locale of sitemapLocales) {
     for (const path of staticPaths) {
       entries.push({
         url: absoluteUrl(publicPath(locale, path)),
