@@ -743,6 +743,12 @@ export async function getAdminProducts() {
       batteryHealth: row.battery_health ?? "",
       isCertifiedPreOwned: Boolean(row.is_certified_pre_owned),
       featuredOnHomepage: metadata?.featured_on_homepage === true,
+      salePrice:
+        typeof metadata?.sale_price_amount === "number"
+          ? metadata.sale_price_amount
+          : "",
+      salePercent:
+        typeof metadata?.sale_percent === "number" ? metadata.sale_percent : "",
       referenceUrl:
         sanitizeHttpUrl(
           typeof metadata?.reference_url === "string"
@@ -794,6 +800,8 @@ type CreateAdminProductInput = {
   isCertifiedPreOwned?: boolean;
   referenceUrl?: string;
   featuredOnHomepage?: boolean;
+  salePriceAmount?: number | null;
+  salePercent?: number | null;
 };
 
 export async function createAdminProduct(input: CreateAdminProductInput) {
@@ -862,6 +870,8 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       referenceSpecs,
       referenceSpecSections,
       featuredOnHomepage: input.featuredOnHomepage,
+      salePriceAmount: input.salePriceAmount,
+      salePercent: input.salePercent,
     });
     const productId = createEntityId("prod");
     const variantId = createEntityId("variant");
@@ -1023,6 +1033,8 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
         referenceSpecs,
         referenceSpecSections,
         featuredOnHomepage: input.featuredOnHomepage,
+        salePriceAmount: input.salePriceAmount,
+        salePercent: input.salePercent,
       },
     );
 

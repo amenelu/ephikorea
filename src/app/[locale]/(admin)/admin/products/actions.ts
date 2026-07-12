@@ -80,6 +80,39 @@ function parsePriceToMinorUnits(rawValue: string, currencyCode: string) {
   return Math.round(Number(trimmed) * 100);
 }
 
+function parseOptionalPriceToMinorUnits(
+  rawValue: string,
+  currencyCode: string,
+) {
+  const trimmed = rawValue.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  return parsePriceToMinorUnits(trimmed, currencyCode);
+}
+
+function parseSalePercent(rawValue: FormDataEntryValue | null) {
+  const normalized = String(rawValue || "").trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) {
+    throw new Error("Sale percent must be a valid number.");
+  }
+
+  const parsed = Number(normalized);
+
+  if (!Number.isFinite(parsed) || parsed <= 0 || parsed >= 100) {
+    throw new Error("Sale percent must be greater than 0 and less than 100.");
+  }
+
+  return parsed;
+}
+
 function validateProductImageFile(file: File) {
   if (!file.type.startsWith("image/")) {
     throw new Error("Uploaded product files must be images.");
@@ -349,6 +382,18 @@ export async function addProductAction(formData: FormData) {
       String(formData.get("price") || ""),
       currencyCode,
     );
+    const rawSalePercent = parseSalePercent(formData.get("salePercent"));
+    const rawSalePriceAmount = parseOptionalPriceToMinorUnits(
+      String(formData.get("salePrice") || ""),
+      currencyCode,
+    );
+    const salePercent = rawSalePercent;
+    const salePriceAmount = salePercent === null ? rawSalePriceAmount : null;
+
+    if (salePriceAmount !== null && salePriceAmount >= price) {
+      throw new Error("Sale price must be lower than the regular price.");
+    }
+
     const status = parseStatus(formData.get("status"));
     const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
 
@@ -383,6 +428,8 @@ export async function addProductAction(formData: FormData) {
       currencyCode,
       status,
       featuredOnHomepage,
+      salePriceAmount,
+      salePercent,
     });
 
     revalidateAdminProductPaths(locale);
@@ -451,6 +498,18 @@ export async function updateProductAction(formData: FormData) {
       String(formData.get("price") || ""),
       currencyCode,
     );
+    const rawSalePercent = parseSalePercent(formData.get("salePercent"));
+    const rawSalePriceAmount = parseOptionalPriceToMinorUnits(
+      String(formData.get("salePrice") || ""),
+      currencyCode,
+    );
+    const salePercent = rawSalePercent;
+    const salePriceAmount = salePercent === null ? rawSalePriceAmount : null;
+
+    if (salePriceAmount !== null && salePriceAmount >= price) {
+      throw new Error("Sale price must be lower than the regular price.");
+    }
+
     const status = parseStatus(formData.get("status"));
     const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
 
@@ -486,6 +545,8 @@ export async function updateProductAction(formData: FormData) {
       currencyCode,
       status,
       featuredOnHomepage,
+      salePriceAmount,
+      salePercent,
     });
 
     revalidateAdminProductPaths(locale);

@@ -631,6 +631,8 @@ export function buildProductMetadata(
     referenceSpecs?: ProductSpec[];
     referenceSpecSections?: ProductSpecSection[];
     featuredOnHomepage?: boolean;
+    salePriceAmount?: number | null;
+    salePercent?: number | null;
   },
 ) {
   const inferredProfile = inferProductProfile(source);
@@ -656,6 +658,12 @@ export function buildProductMetadata(
       ? source.referenceSpecSections
       : null,
     featured_on_homepage: Boolean(source.featuredOnHomepage),
+    sale_price_amount:
+      typeof source.salePriceAmount === "number"
+        ? source.salePriceAmount
+        : null,
+    sale_percent:
+      typeof source.salePercent === "number" ? source.salePercent : null,
     spec_facts: {
       color: source.color?.trim() || null,
       storage: source.storage?.trim() || null,

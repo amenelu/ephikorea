@@ -169,6 +169,54 @@ export default async function AdminProductsPage({
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Sale Price
+              </span>
+              <input
+                type="number"
+                name="salePrice"
+                min="0"
+                step="0.01"
+                defaultValue={
+                  typeof editingProduct?.salePrice === "number"
+                    ? formatAdminPriceInput(
+                        editingProduct.salePrice,
+                        editingProduct.currencyCode,
+                      )
+                    : undefined
+                }
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                placeholder="Leave empty for no fixed sale"
+              />
+              <span className="mt-2 block text-xs text-gray-400">
+                Optional. Must be lower than the regular price.
+              </span>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Sale Percent Off
+              </span>
+              <input
+                type="number"
+                name="salePercent"
+                min="0"
+                max="99"
+                step="0.01"
+                defaultValue={
+                  typeof editingProduct?.salePercent === "number"
+                    ? editingProduct.salePercent
+                    : undefined
+                }
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                placeholder="15"
+              />
+              <span className="mt-2 block text-xs text-gray-400">
+                Optional. If filled, percent off is used instead of sale price.
+              </span>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
                 Inventory
               </span>
               <input

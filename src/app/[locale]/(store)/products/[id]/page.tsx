@@ -21,6 +21,7 @@ import {
   getStoredReferenceSpecSections,
   getStoredReferenceSpecs,
 } from "@/lib/product-specs";
+import { getSalePricing } from "@/lib/pricing";
 import { absoluteUrl, buildPageMetadata, jsonLd } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
 import {
@@ -86,8 +87,13 @@ export default async function ProductDetailsPage({
   }
 
   const similarProductsPromise = getSimilarCatalogProducts(product.id, 3);
-  const price = getCatalogProductPrice(product);
+  const regularPrice = getCatalogProductPrice(product);
   const currencyCode = getCatalogProductCurrency(product);
+  const salePricing = getSalePricing({
+    regularAmount: regularPrice,
+    metadata: product.metadata,
+  });
+  const price = salePricing.saleAmount ?? regularPrice;
   const displayCurrencyCode = getLocaleCurrency(locale);
   const displayPrice = convertAmount(price, currencyCode, displayCurrencyCode);
   const primaryVariant = product.variants?.[0];
@@ -266,9 +272,21 @@ export default async function ProductDetailsPage({
           </div>
 
           <div className="mb-6 sm:mb-8">
-            <p className="text-2xl font-black text-black sm:text-3xl lg:text-4xl">
-              {formatLocalizedAmount(price, currencyCode, locale)}
-            </p>
+            <div className="flex flex-wrap items-end gap-3">
+              <p className="text-2xl font-black text-black sm:text-3xl lg:text-4xl">
+                {formatLocalizedAmount(price, currencyCode, locale)}
+              </p>
+              {typeof salePricing.saleAmount === "number" ? (
+                <>
+                  <p className="pb-1 text-sm font-bold text-gray-400 line-through sm:text-base">
+                    {formatLocalizedAmount(regularPrice, currencyCode, locale)}
+                  </p>
+                  <span className="mb-1 rounded-full bg-red-600 px-3 py-1 text-xs font-black uppercase tracking-widest text-white">
+                    {salePricing.discountPercent}% off
+                  </span>
+                </>
+              ) : null}
+            </div>
             <p className="mt-1 text-xs italic text-gray-400 lg:text-sm">
               {t("product.shippingNote")}
             </p>
