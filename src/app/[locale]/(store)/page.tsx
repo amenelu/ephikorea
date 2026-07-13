@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/product/product-card";
 import { getHomepageProducts } from "@/lib/catalog-data";
 import { absoluteUrl, buildPageMetadata, jsonLd, SITE_NAME } from "@/lib/seo";
 import { getTranslator } from "@/lib/translations";
+import { LifestyleFlipLink } from "./collections/lifestyle-flip-link";
 
 export function generateMetadata({
   params: { locale },
@@ -33,8 +34,16 @@ export default async function HomePage({
     { href: `/${locale}/collections/computing`, label: "Computing" },
     { href: `/${locale}/collections/wearables`, label: "Wearables" },
     { href: `/${locale}/collections/accessories`, label: "Accessories" },
-    { href: `/${locale}/collections/lifestyle`, label: "Skincare" },
-    { href: `/${locale}/collections/lifestyle`, label: "Shoes" },
+    {
+      href: `/${locale}/collections/lifestyle`,
+      label: "Skincare",
+      side: "lifestyle",
+    },
+    {
+      href: `/${locale}/collections/lifestyle`,
+      label: "Shoes",
+      side: "lifestyle",
+    },
   ];
   const websiteData = {
     "@context": "https://schema.org",
@@ -96,15 +105,24 @@ export default async function HomePage({
           </p>
         </div>
         <div className="mt-4 flex flex-wrap gap-2.5">
-          {categoryLinks.map((category) => (
-            <Link
-              key={category.href}
-              href={category.href}
-              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-bold text-gray-700 transition hover:border-yellow-500 hover:text-yellow-600"
-            >
-              {category.label}
-            </Link>
-          ))}
+          {categoryLinks.map((category) => {
+            const CategoryLink =
+              category.side === "lifestyle" ? LifestyleFlipLink : Link;
+            const categoryKey =
+              category.side === "lifestyle"
+                ? `${category.label}-${category.href}`
+                : category.href;
+
+            return (
+              <CategoryLink
+                key={categoryKey}
+                href={category.href}
+                className="rounded-full border border-gray-200 px-4 py-2 text-sm font-bold text-gray-700 transition hover:border-yellow-500 hover:text-yellow-600"
+              >
+                {category.label}
+              </CategoryLink>
+            );
+          })}
         </div>
       </section>
 

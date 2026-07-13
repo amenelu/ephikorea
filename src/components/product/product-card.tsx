@@ -25,6 +25,9 @@ export const ProductCard = ({
     metadata: product.metadata,
   });
   const activePrice = salePricing.saleAmount ?? regularPrice;
+  const isLifestyleProduct =
+    product.collection_id === "skincare" || product.collection_id === "shoes";
+  const showConditionBadge = !isLifestyleProduct;
 
   return (
     <Link
@@ -49,13 +52,15 @@ export const ProductCard = ({
             />
           )
         ) : null}
-        <div
-          className={`absolute left-2.5 top-2.5 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white sm:left-3 sm:top-3 sm:px-3 sm:text-[10px] ${
-            product.is_certified_pre_owned ? "bg-blue-600" : "bg-emerald-600"
-          }`}
-        >
-          {product.is_certified_pre_owned ? "Certified Pre-Owned" : "New"}
-        </div>
+        {showConditionBadge ? (
+          <div
+            className={`absolute left-2.5 top-2.5 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white sm:left-3 sm:top-3 sm:px-3 sm:text-[10px] ${
+              product.is_certified_pre_owned ? "bg-blue-600" : "bg-emerald-600"
+            }`}
+          >
+            {product.is_certified_pre_owned ? "Certified Pre-Owned" : "New"}
+          </div>
+        ) : null}
         {salePricing.discountPercent ? (
           <div className="absolute right-2.5 top-2.5 rounded-full bg-red-600 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white sm:right-3 sm:top-3 sm:px-3 sm:text-[10px]">
             {salePricing.discountPercent}% off
