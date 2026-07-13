@@ -138,7 +138,7 @@ const translations = {
     "product.specLinkedBody":
       "We have the original product spec page linked for this listing, but the structured specs have not been imported yet. Re-save the product in admin to cache the latest specs from the source page.",
     "product.similar": "Similar",
-    "product.similarAccent": "Innovation",
+    "product.similarAccent": "Products",
     "cart.aria": (count) =>
       `Shopping cart${Number(count) ? ` with ${count} items` : ""}`,
     "cart.checkout": "Checkout",

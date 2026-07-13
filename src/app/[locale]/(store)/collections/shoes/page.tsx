@@ -25,6 +25,7 @@ export default async function ShoesCollectionPage({
       activeCondition={searchParams?.condition}
       activeBrand={searchParams?.brand}
       enableBrandFilter
+      showConditionFilter={false}
     />
   );
 }

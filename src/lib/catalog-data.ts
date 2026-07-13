@@ -2,6 +2,9 @@ import "server-only";
 
 import { getDb, parseJsonObject } from "@/lib/db";
 import { getProductCollectionId, getProductImageUrls } from "@/lib/media";
+import { getActiveUnitPrice } from "@/lib/pricing";
+import { inferBrand } from "@/lib/product-specs";
+import { convertAmount } from "@/lib/utils";
 import type { CPOProduct } from "@/types/product";
 
 type CatalogProductRow = {
@@ -156,14 +159,80 @@ export async function getHomepageProducts(limit = 6) {
   }
 }
 
-export async function getSimilarCatalogProducts(productId: string, limit = 3) {
+function similarityKey(value?: string | null) {
+  return value
+    ?.toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function getActiveCatalogProductPrice(product: CPOProduct) {
+  return getActiveUnitPrice({
+    regularAmount: getCatalogProductPrice(product),
+    metadata: product.metadata,
+  });
+}
+
+function getSimilarityScore(target: CPOProduct, candidate: CPOProduct) {
+  const targetCurrency = getCatalogProductCurrency(target);
+  const candidatePrice = convertAmount(
+    getActiveCatalogProductPrice(candidate),
+    getCatalogProductCurrency(candidate),
+    targetCurrency,
+  );
+  const targetPrice = getActiveCatalogProductPrice(target);
+  const priceGap =
+    targetPrice > 0 ? Math.abs(candidatePrice - targetPrice) / targetPrice : 1;
+  const priceScore = Math.max(0, 40 - Math.min(priceGap, 1) * 40);
+  const conditionScore =
+    Boolean(candidate.is_certified_pre_owned) ===
+    Boolean(target.is_certified_pre_owned)
+      ? 35
+      : 0;
+  const stockScore = candidate.variants.some(
+    (variant) => (variant.inventory_quantity ?? 0) > 0,
+  )
+    ? 15
+    : 0;
+
+  return conditionScore + priceScore + stockScore;
+}
+
+export async function getSimilarCatalogProducts(
+  product: CPOProduct,
+  limit = 3,
+) {
   try {
-    return mapRowsToProducts(
+    const targetCollection = product.collection_id;
+    const targetBrand = similarityKey(inferBrand(product));
+    const candidates = mapRowsToProducts(
       await getCatalogRows({
-        excludeProductId: productId,
-        limit,
+        excludeProductId: product.id,
       }),
-    );
+    ).filter((candidate) => {
+      if (targetCollection && candidate.collection_id !== targetCollection) {
+        return false;
+      }
+
+      if (targetBrand) {
+        return similarityKey(inferBrand(candidate)) === targetBrand;
+      }
+
+      return true;
+    });
+
+    return candidates
+      .map((candidate, index) => ({
+        candidate,
+        index,
+        score: getSimilarityScore(product, candidate),
+      }))
+      .sort(
+        (left, right) => right.score - left.score || left.index - right.index,
+      )
+      .map((entry) => entry.candidate)
+      .slice(0, limit);
   } catch (error) {
     console.error("Unable to load similar catalog products.", error);
     return [];

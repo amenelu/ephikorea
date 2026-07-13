@@ -86,7 +86,7 @@ export default async function ProductDetailsPage({
     notFound();
   }
 
-  const similarProductsPromise = getSimilarCatalogProducts(product.id, 3);
+  const similarProductsPromise = getSimilarCatalogProducts(product, 3);
   const regularPrice = getCatalogProductPrice(product);
   const currencyCode = getCatalogProductCurrency(product);
   const salePricing = getSalePricing({

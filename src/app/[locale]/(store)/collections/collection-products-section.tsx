@@ -18,6 +18,7 @@ type CollectionProductsSectionProps = {
   activeCondition?: string;
   activeBrand?: string;
   enableBrandFilter?: boolean;
+  showConditionFilter?: boolean;
 };
 
 export function CollectionProductsSection({
@@ -32,9 +33,11 @@ export function CollectionProductsSection({
   activeCondition,
   activeBrand,
   enableBrandFilter = false,
+  showConditionFilter = true,
 }: CollectionProductsSectionProps) {
   const normalizedCondition =
-    activeCondition === "new" || activeCondition === "certified-pre-owned"
+    showConditionFilter &&
+    (activeCondition === "new" || activeCondition === "certified-pre-owned")
       ? activeCondition
       : "all";
   const brandSlug = (brand: string) =>
@@ -127,21 +130,23 @@ export function CollectionProductsSection({
           ) : null}
         </div>
         <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {filters.map((filter) => (
-              <Link
-                key={filter.value}
-                href={filter.href}
-                className={`rounded-full border px-4 py-2 text-xs font-black uppercase tracking-widest transition ${
-                  normalizedCondition === filter.value
-                    ? "border-yellow-400 bg-yellow-50 text-yellow-700"
-                    : "border-gray-200 text-gray-600 hover:border-yellow-300 hover:text-gray-900"
-                }`}
-              >
-                {filter.label}
-              </Link>
-            ))}
-          </div>
+          {showConditionFilter ? (
+            <div className="flex flex-wrap gap-2">
+              {filters.map((filter) => (
+                <Link
+                  key={filter.value}
+                  href={filter.href}
+                  className={`rounded-full border px-4 py-2 text-xs font-black uppercase tracking-widest transition ${
+                    normalizedCondition === filter.value
+                      ? "border-yellow-400 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 text-gray-600 hover:border-yellow-300 hover:text-gray-900"
+                  }`}
+                >
+                  {filter.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
           {enableBrandFilter && brandOptions.length > 0 ? (
             <CollectionBrandFilter
               activeBrand={normalizedBrand}
