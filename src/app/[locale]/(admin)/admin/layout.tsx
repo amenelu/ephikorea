@@ -46,7 +46,7 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-gray-50 lg:flex">
-      <aside className="min-w-0 border-b border-gray-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r">
+      <aside className="sticky top-0 z-30 min-w-0 border-b border-gray-200 bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r">
         <div className="flex h-14 items-center justify-between border-b border-gray-100 px-4 sm:h-16 sm:px-6 lg:justify-start">
           <Link
             href={`/${locale}`}
@@ -83,7 +83,7 @@ export default async function AdminLayout({
         </nav>
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+      <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto lg:pl-64">
         <header className="hidden h-16 items-center justify-between border-b border-gray-200 bg-white px-8 lg:flex">
           <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">
             Management Console

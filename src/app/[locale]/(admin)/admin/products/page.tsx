@@ -215,6 +215,21 @@ export default async function AdminProductsPage({
               </span>
             </label>
 
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                Sale Expiration Date
+              </span>
+              <input
+                type="date"
+                name="saleEndsAt"
+                defaultValue={editingProduct?.saleEndsAt || undefined}
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+              />
+              <span className="mt-2 block text-xs text-gray-400">
+                Optional. The sale stays active through the selected date.
+              </span>
+            </label>
+
             <div className="rounded-3xl border border-gray-200 bg-white p-4 md:col-span-2">
               <div className="mb-4">
                 <h3 className="text-sm font-black uppercase tracking-widest text-gray-900">

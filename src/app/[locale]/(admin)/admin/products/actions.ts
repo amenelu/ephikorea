@@ -113,6 +113,41 @@ function parseSalePercent(rawValue: FormDataEntryValue | null) {
   return parsed;
 }
 
+function parseOptionalDate(rawValue: FormDataEntryValue | null, label: string) {
+  const normalized = String(rawValue || "").trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+    throw new Error(`${label} must be a valid date.`);
+  }
+
+  const date = new Date(`${normalized}T00:00:00.000Z`);
+
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.toISOString().slice(0, 10) !== normalized
+  ) {
+    throw new Error(`${label} must be a valid date.`);
+  }
+
+  return normalized;
+}
+
+function validateSaleExpiration(
+  saleEndsAt: string | null,
+  salePriceAmount: number | null,
+  salePercent: number | null,
+) {
+  if (saleEndsAt && salePriceAmount === null && salePercent === null) {
+    throw new Error(
+      "Add a sale price or sale percent before setting a sale expiration date.",
+    );
+  }
+}
+
 function validateProductImageFile(file: File) {
   if (!file.type.startsWith("image/")) {
     throw new Error("Uploaded product files must be images.");
@@ -390,6 +425,10 @@ export async function addProductAction(formData: FormData) {
     );
     const salePercent = rawSalePercent;
     const salePriceAmount = salePercent === null ? rawSalePriceAmount : null;
+    const saleEndsAt = parseOptionalDate(
+      formData.get("saleEndsAt"),
+      "Sale expiration date",
+    );
     const unitCostAmount = parseOptionalPriceToMinorUnits(
       String(formData.get("unitCost") || ""),
       currencyCode,
@@ -406,6 +445,7 @@ export async function addProductAction(formData: FormData) {
     if (salePriceAmount !== null && salePriceAmount >= price) {
       throw new Error("Sale price must be lower than the regular price.");
     }
+    validateSaleExpiration(saleEndsAt, salePriceAmount, salePercent);
 
     const status = parseStatus(formData.get("status"));
     const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
@@ -443,6 +483,7 @@ export async function addProductAction(formData: FormData) {
       featuredOnHomepage,
       salePriceAmount,
       salePercent,
+      saleEndsAt,
       unitCostAmount,
       unitShippingCostAmount,
       unitOtherCostAmount,
@@ -521,6 +562,10 @@ export async function updateProductAction(formData: FormData) {
     );
     const salePercent = rawSalePercent;
     const salePriceAmount = salePercent === null ? rawSalePriceAmount : null;
+    const saleEndsAt = parseOptionalDate(
+      formData.get("saleEndsAt"),
+      "Sale expiration date",
+    );
     const unitCostAmount = parseOptionalPriceToMinorUnits(
       String(formData.get("unitCost") || ""),
       currencyCode,
@@ -537,6 +582,7 @@ export async function updateProductAction(formData: FormData) {
     if (salePriceAmount !== null && salePriceAmount >= price) {
       throw new Error("Sale price must be lower than the regular price.");
     }
+    validateSaleExpiration(saleEndsAt, salePriceAmount, salePercent);
 
     const status = parseStatus(formData.get("status"));
     const featuredOnHomepage = formData.get("featuredOnHomepage") === "on";
@@ -575,6 +621,7 @@ export async function updateProductAction(formData: FormData) {
       featuredOnHomepage,
       salePriceAmount,
       salePercent,
+      saleEndsAt,
       unitCostAmount,
       unitShippingCostAmount,
       unitOtherCostAmount,

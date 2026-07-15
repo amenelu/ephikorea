@@ -749,6 +749,8 @@ export async function getAdminProducts() {
           : "",
       salePercent:
         typeof metadata?.sale_percent === "number" ? metadata.sale_percent : "",
+      saleEndsAt:
+        typeof metadata?.sale_ends_at === "string" ? metadata.sale_ends_at : "",
       unitCost:
         typeof metadata?.unit_cost_amount === "number"
           ? metadata.unit_cost_amount
@@ -814,6 +816,7 @@ type CreateAdminProductInput = {
   featuredOnHomepage?: boolean;
   salePriceAmount?: number | null;
   salePercent?: number | null;
+  saleEndsAt?: string | null;
   unitCostAmount?: number | null;
   unitShippingCostAmount?: number | null;
   unitOtherCostAmount?: number | null;
@@ -887,6 +890,7 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       featuredOnHomepage: input.featuredOnHomepage,
       salePriceAmount: input.salePriceAmount,
       salePercent: input.salePercent,
+      saleEndsAt: input.saleEndsAt,
       unitCostAmount: input.unitCostAmount,
       unitShippingCostAmount: input.unitShippingCostAmount,
       unitOtherCostAmount: input.unitOtherCostAmount,
@@ -1053,6 +1057,7 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
         featuredOnHomepage: input.featuredOnHomepage,
         salePriceAmount: input.salePriceAmount,
         salePercent: input.salePercent,
+        saleEndsAt: input.saleEndsAt,
         unitCostAmount: input.unitCostAmount,
         unitShippingCostAmount: input.unitShippingCostAmount,
         unitOtherCostAmount: input.unitOtherCostAmount,

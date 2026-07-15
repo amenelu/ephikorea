@@ -633,6 +633,7 @@ export function buildProductMetadata(
     featuredOnHomepage?: boolean;
     salePriceAmount?: number | null;
     salePercent?: number | null;
+    saleEndsAt?: string | null;
     unitCostAmount?: number | null;
     unitShippingCostAmount?: number | null;
     unitOtherCostAmount?: number | null;
@@ -667,6 +668,7 @@ export function buildProductMetadata(
         : null,
     sale_percent:
       typeof source.salePercent === "number" ? source.salePercent : null,
+    sale_ends_at: source.saleEndsAt?.trim() || null,
     unit_cost_amount:
       typeof source.unitCostAmount === "number" ? source.unitCostAmount : null,
     unit_shipping_cost_amount:

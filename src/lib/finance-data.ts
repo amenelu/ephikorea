@@ -151,16 +151,23 @@ export async function getAdminFinanceData() {
         displayId: string;
         date: string;
         revenue: number;
+        profitEligibleRevenue: number;
         cost: number;
         paidRevenue: number;
         paymentStatus: string;
         itemSummary: string;
+        missingCostProducts: string[];
       }
     >();
     let revenue = 0;
+    let profitEligibleRevenue = 0;
     let paidRevenue = 0;
     let costOfGoods = 0;
     let missingCostItems = 0;
+    const missingCostProducts = new Map<
+      string,
+      { title: string; count: number }
+    >();
 
     for (const row of orderItems) {
       const orderRevenue = convertAmount(
@@ -177,10 +184,12 @@ export async function getAdminFinanceData() {
           displayId: row.display_id ? `#${row.display_id}` : "Draft",
           date: formatAdminDate(row.created_at),
           revenue: orderRevenue,
+          profitEligibleRevenue: 0,
           cost: 0,
           paidRevenue: isPaidStatus(paymentStatus) ? orderRevenue : 0,
           paymentStatus,
           itemSummary: row.title || "No items",
+          missingCostProducts: [],
         };
         orderSummaries.set(row.order_id, order);
         revenue += orderRevenue;
@@ -193,11 +202,28 @@ export async function getAdminFinanceData() {
       }
 
       const quantity = row.quantity ?? 0;
+      const lineRevenue = convertAmount(
+        (row.unit_price ?? 0) * quantity,
+        row.order_currency_code,
+        "usd",
+      );
       const unitCost = getUnitCost(parseJsonObject(row.metadata_json));
       const lineCost = unitCost * quantity;
 
       if (quantity > 0 && unitCost <= 0) {
         missingCostItems += 1;
+        const productTitle = row.title || "Untitled product";
+        const existingMissingProduct = missingCostProducts.get(productTitle);
+        missingCostProducts.set(productTitle, {
+          title: productTitle,
+          count: (existingMissingProduct?.count || 0) + quantity,
+        });
+        if (!order.missingCostProducts.includes(productTitle)) {
+          order.missingCostProducts.push(productTitle);
+        }
+      } else {
+        order.profitEligibleRevenue += lineRevenue;
+        profitEligibleRevenue += lineRevenue;
       }
 
       order.cost += lineCost;
@@ -209,10 +235,12 @@ export async function getAdminFinanceData() {
         sum + convertAmount(expense.amount, expense.currency_code, "usd"),
       0,
     );
-    const grossProfit = revenue - costOfGoods;
+    const grossProfit = profitEligibleRevenue - costOfGoods;
     const netProfit = grossProfit - expenseTotal;
     const grossMargin =
-      revenue > 0 ? Math.round((grossProfit / revenue) * 100) : 0;
+      profitEligibleRevenue > 0
+        ? Math.round((grossProfit / profitEligibleRevenue) * 100)
+        : 0;
     const orderCount = orderSummaries.size;
     const averageOrderValue =
       orderCount > 0 ? Math.round(revenue / orderCount) : 0;
@@ -222,19 +250,21 @@ export async function getAdminFinanceData() {
       stats: [
         { label: "Revenue", value: formatAmount(revenue, "usd") },
         { label: "Paid Revenue", value: formatAmount(paidRevenue, "usd") },
+        {
+          label: "Profit-Tracked Revenue",
+          value: formatAmount(profitEligibleRevenue, "usd"),
+        },
         { label: "Product Costs", value: formatAmount(costOfGoods, "usd") },
         { label: "Gross Profit", value: formatAmount(grossProfit, "usd") },
         { label: "Expenses", value: formatAmount(expenseTotal, "usd") },
         { label: "Net Profit", value: formatAmount(netProfit, "usd") },
-        { label: "Gross Margin", value: `${grossMargin}%` },
-        {
-          label: "Average Order",
-          value: formatAmount(averageOrderValue, "usd"),
-        },
       ],
       summary: {
         orderCount,
         missingCostItems,
+        missingCostProducts: Array.from(missingCostProducts.values()).sort(
+          (a, b) => a.title.localeCompare(b.title),
+        ),
         grossMargin,
       },
       recentOrders: Array.from(orderSummaries.values())
@@ -243,7 +273,10 @@ export async function getAdminFinanceData() {
           ...order,
           revenueLabel: formatAmount(order.revenue, "usd"),
           costLabel: formatAmount(order.cost, "usd"),
-          profitLabel: formatAmount(order.revenue - order.cost, "usd"),
+          profitLabel:
+            order.missingCostProducts.length > 0
+              ? "Needs cost data"
+              : formatAmount(order.profitEligibleRevenue - order.cost, "usd"),
         })),
       expenses: expenses.map((expense) => ({
         id: expense.id,
@@ -275,6 +308,7 @@ export async function getAdminFinanceData() {
       summary: {
         orderCount: 0,
         missingCostItems: 0,
+        missingCostProducts: [],
         grossMargin: 0,
       },
       recentOrders: [],

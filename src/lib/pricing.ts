@@ -21,6 +21,23 @@ function metadataNumber(
   return undefined;
 }
 
+function saleHasExpired(metadata: Record<string, unknown> | null | undefined) {
+  const value = metadata?.sale_ends_at;
+
+  if (typeof value !== "string" || !value.trim()) {
+    return false;
+  }
+
+  const normalized = value.trim();
+  const date = new Date(
+    /^\d{4}-\d{2}-\d{2}$/.test(normalized)
+      ? `${normalized}T23:59:59.999Z`
+      : normalized,
+  );
+
+  return !Number.isNaN(date.getTime()) && date.getTime() < Date.now();
+}
+
 export function getSalePricing({
   regularAmount,
   metadata,
@@ -29,6 +46,10 @@ export function getSalePricing({
   metadata?: Record<string, unknown> | null;
 }): SalePricing {
   if (!Number.isFinite(regularAmount) || regularAmount <= 0) {
+    return {};
+  }
+
+  if (saleHasExpired(metadata)) {
     return {};
   }
 

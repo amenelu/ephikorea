@@ -66,7 +66,21 @@ export default async function AdminFinancePage({
           <span className="font-black">Cost data missing:</span>{" "}
           {finance.summary.missingCostItems} sold item
           {finance.summary.missingCostItems === 1 ? "" : "s"} do not have
-          product cost values yet, so profit is estimated.
+          product cost values yet. Their sale value is excluded from profit
+          until cost data is added.
+          {finance.summary.missingCostProducts.length > 0 ? (
+            <ul className="mt-3 list-disc space-y-1 pl-5">
+              {finance.summary.missingCostProducts.map((product) => (
+                <li key={product.title}>
+                  <span className="font-bold">{product.title}</span>
+                  <span className="text-yellow-800">
+                    {" "}
+                    ({product.count} sold)
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       ) : null}
 
