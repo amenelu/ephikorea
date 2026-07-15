@@ -749,6 +749,18 @@ export async function getAdminProducts() {
           : "",
       salePercent:
         typeof metadata?.sale_percent === "number" ? metadata.sale_percent : "",
+      unitCost:
+        typeof metadata?.unit_cost_amount === "number"
+          ? metadata.unit_cost_amount
+          : "",
+      unitShippingCost:
+        typeof metadata?.unit_shipping_cost_amount === "number"
+          ? metadata.unit_shipping_cost_amount
+          : "",
+      unitOtherCost:
+        typeof metadata?.unit_other_cost_amount === "number"
+          ? metadata.unit_other_cost_amount
+          : "",
       referenceUrl:
         sanitizeHttpUrl(
           typeof metadata?.reference_url === "string"
@@ -802,6 +814,9 @@ type CreateAdminProductInput = {
   featuredOnHomepage?: boolean;
   salePriceAmount?: number | null;
   salePercent?: number | null;
+  unitCostAmount?: number | null;
+  unitShippingCostAmount?: number | null;
+  unitOtherCostAmount?: number | null;
 };
 
 export async function createAdminProduct(input: CreateAdminProductInput) {
@@ -872,6 +887,9 @@ export async function createAdminProduct(input: CreateAdminProductInput) {
       featuredOnHomepage: input.featuredOnHomepage,
       salePriceAmount: input.salePriceAmount,
       salePercent: input.salePercent,
+      unitCostAmount: input.unitCostAmount,
+      unitShippingCostAmount: input.unitShippingCostAmount,
+      unitOtherCostAmount: input.unitOtherCostAmount,
     });
     const productId = createEntityId("prod");
     const variantId = createEntityId("variant");
@@ -1035,6 +1053,9 @@ export async function updateAdminProduct(input: UpdateAdminProductInput) {
         featuredOnHomepage: input.featuredOnHomepage,
         salePriceAmount: input.salePriceAmount,
         salePercent: input.salePercent,
+        unitCostAmount: input.unitCostAmount,
+        unitShippingCostAmount: input.unitShippingCostAmount,
+        unitOtherCostAmount: input.unitOtherCostAmount,
       },
     );
 

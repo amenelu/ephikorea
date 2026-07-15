@@ -319,6 +319,7 @@ function revalidateAdminProductPaths(locale: string) {
   revalidatePath(`/${locale}/search`);
   revalidatePath(`/${locale}/admin`);
   revalidatePath(`/${locale}/admin/products`);
+  revalidatePath(`/${locale}/admin/finance`);
 }
 
 function resolveReferenceUrl(
@@ -389,6 +390,18 @@ export async function addProductAction(formData: FormData) {
     );
     const salePercent = rawSalePercent;
     const salePriceAmount = salePercent === null ? rawSalePriceAmount : null;
+    const unitCostAmount = parseOptionalPriceToMinorUnits(
+      String(formData.get("unitCost") || ""),
+      currencyCode,
+    );
+    const unitShippingCostAmount = parseOptionalPriceToMinorUnits(
+      String(formData.get("unitShippingCost") || ""),
+      currencyCode,
+    );
+    const unitOtherCostAmount = parseOptionalPriceToMinorUnits(
+      String(formData.get("unitOtherCost") || ""),
+      currencyCode,
+    );
 
     if (salePriceAmount !== null && salePriceAmount >= price) {
       throw new Error("Sale price must be lower than the regular price.");
@@ -430,6 +443,9 @@ export async function addProductAction(formData: FormData) {
       featuredOnHomepage,
       salePriceAmount,
       salePercent,
+      unitCostAmount,
+      unitShippingCostAmount,
+      unitOtherCostAmount,
     });
 
     revalidateAdminProductPaths(locale);
@@ -505,6 +521,18 @@ export async function updateProductAction(formData: FormData) {
     );
     const salePercent = rawSalePercent;
     const salePriceAmount = salePercent === null ? rawSalePriceAmount : null;
+    const unitCostAmount = parseOptionalPriceToMinorUnits(
+      String(formData.get("unitCost") || ""),
+      currencyCode,
+    );
+    const unitShippingCostAmount = parseOptionalPriceToMinorUnits(
+      String(formData.get("unitShippingCost") || ""),
+      currencyCode,
+    );
+    const unitOtherCostAmount = parseOptionalPriceToMinorUnits(
+      String(formData.get("unitOtherCost") || ""),
+      currencyCode,
+    );
 
     if (salePriceAmount !== null && salePriceAmount >= price) {
       throw new Error("Sale price must be lower than the regular price.");
@@ -547,6 +575,9 @@ export async function updateProductAction(formData: FormData) {
       featuredOnHomepage,
       salePriceAmount,
       salePercent,
+      unitCostAmount,
+      unitShippingCostAmount,
+      unitOtherCostAmount,
     });
 
     revalidateAdminProductPaths(locale);

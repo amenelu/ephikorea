@@ -215,6 +215,83 @@ export default async function AdminProductsPage({
               </span>
             </label>
 
+            <div className="rounded-3xl border border-gray-200 bg-white p-4 md:col-span-2">
+              <div className="mb-4">
+                <h3 className="text-sm font-black uppercase tracking-widest text-gray-900">
+                  Cost Tracking
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-gray-400">
+                  Optional per-unit costs used by the finance dashboard to
+                  estimate gross profit.
+                </p>
+              </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <label className="block">
+                  <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                    Product Cost
+                  </span>
+                  <input
+                    type="number"
+                    name="unitCost"
+                    min="0"
+                    step="0.01"
+                    defaultValue={
+                      typeof editingProduct?.unitCost === "number"
+                        ? formatAdminPriceInput(
+                            editingProduct.unitCost,
+                            editingProduct.currencyCode,
+                          )
+                        : undefined
+                    }
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                    placeholder="Purchase cost"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                    Shipping Cost
+                  </span>
+                  <input
+                    type="number"
+                    name="unitShippingCost"
+                    min="0"
+                    step="0.01"
+                    defaultValue={
+                      typeof editingProduct?.unitShippingCost === "number"
+                        ? formatAdminPriceInput(
+                            editingProduct.unitShippingCost,
+                            editingProduct.currencyCode,
+                          )
+                        : undefined
+                    }
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                    placeholder="Per-unit shipping"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
+                    Other Cost
+                  </span>
+                  <input
+                    type="number"
+                    name="unitOtherCost"
+                    min="0"
+                    step="0.01"
+                    defaultValue={
+                      typeof editingProduct?.unitOtherCost === "number"
+                        ? formatAdminPriceInput(
+                            editingProduct.unitOtherCost,
+                            editingProduct.currencyCode,
+                          )
+                        : undefined
+                    }
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-yellow-400"
+                    placeholder="Repair, packaging, etc."
+                  />
+                </label>
+              </div>
+            </div>
+
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-widest text-gray-500">
                 Inventory

@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   Package,
+  ReceiptText,
   ShoppingCart,
   Users,
   Settings,
@@ -39,6 +40,7 @@ export default async function AdminLayout({
       count: counts.orders,
     },
     { label: "Customers", href: `/${locale}/admin/customers`, icon: Users },
+    { label: "Finance", href: `/${locale}/admin/finance`, icon: ReceiptText },
     { label: "Settings", href: `/${locale}/admin/settings`, icon: Settings },
   ];
 
@@ -96,7 +98,9 @@ export default async function AdminLayout({
             </button>
           </form>
         </header>
-        <div className="min-w-0 px-4 py-5 sm:px-6 sm:py-6 lg:p-8">{children}</div>
+        <div className="min-w-0 px-4 py-5 sm:px-6 sm:py-6 lg:p-8">
+          {children}
+        </div>
       </main>
     </div>
   );
