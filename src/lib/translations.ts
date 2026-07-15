@@ -46,7 +46,10 @@ const translations = {
     "home.categoryHeading": "Shop by Category",
     "home.categoryDescription":
       "Phones, audio, computing, wearables, and more - all checked before they ship.",
-    "home.featured": "Popular Right Now",
+    "home.featured": "Featured Products",
+    "home.sale": "On Sale",
+    "home.saleDescription":
+      "Limited-time prices on selected products. Sale cards show the discount, original price, and current price.",
     "home.viewAll": "View All",
     "home.empty": "No products are in the catalog yet.",
     "products.title": "Our",
@@ -209,7 +212,10 @@ const translations = {
     "home.categoryHeading": "카테고리별 쇼핑",
     "home.categoryDescription":
       "Phones, audio, computing, wearables, and more - all checked before they ship.",
-    "home.featured": "추천 상품",
+    "home.featured": "Featured Products",
+    "home.sale": "On Sale",
+    "home.saleDescription":
+      "Limited-time prices on selected products. Sale cards show the discount, original price, and current price.",
     "home.viewAll": "전체 보기",
     "home.empty": "아직 카탈로그에 등록된 상품이 없습니다.",
     "products.title": "아만 모바일",

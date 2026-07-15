@@ -54,9 +54,13 @@ async function ensureFinanceSchema() {
       updated_at text not null default (datetime('now')),
       deleted_at text
     );
-    create index if not exists idx_finance_expenses_date on finance_expenses(expense_date);
-    create index if not exists idx_finance_expenses_deleted_at on finance_expenses(deleted_at);
   `);
+  await db.exec(
+    "create index if not exists idx_finance_expenses_date on finance_expenses(expense_date)",
+  );
+  await db.exec(
+    "create index if not exists idx_finance_expenses_deleted_at on finance_expenses(deleted_at)",
+  );
 
   return db;
 }

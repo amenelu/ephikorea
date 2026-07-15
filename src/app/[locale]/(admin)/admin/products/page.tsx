@@ -414,7 +414,7 @@ export default async function AdminProductsPage({
                   Feature on homepage
                 </span>
                 <span className="mt-1 block text-xs leading-5 text-gray-400">
-                  Show this product in Popular Right Now before the newest
+                  Show this product in Featured Products before the newest
                   fallback products.
                 </span>
               </span>

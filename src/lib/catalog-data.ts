@@ -2,7 +2,7 @@ import "server-only";
 
 import { getDb, parseJsonObject } from "@/lib/db";
 import { getProductCollectionId, getProductImageUrls } from "@/lib/media";
-import { getActiveUnitPrice } from "@/lib/pricing";
+import { getActiveUnitPrice, getSalePricing } from "@/lib/pricing";
 import { inferBrand } from "@/lib/product-specs";
 import { convertAmount } from "@/lib/utils";
 import type { CPOProduct } from "@/types/product";
@@ -155,6 +155,26 @@ export async function getHomepageProducts(limit = 6) {
     return [...featuredProducts, ...fallbackProducts].slice(0, limit);
   } catch (error) {
     console.error("Unable to load homepage products.", error);
+    return [];
+  }
+}
+
+function hasActiveSale(product: CPOProduct) {
+  return Boolean(
+    getSalePricing({
+      regularAmount: getCatalogProductPrice(product),
+      metadata: product.metadata,
+    }).saleAmount,
+  );
+}
+
+export async function getHomepageSaleProducts(limit = 6) {
+  try {
+    return mapRowsToProducts(await getCatalogRows())
+      .filter(hasActiveSale)
+      .slice(0, limit);
+  } catch (error) {
+    console.error("Unable to load homepage sale products.", error);
     return [];
   }
 }
