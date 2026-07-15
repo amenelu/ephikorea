@@ -54,6 +54,13 @@ export default async function AdminFinancePage({
 
       <AdminToast status={searchParams.status} message={searchParams.message} />
 
+      {finance.errorMessage ? (
+        <div className="rounded-3xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-900 sm:p-5">
+          <span className="font-black">Finance warning:</span>{" "}
+          {finance.errorMessage}
+        </div>
+      ) : null}
+
       {finance.summary.missingCostItems > 0 ? (
         <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-4 text-sm leading-6 text-yellow-900 sm:p-5">
           <span className="font-black">Cost data missing:</span>{" "}
